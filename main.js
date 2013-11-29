@@ -6,6 +6,7 @@
 
   require.config({
     paths: {
+      logger:          'lib/js-logger/logger',
       //plugins (require-css, text, json)
       css:             'lib/requirejs/plugins/require-css/css',
       normalize:       'lib/requirejs/plugins/require-css/normalize',
@@ -40,7 +41,6 @@
     }
   });
   require(["modules/taskman"], function (taskman) {
-    console.log(taskman);
     taskman.run();
   });
 }());
