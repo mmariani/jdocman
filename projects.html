@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Task Manager</title>
+    <link rel="shortcut icon" href="favicon.png" type="image/png"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="lib/jqm/jquery.mobile-1.4.0-rc.1.css" rel="stylesheet">
+    <script data-main="main" src='lib/requirejs/require.js'></script>
+  </head>
+  <body>
+    <div data-role="page" id='projects-page'>
+ 
+      <div data-role="header" data-position="fixed">
+        <h1>Projects</h1>
+        <a href="#" data-role="button" data-rel="back"
+          data-icon="arrow-l">
+          Back
+        </a>
+      </div><!-- /header -->
+ 
+      <div data-role="content">
+        <div id="project-list-container"></div>
+      </div><!-- /content -->
+ 
+      <div data-role="footer" data-position="fixed">
+        <div if="ui-bar">
+          <a href="projects.html" data-role="button"
+            class="ui-disabled">
+            Projects
+          </a>
+          <a href="tasks.html" data-role="button">
+            Tasks
+          </a>
+          <a href="settings.html" data-role="button"
+            data-icon="gear">
+            Settings
+          </a>
+        </div>
+      </div><!-- /footer -->
+
+      <script id="project-list-template" type="text/x-handlebars-template">
+        <ul data-role="listview">
+          {{#rows}}
+            <li>
+              <a href="project.html?id={{id}}">
+                {{doc.project}}
+              </a>
+            </li>
+          {{/rows}}
+        </ul>
+      </script>
+
+    </div><!-- /page -->
+  </body>
+
+</html>

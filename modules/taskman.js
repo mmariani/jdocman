@@ -7,6 +7,7 @@ define(
     'jio',
     'rsvp',
     'logger',
+    'handlebars',
     // jio dependencies
     'davstorage',
     'sha256',
@@ -20,7 +21,7 @@ define(
     // 'css!jqm/jquery.mobile-1.4.0-rc.1.css',   // XXX does not work
     'css!modules/taskman.css'
   ],
-  function ($, jIO, RSVP, Logger, davstorage) {
+  function ($, jIO, RSVP, Logger, Handlebars, davstorage) {
     "use strict";
 
     var jio_config = null,
@@ -32,10 +33,9 @@ define(
 
     RSVP.EventTarget.mixin(taskman);
 
-    var updateUI = function (jio) {
-      // A connection to a jIO storage has been established.
-      // Now, list its content
-    };
+    Handlebars.registerHelper('trimDate', function (date) {
+      return new Handlebars.SafeString(date.substring(0, 10));
+    });
 
     var TYPES = {
       Project: 'Project',
@@ -83,8 +83,6 @@ define(
           populateInitialStorage(jio_tasks);
         }
       });
-
-      updateUI(jio_tasks);
     });
 
 
@@ -131,7 +129,7 @@ define(
       });
     };
 
-    $('#reset-data-btn').on('click', function (ev) {
+    $('#btn-reset-data').on('click', function (ev) {
       // remove configuration and everything.
       Logger.info('Clearing tasks storage.');
       if (jio_tasks) {
@@ -142,11 +140,8 @@ define(
       }
       Logger.info('Clearing configuration storage.');
       deleteStorageContent(jio_config);
-
-      // TODO: remove projects, states, tasks (repopulate by reloading)
-
+      // XXX: repopulate by reloading
     });
-
 
     var storageDescription = function (config) {
       // returns a storage description according to a configuration document.
@@ -216,6 +211,51 @@ define(
     };
 
 
+    $(document).on('pagebeforeshow.projects', '#projects-page', function (ev, data) {
+      // XXX also trigger when directly loading this page, after everything is set up
+      Logger.info('Loading Projects page');
+
+      var options = {
+        include_docs: true,
+        query: '(type:"Project")'
+      };
+
+      Logger.debug('Querying projects...');
+      jio_tasks.allDocs(options)
+        .then(function callback(response) {
+          Logger.debug('%i projects found', response.data.total_rows);
+          var template = Handlebars.compile($('#project-list-template').text());
+          $('#project-list-container')
+            .html(template(response.data))
+            .trigger('create');
+        });
+    });
+
+    $(document).on('pagebeforeshow.tasks', '#tasks-page', function (ev, data) {
+      // XXX also trigger when directly loading this page, after everything is set up
+      Logger.info('Loading Tasks page');
+
+      var options = {
+        include_docs: true,
+        query: '(type:"Task")'
+      };
+
+      Logger.debug('Querying tasks...');
+      jio_tasks.allDocs(options)
+        .then(function callback(response) {
+          Logger.debug('%i tasks found', response.data.total_rows);
+          var template = Handlebars.compile($('#task-list-template').text());
+          $('#task-list-container')
+            .html(template(response.data))
+            .trigger('create');
+        });
+    });
+
+    $(document).on('pagebeforeshow.settings', '#settings-page', function (ev, data) {
+      // XXX also trigger when directly loading this page, after everything is set up
+      Logger.info('Loading Settings page');
+    });
+
     var connectStorage = function () {
       // connect to the configured storage
       jio_config.allDocs({include_docs: true})
@@ -225,9 +265,9 @@ define(
           console.assert(response.data.total_rows === 1);
           var config = response.data.rows[0].doc,
             storage_description = storageDescription(config),
-            task_jio = jIO.createJIO(storage_description);
+            jio = jIO.createJIO(storage_description);
           Logger.debug('Connecting to tasks jIO: %o', storage_description);
-          taskman.trigger('task_storage_connected', {detail: task_jio});
+          taskman.trigger('task_storage_connected', {detail: jio});
         });
     };
 

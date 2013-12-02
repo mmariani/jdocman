@@ -7,6 +7,7 @@
   require.config({
     paths: {
       logger:          'lib/js-logger/logger',
+      handlebars:      'lib/handlebars/handlebars-v1.1.2',
       //plugins (require-css, text, json)
       css:             'lib/requirejs/plugins/require-css/css',
       normalize:       'lib/requirejs/plugins/require-css/normalize',
@@ -27,6 +28,11 @@
       gidstorage:       'lib/jio/storage/gidstorage',
       replicatestorage: 'lib/jio/storage/replicatestorage',
       // overrides:       "modules/overrides"
+    },
+    shim: {
+      'handlebars': {
+        exports: 'Handlebars'
+      }
     },
     // shim: {
     //     "jquery": {exports: "$"},

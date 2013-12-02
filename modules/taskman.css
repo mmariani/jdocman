@@ -1,7 +1,10 @@
 
-/*
-.ui-content {
+#task-list-container .from-date,
+#task-list-container .to-date {
   color: red;
 }
-*/
+
+#task-list-container .state {
+  color: green;
+}
 
