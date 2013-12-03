@@ -1,7 +1,11 @@
 
+#task-list-container span {
+  font-size: 80%;
+}
+
 #task-list-container .from-date,
 #task-list-container .to-date {
-  color: red;
+  color: #A52A2A;
 }
 
 #task-list-container .state {

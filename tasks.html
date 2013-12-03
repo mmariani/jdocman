@@ -12,50 +12,46 @@
  
       <div data-role="header" data-position="fixed">
         <h1>Tasks</h1>
-        <a href="#" data-role="button" data-rel="back"
-          data-icon="arrow-l">
-          Back
-        </a>
-        <a href="#" data-role="button" data-icon="plus">
+        <a href="#" data-role="button" data-icon="plus" data-mini="true">
           New Task
         </a>
       </div><!-- /header -->
  
       <div data-role="content">
+        <input type="text" data-type="search" name="search" id="search-tasks" value="" class="ui-input-text">
         <div id="task-list-container"></div>
       </div><!-- /content -->
  
       <div data-role="footer" data-position="fixed">
-        <div if="ui-bar">
-          <a href="projects.html" data-role="button">
-            Projects
-          </a>
-          <a href="tasks.html" data-role="button"
-            class="ui-disabled">
-            Tasks
-          </a>
-          <a href="settings.html" data-role="button"
-            data-icon="gear">
-            Settings
-          </a>
-        </div>
+
+        <div data-role="navbar" data-iconpos="left">
+          <ul>
+            <li><a href="index.html" data-icon="home">Home</a></li>
+            <li><a href="projects.html">Projects</a></li>
+            <li><a href="tasks.html" class="ui-btn-active">Tasks</a></li>
+            <li><a href="settings.html" data-icon="gear">Settings</a></li>
+          </ul>
+        </div><!-- /navbar -->
+
       </div><!-- /footer -->
 
       <script id="task-list-template" type="text/x-handlebars-template">
-        <ul data-role="listview">
+        <ul data-role="listview" data-inset="true">
           {{#rows}}
             <li>
-              <a href="task.html?id={{id}}">
-                {{doc.description}}
-                <p>
+              <a href="task-edit.html?id={{id}}">
+                {{doc.title}}
+                <br />
+                <span>{{doc.description}}</span>
+                <br />
+                <span>
+                  <span class="state">{{doc.state}}</span>
                   from
                   <span class="from-date">{{trimDate doc.start}}</span>
                   to
                   <span class="to-date">{{trimDate doc.stop}}</span>
-                </p>
-                <p>
-                  <span class="state">{{doc.state}}</span>
-                </p>
+                </span>
+                <br />
               </a>
             </li>
           {{/rows}}

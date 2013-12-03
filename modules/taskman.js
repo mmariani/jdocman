@@ -1,5 +1,5 @@
 /*jslint indent: 2, nomen: true, vars: true */
-/*global require, console, define, document, alert */
+/*global require, console, define, document, alert, window */
 
 define(
   [
@@ -8,6 +8,7 @@ define(
     'rsvp',
     'logger',
     'handlebars',
+    'task_util',
     // jio dependencies
     'davstorage',
     'sha256',
@@ -21,12 +22,13 @@ define(
     // 'css!jqm/jquery.mobile-1.4.0-rc.1.css',   // XXX does not work
     'css!modules/taskman.css'
   ],
-  function ($, jIO, RSVP, Logger, Handlebars, davstorage) {
+  function ($, jIO, RSVP, Logger, Handlebars, task_util, davstorage) {
     "use strict";
 
     var jio_config = null,
       jio_tasks = null,
-      taskman = {};
+      taskman = {},
+      input_timer = null;
 
     Logger.useDefaults();   // log to console
     Logger.setLevel(Logger.DEBUG);    // XXX should be WARN for production
@@ -36,6 +38,27 @@ define(
     Handlebars.registerHelper('trimDate', function (date) {
       return new Handlebars.SafeString(date.substring(0, 10));
     });
+
+    // XXX also see https://github.com/assemble/handlebars-helpers/blob/master/lib/helpers/helpers-comparisons.js
+    Handlebars.registerHelper('ifCond', function (v1, operator, v2, options) {
+      switch (operator) {
+      case '==':
+        return (v1 == v2) ? options.fn(this) : options.inverse(this);
+      case '===':
+        return (v1 === v2) ? options.fn(this) : options.inverse(this);
+      case '<':
+        return (v1 < v2) ? options.fn(this) : options.inverse(this);
+      case '<=':
+        return (v1 <= v2) ? options.fn(this) : options.inverse(this);
+      case '>':
+        return (v1 > v2) ? options.fn(this) : options.inverse(this);
+      case '>=':
+        return (v1 >= v2) ? options.fn(this) : options.inverse(this);
+      default:
+        return options.inverse(this);
+      }
+    });
+
 
     var TYPES = {
       Project: 'Project',
@@ -231,16 +254,43 @@ define(
         });
     });
 
-    $(document).on('pagebeforeshow.tasks', '#tasks-page', function (ev, data) {
-      // XXX also trigger when directly loading this page, after everything is set up
-      Logger.info('Loading Tasks page');
 
+    var update_tasks_list = function (search_string) {
+      var input_text = $('#search-tasks').val(),
+        search_string = input_text ? '%' + input_text + '%' : '%',
+        query = {
+          type: 'complex',
+          operator: 'AND',
+          query_list: [
+            {
+              type: 'simple',
+              key: 'type',
+              value: 'Task'
+            }, {
+              type: 'complex',
+              operator: 'OR',
+              query_list: [
+                {
+                  type: 'simple',
+                  key: 'title',
+                  value: search_string
+                }, {
+                  type: 'simple',
+                  key: 'description',
+                  value: search_string
+                }
+              ]
+            }
+          ]
+        };
+        
       var options = {
         include_docs: true,
-        query: '(type:"Task")'
+        wildcard_character: '%',
+        query: query
       };
 
-      Logger.debug('Querying tasks...');
+      Logger.debug('Querying tasks with: "%s" (%o)...', input_text, options['query']);
       jio_tasks.allDocs(options)
         .then(function callback(response) {
           Logger.debug('%i tasks found', response.data.total_rows);
@@ -249,11 +299,79 @@ define(
             .html(template(response.data))
             .trigger('create');
         });
+    };
+
+    $(document).on('pagebeforeshow.tasks', '#tasks-page', function (ev) {
+      // XXX also trigger when directly loading this page, after everything is set up
+      Logger.info('Loading Tasks page');
+      update_tasks_list();
     });
+
+    $(document).on('input', '#search-tasks', function (ev) {
+      if (input_timer) {
+        window.clearTimeout(input_timer);
+        input_timer = null;
+      }
+      input_timer = window.setTimeout(function () {
+        // var search_string = $(ev.target).val();
+        update_tasks_list();
+        input_timer = 0;
+      }, 500);
+    });
+
+
+
+    $(document).on('pagebeforeshow.task', '#task-edit-page', function (ev, data) {
+      // XXX also trigger when directly loading this page, after everything is set up
+      Logger.info('Loading Task Edit page');
+      // XXX location.search may not work in Phonegap
+      // TODO sanitize params.id
+
+      var params = task_util.parseParams(window.location.search),
+        projects_promise = jio_tasks.allDocs({include_docs: true, query: '(type:"Project")'}),
+        task_promise = jio_tasks.get({'_id': params.id}),
+        states_promise = jio_tasks.allDocs({include_docs: true, query: '(type:"State")'});
+
+      Logger.debug('Retrieving task %s', params.id);
+
+      RSVP.all([task_promise, projects_promise, states_promise])
+        .then(function callback(responses) {
+          var task_resp = responses[0],
+            projects_resp = responses[1],
+            states_resp = responses[2];
+
+          var template = Handlebars.compile($('#task-edit-template').text());
+          $('#task-edit-container')
+            .html(template({'task': task_resp.data, 'projects': projects_resp.data.rows, 'states': states_resp.data.rows}))
+            .trigger('create');
+          Logger.info('Selecting: %s', task_resp.data.project);
+          task_util.jqmSetSelected('#project-select', task_resp.data.project);
+          // XXX if the project does not exist anymore, the first one is selected
+        });
+        // TODO handle failure (no task found)
+    });
+
+
+
 
     $(document).on('pagebeforeshow.settings', '#settings-page', function (ev, data) {
       // XXX also trigger when directly loading this page, after everything is set up
       Logger.info('Loading Settings page');
+
+      var projects_promise = jio_tasks.allDocs({include_docs: true, query: '(type:"Project")'}),
+        states_promise = jio_tasks.allDocs({include_docs: true, query: '(type:"State")'});
+
+      RSVP.all([projects_promise, states_promise])
+        .then(function callback(responses) {
+          var projects_resp = responses[0],
+            states_resp = responses[1];
+
+          var template = Handlebars.compile($('#settings-edit-template').text());
+          $('#settings-edit-container')
+            .html(template({'projects': projects_resp.data.rows, 'states': states_resp.data.rows}))
+            .trigger('create');
+        });
+        // TODO handle failure (no task found)
     });
 
     var connectStorage = function () {

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Task Manager</title>
+    <link rel="shortcut icon" href="favicon.png" type="image/png"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="lib/jqm/jquery.mobile-1.4.0-rc.1.css" rel="stylesheet">
+    <script data-main="main" src='lib/requirejs/require.js'></script>
+  </head>
+  <body>
+    <div data-role="page" id='task-edit-page'>
+ 
+      <div data-role="header" data-position="fixed">
+        <h1>Edit Task</h1>
+        <a href="#" data-role="button" data-rel="back"
+          data-icon="arrow-l">
+          Back
+        </a>
+      </div><!-- /header -->
+ 
+      <div data-role="content">
+        <div id="task-edit-container"></div>
+      </div><!-- /content -->
+ 
+      <div data-role="footer" data-position="fixed">
+        <div if="ui-bar">
+          <a href="projects.html" data-role="button">
+            Projects
+          </a>
+          <a href="tasks.html" data-role="button"
+            class="ui-disabled">
+            Tasks
+          </a>
+          <a href="settings.html" data-role="button"
+            data-icon="gear">
+            Settings
+          </a>
+        </div>
+      </div><!-- /footer -->
+
+      <script id="task-edit-template" type="text/x-handlebars-template">
+        <label for="title">Task Title:
+          <input type="text" name="title" id="title" value="{{task.title}}" />
+        </label>
+        <label for="date">From date:
+          <input type="date" name="date" value="{{trimDate task.start}}" />
+        </label>
+        <label for="date">To date:
+          <input type="date" name="date" value="{{trimDate task.stop}}" />
+        </label>
+
+        <label for="project-select" class="select">Project:</label>
+        <select name="project-select" id="project-select" data-role="select">
+          {{#projects}}
+          <option value="{{doc.project}}">{{doc.project}}</option>
+          {{/projects}}
+        </select>
+
+        <label for="state-select" class="select">State:</label>
+        <select name="state-select" id="state-select" data-role="select">
+          {{#states}}
+          <option value="{{doc.state}}">{{doc.state}}</option>
+          {{/states}}
+        </select>
+
+        <label for="description">Description:
+          <textarea name="description" id="description">{{task.description}}</textarea>
+        </label>
+      </script>
+
+    </div><!-- /page -->
+
+  </body>
+</html>

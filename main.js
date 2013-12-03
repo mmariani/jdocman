@@ -8,6 +8,7 @@
     paths: {
       logger:          'lib/js-logger/logger',
       handlebars:      'lib/handlebars/handlebars-v1.1.2',
+      task_util:       'modules/task-util',
       //plugins (require-css, text, json)
       css:             'lib/requirejs/plugins/require-css/css',
       normalize:       'lib/requirejs/plugins/require-css/normalize',
