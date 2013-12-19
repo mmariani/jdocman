@@ -254,43 +254,87 @@ define(
         });
     });
 
+    var isValidDate = function (d) {
+      if (Object.prototype.toString.call(d) !== "[object Date]") {
+        return false;
+      }
+      return !isNaN(d.getTime());
+    };
 
-    var update_tasks_list = function (search_string) {
+    var parseDate = function (s) {
+      var date = null;
+      if (s.match(/\d\d\d\d-\d\d-\d\d/)) {
+        date = new Date(s);
+      }
+      if (isValidDate(date)) {
+        return date;
+      }
+    };
+
+    var update_tasks_list = function () {
       var input_text = $('#search-tasks').val(),
+//          query = '(type: "Task")' + (input_text ? ' AND (' + input_text + ')' : '');
+
         search_string = input_text ? '%' + input_text + '%' : '%',
-        query = {
+        query = null,
+        search_date = parseDate(input_text),      // ? moment(input_text).format('YYYY-MM-DD') : null,
+        content_query_list = [
+          {
+            type: 'simple',
+            key: 'title',
+            value: search_string
+          }, {
+            type: 'simple',
+            key: 'description',
+            value: search_string
+          }
+        ];
+
+      if (search_date) {
+        // XXX this should accept partial dates (year, year+month) as well
+        Logger.info('Search for date: %o', search_date);
+        content_query_list.push({
           type: 'complex',
           operator: 'AND',
           query_list: [
             {
               type: 'simple',
-              key: 'type',
-              value: 'Task'
+              operator: '<=',
+              key: 'start',
+              value: search_date
             }, {
-              type: 'complex',
-              operator: 'OR',
-              query_list: [
-                {
-                  type: 'simple',
-                  key: 'title',
-                  value: search_string
-                }, {
-                  type: 'simple',
-                  key: 'description',
-                  value: search_string
-                }
-              ]
+              type: 'simple',
+              operator: '>=',
+              key: 'stop',
+              value: search_date
             }
           ]
-        };
-        
+        });
+      }
+
+      query = {
+        type: 'complex',
+        operator: 'AND',
+        query_list: [
+          {
+            type: 'simple',
+            key: 'type',
+            value: 'Task'
+          }, {
+            type: 'complex',
+            operator: 'OR',
+            query_list: content_query_list
+          }
+        ]
+      };
+
       var options = {
         include_docs: true,
         wildcard_character: '%',
         query: query
       };
 
-      Logger.debug('Querying tasks with: "%s" (%o)...', input_text, options['query']);
+      Logger.debug('Querying tasks with: "%s" (%o)...', input_text, options.query);
       jio_tasks.allDocs(options)
         .then(function callback(response) {
           Logger.debug('%i tasks found', response.data.total_rows);
@@ -307,6 +351,12 @@ define(
       update_tasks_list();
     });
 
+    $(document).on('click', '#search-trigger', function (ev) {
+      update_tasks_list();
+    });
+
+
+    // XXX disabled real time search
     $(document).on('input', '#search-tasks', function (ev) {
       if (input_timer) {
         window.clearTimeout(input_timer);
@@ -383,7 +433,33 @@ define(
           console.assert(response.data.total_rows === 1);
           var config = response.data.rows[0].doc,
             storage_description = storageDescription(config),
-            jio = jIO.createJIO(storage_description);
+            key_schema = {
+              types: {
+                dateType: function (obj) {
+                  if (Object.prototype.toString.call(obj) === '[object Date]') {
+                    // no need to clone
+                    return obj;
+                  }
+                  return new Date(obj);
+                },
+              },
+              keys: {
+                start: {
+                  readFrom: 'start',
+                  castTo: 'dateType'
+                },
+                stop: {
+                  // XXX this should actually be the end of month/year/whatever...
+                  readFrom: 'stop',
+                  castTo: 'dateType'
+                }
+              }
+            },
+            jio = null;
+
+          storage_description.key_schema = key_schema;
+          jio = jIO.createJIO(storage_description);
+          console.log('Passed key schema: %o', key_schema);
           Logger.debug('Connecting to tasks jIO: %o', storage_description);
           taskman.trigger('task_storage_connected', {detail: jio});
         });
