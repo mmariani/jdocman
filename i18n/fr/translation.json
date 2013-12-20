@@ -1,0 +1,43 @@
+{
+    "header": {
+        "task_manager": "Gestionnaire de tâches",
+        "projects": "Projets",
+        "tasks": "Tâches",
+        "details": "Détails",
+        "settings": "Paramètres",
+        "back": "Retour"
+    },
+    "tasks": {
+      "newtask": "Nouvelle tâche",
+      "from": "du",
+      "to": "au"
+    },
+    "details": {
+      "title": "Titre:",
+      "start": "Date début:",
+      "stop": "Date fin:",
+      "project": "Projet:",
+      "state": "Etat:",
+      "description": "Description:",
+      "delete": "Effacer",
+      "save": "Enregistrer"
+    },
+    "settings": {
+        "translate": {
+            "en": "English",
+            "fr": "Français",
+            "ch": "中文 (Chinois)"
+        },
+        "states": "Etats:",
+        "projects": "Projets:"
+    },
+    "navbar": {
+        "home": "Acceuil",
+        "projects": "Projets",
+        "tasks": "Tâches",
+        "settings": "Paramètres"
+    },
+    "Started": "Entamé",
+    "Completed": "Terminé",
+    "Confirmed": "Confirmé"
+}

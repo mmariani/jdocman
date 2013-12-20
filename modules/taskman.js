@@ -9,6 +9,7 @@ define(
     'logger',
     'handlebars',
     'task_util',
+    'i18next',
     // jio dependencies
     'davstorage',
     'sha256',
@@ -22,7 +23,7 @@ define(
     // 'css!jqm/jquery.mobile-1.4.0-rc.1.css',   // XXX does not work
     'css!modules/taskman.css'
   ],
-  function ($, jIO, RSVP, Logger, Handlebars, task_util, davstorage) {
+  function ($, jIO, RSVP, Logger, Handlebars, task_util, i18next, davstorage) {
     "use strict";
 
     var jio_config = null,
@@ -37,6 +38,10 @@ define(
 
     Handlebars.registerHelper('trimDate', function (date) {
       return new Handlebars.SafeString(date.substring(0, 10));
+    });
+
+    Handlebars.registerHelper('t', function (i18n_key) {
+      return new Handlebars.SafeString(i18next.t(i18n_key));
     });
 
     // XXX also see https://github.com/assemble/handlebars-helpers/blob/master/lib/helpers/helpers-comparisons.js
@@ -57,6 +62,20 @@ define(
       default:
         return options.inverse(this);
       }
+    });
+
+    var applyTranslation = function () {
+      $('[data-i18n]').i18n();
+    };
+
+    $.i18n.init({   //initial setup for translation
+      detectLngQS: 'lang',
+      fallbackLng: 'fr',
+      ns: 'translation',
+      resGetPath: 'i18n/__lng__/__ns__.json',
+      preload: ['en', 'fr', 'ch']
+    }, function (t) {
+      applyTranslation();
     });
 
 
@@ -252,6 +271,7 @@ define(
             .html(template(response.data))
             .trigger('create');
         });
+      applyTranslation();
     });
 
     var isValidDate = function (d) {
@@ -287,6 +307,10 @@ define(
             type: 'simple',
             key: 'description',
             value: search_string
+          }, {
+            type: 'simple',
+            key: 'translated_state',
+            value: input_text
           }
         ];
 
@@ -349,6 +373,7 @@ define(
       // XXX also trigger when directly loading this page, after everything is set up
       Logger.info('Loading Tasks page');
       update_tasks_list();
+      applyTranslation();
     });
 
     $(document).on('click', '#search-trigger', function (ev) {
@@ -397,6 +422,7 @@ define(
           Logger.info('Selecting: %s', task_resp.data.project);
           task_util.jqmSetSelected('#project-select', task_resp.data.project);
           // XXX if the project does not exist anymore, the first one is selected
+          applyTranslation();
         });
         // TODO handle failure (no task found)
     });
@@ -420,9 +446,15 @@ define(
           $('#settings-edit-container')
             .html(template({'projects': projects_resp.data.rows, 'states': states_resp.data.rows}))
             .trigger('create');
+          applyTranslation();
         });
         // TODO handle failure (no task found)
     });
+
+    var translatedStateMatch = function (object_value, value) {
+      var translated_object_value = i18next.t(object_value);
+      return translated_object_value.toLowerCase() === value.toLowerCase();
+    };
 
     var connectStorage = function () {
       // connect to the configured storage
@@ -452,6 +484,10 @@ define(
                   // XXX this should actually be the end of month/year/whatever...
                   readFrom: 'stop',
                   castTo: 'dateType'
+                },
+                translated_state: {
+                  readFrom: 'state',
+                  defaultMatch: translatedStateMatch
                 }
               }
             },
@@ -459,7 +495,6 @@ define(
 
           storage_description.key_schema = key_schema;
           jio = jIO.createJIO(storage_description);
-          console.log('Passed key schema: %o', key_schema);
           Logger.debug('Connecting to tasks jIO: %o', storage_description);
           taskman.trigger('task_storage_connected', {detail: jio});
         });

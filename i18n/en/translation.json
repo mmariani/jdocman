@@ -1,0 +1,43 @@
+{
+    "header": {
+        "task_manager": "Task Manager",
+        "projects": "Projects",
+        "tasks": "Tasks",
+        "details": "Details",
+        "settings": "Settings",
+        "back": "Back"
+    },
+    "tasks": {
+      "newtask": "New Task",
+      "from": "from",
+      "to": "to"
+    },
+    "details": {
+      "title": "Title:",
+      "start": "Begin date:",
+      "stop": "End date:",
+      "project": "Project:",
+      "state": "State:",
+      "description": "Description:",
+      "delete": "Delete",
+      "save": "Save"
+    },
+    "settings": {
+        "translate": {
+            "en": "English",
+            "fr": "Français",
+            "ch": "中文 (Chinese)"
+        },
+        "states": "States:",
+        "projects": "Projects:"
+    },
+    "navbar": {
+        "home": "Home",
+        "projects": "Projects",
+        "tasks": "Tasks",
+        "settings": "Settings"
+    },
+    "Started": "Started",
+    "Completed": "Completed",
+    "Confirmed": "Confirmed"
+}

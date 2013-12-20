@@ -1,0 +1,43 @@
+{
+    "header": {
+        "task_manager": "任务管理器",
+        "projects": "项目",
+        "tasks": "任务",
+        "details": "详细信息",
+        "settings": "设置",
+        "back": "后退"
+    },
+    "tasks": {
+      "newtask": "新任务",
+      "from": "从",
+      "to": "至"
+    },
+    "details": {
+      "title": "标题:",
+      "start": "开始日期:",
+      "stop": "结束日期:",
+      "project": "项目:",
+      "state": "状态:",
+      "description": "描述:",
+      "delete": "删除",
+      "save": "储存"
+    },
+    "settings": {
+        "translate": {
+            "en": "English",
+            "fr": "Français",
+            "ch": "中文"
+        },
+        "states": "状态:",
+        "projects": "项目:"
+    },
+    "navbar": {
+        "home": "主页",
+        "projects": "项目",
+        "tasks": "任务",
+        "settings": "设置"
+    },
+    "Started": "开始",
+    "Completed": "完成",
+    "Confirmed": "确认"
+}

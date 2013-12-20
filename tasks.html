@@ -3,6 +3,7 @@
   <head>
     <title>Task Manager</title>
     <link rel="shortcut icon" href="favicon.png" type="image/png"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="lib/jqm/jquery.mobile-1.4.0-rc.1.css" rel="stylesheet">
     <script data-main="main" src='lib/requirejs/require.js'></script>
@@ -11,16 +12,21 @@
     <div data-role="page" id='tasks-page'>
  
       <div data-role="header" data-position="fixed">
-        <h1>Tasks</h1>
-        <a href="#" data-role="button" data-icon="plus" data-mini="true">
+        <a href="#" data-role="button" data-icon="plus"
+           data-mini="true"
+           data-i18n="tasks.newtask">
           New Task
         </a>
+        <h2 data-i18n="header.tasks">
+          Tasks
+        </h2>
       </div><!-- /header -->
  
       <div data-role="content">
         <div data-role="controlgroup">
-          <input type="text" data-type="search" name="search" id="search-tasks" value="" class="ui-input-text">
-          <a href="#" id="search-trigger" data-role="button">Search</a>
+          <input type="text" data-type="search" name="search" id="search-tasks"
+                 value="" class="ui-input-text" data-inline="true"></input>
+          <!-- <a href="#" id="search-trigger" data-role="button" data-inline="true">Search</a> -->
         </div>
         <div id="task-list-container"></div>
       </div><!-- /content -->
@@ -29,10 +35,31 @@
 
         <div data-role="navbar" data-iconpos="left">
           <ul>
-            <li><a href="index.html" data-icon="home">Home</a></li>
-            <li><a href="projects.html">Projects</a></li>
-            <li><a href="tasks.html" class="ui-btn-active">Tasks</a></li>
-            <li><a href="settings.html" data-icon="gear">Settings</a></li>
+            <li>
+              <a href="index.html" data-icon="home"
+                 data-i18n="navbar.home">
+                Home
+              </a>
+            </li>
+            <li>
+              <a href="projects.html"
+                 data-i18n="navbar.projects">
+                Projects
+              </a>
+            </li>
+            <li>
+              <a href="tasks.html"
+                 class="ui-btn-active"
+                 data-i18n="navbar.tasks">
+                Tasks
+              </a>
+            </li>
+            <li>
+              <a href="settings.html" data-icon="gear"
+                 data-i18n="navbar.settings">
+                Settings
+              </a>
+            </li>
           </ul>
         </div><!-- /navbar -->
 
@@ -48,10 +75,10 @@
                 <span>{{doc.description}}</span>
                 <br />
                 <span>
-                  <span class="state">{{doc.state}}</span>
-                  from
+                  <span class="state">{{t doc.state}}</span>
+                  {{t "tasks.from"}}
                   <span class="from-date">{{trimDate doc.start}}</span>
-                  to
+                  {{t "tasks.to"}}
                   <span class="to-date">{{trimDate doc.stop}}</span>
                 </span>
                 <br />

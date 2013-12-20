@@ -14,7 +14,7 @@
       normalize:       'lib/requirejs/plugins/require-css/normalize',
       text:            'lib/requirejs/plugins/text/text',
       json:            'lib/requirejs/plugins/json/json',
-      // i18next:         "plugins/i18next/i18next-1.7.1",
+      i18next:         'lib/i18next/i18next.amd.withJQuery-1.7.1',
       // jQuery, jQuery mobile
       jquery:           'lib/jquery/jquery-1.10.2',
       jqm:              'lib/jqm/jquery.mobile-1.4.0-rc.1',
