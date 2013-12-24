@@ -3,9 +3,11 @@
 
 define(
   [
-    'jquery'
+    'jquery',
+    'handlebars',
+    'i18next',
   ],
-  function ($) {
+  function ($, Handlebars, i18next) {
     "use strict";
 
     var decode = function (str) {
@@ -67,6 +69,40 @@ define(
         return ('0000' + Math.floor(Math.random() * 0x10000).toString(16)).slice(-4);
       };
       return S4() + S4() + '-' + S4() + '-' + S4() + '-' + S4() + '-' + S4() + S4() + S4();
+    };
+
+
+    util.registerHelpers = function () {
+      // Truncate date strings to yyyy-mm-dd
+      Handlebars.registerHelper('trimDate', function (date) {
+        return new Handlebars.SafeString(date.substring(0, 10));
+      });
+
+      // Make translation accessible from within Handlebars templates
+      Handlebars.registerHelper('t', function (i18n_key) {
+        return new Handlebars.SafeString(i18next.t(i18n_key));
+      });
+
+      // XXX also see https://github.com/assemble/handlebars-helpers/blob/master/lib/helpers/helpers-comparisons.js
+      Handlebars.registerHelper('ifCond', function (v1, operator, v2, options) {
+        switch (operator) {
+        case '==':
+          return (v1 == v2) ? options.fn(this) : options.inverse(this);
+        case '===':
+          return (v1 === v2) ? options.fn(this) : options.inverse(this);
+        case '<':
+          return (v1 < v2) ? options.fn(this) : options.inverse(this);
+        case '<=':
+          return (v1 <= v2) ? options.fn(this) : options.inverse(this);
+        case '>':
+          return (v1 > v2) ? options.fn(this) : options.inverse(this);
+        case '>=':
+          return (v1 >= v2) ? options.fn(this) : options.inverse(this);
+        default:
+          return options.inverse(this);
+        }
+      });
+
     };
 
 

@@ -36,35 +36,7 @@ define(
 
     RSVP.EventTarget.mixin(taskman);
 
-    // Truncate date strings to yyyy-mm-dd
-    Handlebars.registerHelper('trimDate', function (date) {
-      return new Handlebars.SafeString(date.substring(0, 10));
-    });
-
-    // Make translation accessible from within Handlebars templates
-    Handlebars.registerHelper('t', function (i18n_key) {
-      return new Handlebars.SafeString(i18next.t(i18n_key));
-    });
-
-    // XXX also see https://github.com/assemble/handlebars-helpers/blob/master/lib/helpers/helpers-comparisons.js
-    Handlebars.registerHelper('ifCond', function (v1, operator, v2, options) {
-      switch (operator) {
-      case '==':
-        return (v1 == v2) ? options.fn(this) : options.inverse(this);
-      case '===':
-        return (v1 === v2) ? options.fn(this) : options.inverse(this);
-      case '<':
-        return (v1 < v2) ? options.fn(this) : options.inverse(this);
-      case '<=':
-        return (v1 <= v2) ? options.fn(this) : options.inverse(this);
-      case '>':
-        return (v1 > v2) ? options.fn(this) : options.inverse(this);
-      case '>=':
-        return (v1 >= v2) ? options.fn(this) : options.inverse(this);
-      default:
-        return options.inverse(this);
-      }
-    });
+    task_util.registerHelpers();
 
     // Immediately apply translation to all elements which have a data-i18n attribute.
     var applyTranslation = function () {
@@ -108,6 +80,15 @@ define(
 
       });
     };
+
+
+    $('#translate').on('change', function () {
+      var curr_lang = $(this).val();
+      $.i18n.setLng(curr_lang, function () {
+        applyTranslation();
+      });
+    });
+
 
     taskman.on('task_storage_connected', function (event) {
       // Create the UI
@@ -359,7 +340,6 @@ define(
     };
 
     $(document).on('pagebeforeshow.tasks', '#tasks-page', function (ev) {
-      // XXX also trigger when directly loading this page, after everything is set up
       Logger.info('Loading Tasks page');
       update_tasks_list();
       applyTranslation();
@@ -370,7 +350,6 @@ define(
     });
 
 
-    // XXX disabled real time search
     $(document).on('input', '#search-tasks', function (ev) {
       if (input_timer) {
         window.clearTimeout(input_timer);

@@ -26,7 +26,7 @@
         <select name="translate" id="translate" data-mini="true">
           <option value="en" data-i18n="settings.translate.en">English</option>
           <option value="fr" data-i18n="settings.translate.fr">Français</option>
-          <option value="ch" data-i18n="settings.translate.ch">中文 (Chinese)</option>
+          <option value="zh" data-i18n="settings.translate.zh">中文 (Chinese)</option>
         </select>
         <div id="settings-edit-container"></div>
       </div><!-- /content -->
@@ -69,7 +69,7 @@
         <fieldset data-role="controlgroup" data-mini="true">
           <legend data-i18n="settings.states">States:</legend>
           {{#states}}
-          <label><input type="checkbox" name="state-{{doc.state}}" />{{t doc.state}}</label>
+          <label data-i18n="{{doc.state}}"><input type="checkbox" name="state-{{doc.state}}" />{{t doc.state}}</label>
           {{/states}}
         </fieldset>
 
