@@ -452,7 +452,7 @@ define(
           var config = response.data.rows[0].doc,
             storage_description = storageDescription(config),
             key_schema = {
-              types: {
+              cast_lookup: {
                 dateType: function (obj) {
                   if (Object.prototype.toString.call(obj) === '[object Date]') {
                     // no need to clone
@@ -461,19 +461,19 @@ define(
                   return new Date(obj);
                 },
               },
-              keys: {
+              key_set: {
                 start: {
-                  readFrom: 'start',
-                  castTo: 'dateType'
+                  read_from: 'start',
+                  cast_to: 'dateType'
                 },
                 stop: {
                   // XXX this should actually be the end of month/year/whatever...
-                  readFrom: 'stop',
-                  castTo: 'dateType'
+                  read_from: 'stop',
+                  cast_to: 'dateType'
                 },
                 translated_state: {
-                  readFrom: 'state',
-                  defaultMatch: translatedStateMatch
+                  read_from: 'state',
+                  default_match: translatedStateMatch
                 }
               }
             },
