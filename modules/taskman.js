@@ -77,7 +77,7 @@ define(
       fallbackLng: 'fr',
       ns: 'translation',
       resGetPath: 'i18n/__lng__/__ns__.json',
-      preload: ['en', 'fr', 'ch']
+      preload: ['en', 'fr', 'zh']
     }, function (t) {
       applyTranslation();
     });
