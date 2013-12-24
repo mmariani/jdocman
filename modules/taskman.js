@@ -14,8 +14,6 @@ define(
     'davstorage',
     'sha256',
     'localstorage',
-    // jquery mobile
-    'jqm',
     // requirejs plugins
     'json',
     'text',
@@ -31,15 +29,19 @@ define(
       taskman = {},
       input_timer = null;
 
+    require(['jqm']);
+
     Logger.useDefaults();   // log to console
     Logger.setLevel(Logger.DEBUG);    // XXX should be WARN for production
 
     RSVP.EventTarget.mixin(taskman);
 
+    // Truncate date strings to yyyy-mm-dd
     Handlebars.registerHelper('trimDate', function (date) {
       return new Handlebars.SafeString(date.substring(0, 10));
     });
 
+    // Make translation accessible from within Handlebars templates
     Handlebars.registerHelper('t', function (i18n_key) {
       return new Handlebars.SafeString(i18next.t(i18n_key));
     });
@@ -64,11 +66,13 @@ define(
       }
     });
 
+    // Immediately apply translation to all elements which have a data-i18n attribute.
     var applyTranslation = function () {
       $('[data-i18n]').i18n();
     };
 
-    $.i18n.init({   //initial setup for translation
+    // Initial setup for translation
+    $.i18n.init({
       detectLngQS: 'lang',
       fallbackLng: 'fr',
       ns: 'translation',
@@ -78,18 +82,10 @@ define(
       applyTranslation();
     });
 
-
     var TYPES = {
       Project: 'Project',
       State: 'State',
       Task: 'Task'
-    };
-
-    var uuid = function () {
-      var S4 = function () {
-        return ('0000' + Math.floor(Math.random() * 0x10000).toString(16)).slice(-4);
-      };
-      return S4() + S4() + '-' + S4() + '-' + S4() + '-' + S4() + '-' + S4() + S4() + S4();
     };
 
     var populateInitialStorage = function (jio) {
@@ -100,7 +96,7 @@ define(
 
         Logger.debug('Inserting %i objects..', objs.length);
         objs.map(function (obj) {
-          obj.reference = uuid();
+          obj.reference = task_util.createUUID();
           obj.modified = new Date();
 
           jio.post(obj)
@@ -274,19 +270,12 @@ define(
       applyTranslation();
     });
 
-    var isValidDate = function (d) {
-      if (Object.prototype.toString.call(d) !== "[object Date]") {
-        return false;
-      }
-      return !isNaN(d.getTime());
-    };
-
     var parseDate = function (s) {
       var date = null;
       if (s.match(/\d\d\d\d-\d\d-\d\d/)) {
         date = new Date(s);
       }
-      if (isValidDate(date)) {
+      if (task_util.isValidDate(date)) {
         return date;
       }
     };
@@ -395,7 +384,6 @@ define(
     });
 
 
-
     $(document).on('pagebeforeshow.task', '#task-edit-page', function (ev, data) {
       // XXX also trigger when directly loading this page, after everything is set up
       Logger.info('Loading Task Edit page');
@@ -426,8 +414,6 @@ define(
         });
         // TODO handle failure (no task found)
     });
-
-
 
 
     $(document).on('pagebeforeshow.settings', '#settings-page', function (ev, data) {

@@ -13,6 +13,7 @@ define(
       },
       util = {};
 
+
     util.parseParams = function (query) {
       var params = {}, e, k, v, re = /([^&=]+)=?([^&]*)/g;
       if (query) {
@@ -36,9 +37,10 @@ define(
       return params;
     };
 
+
+    // Update a <select> element's selected option,
+    // then activates the jquery mobile event to refresh UI
     util.jqmSetSelected = function (el, value) {
-      // update a <select> element's selected option,
-      // then activates the jquery mobile event to refresh UI
       var $select = $(el);
 
       $select.children().each(function (i, op) {
@@ -49,6 +51,24 @@ define(
 
       $select.selectmenu('refresh');
     };
+
+
+    // Check if a date object is valid.
+    util.isValidDate = function (d) {
+      if (Object.prototype.toString.call(d) !== "[object Date]") {
+        return false;
+      }
+      return !isNaN(d.getTime());
+    };
+
+
+    util.createUUID = function () {
+      var S4 = function () {
+        return ('0000' + Math.floor(Math.random() * 0x10000).toString(16)).slice(-4);
+      };
+      return S4() + S4() + '-' + S4() + '-' + S4() + '-' + S4() + '-' + S4() + S4() + S4();
+    };
+
 
     return util;
   }
