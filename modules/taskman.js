@@ -437,10 +437,33 @@ define(
         // TODO handle failure (no task found)
     });
 
-    var translatedStateMatch = function (object_value, value) {
-      var translated_object_value = i18next.t(object_value);
-      return translated_object_value.toLowerCase() === value.toLowerCase();
+
+    var accentFold = function (s) {
+      var map = [
+          [new RegExp('[àáâãäå]', 'gi'), 'a'],
+          [new RegExp('æ', 'gi'), 'ae'],
+          [new RegExp('ç', 'gi'), 'c'],
+          [new RegExp('[èéêë]', 'gi'), 'e'],
+          [new RegExp('[ìíîï]', 'gi'), 'i'],
+          [new RegExp('ñ', 'gi'), 'n'],
+          [new RegExp('[òóôõö]', 'gi'), 'o'],
+          [new RegExp('œ', 'gi'), 'oe'],
+          [new RegExp('[ùúûü]', 'gi'), 'u'],
+          [new RegExp('[ýÿ]', 'gi'), 'y']
+        ];
+
+      map.forEach(function (o) {
+        var rep = function (match) {
+          if (match.toUpperCase() === match) {
+            return o[1].toUpperCase();
+          }
+          return o[1];
+        };
+        s = s.replace(o[0], rep);
+      });
+      return s;
     };
+
 
     var connectStorage = function () {
       // connect to the configured storage
@@ -459,7 +482,13 @@ define(
                     return obj;
                   }
                   return new Date(obj);
-                },
+                }
+              },
+              match_lookup: {
+                translatedStateMatch: function (object_value, value) {
+                  var translated_object_value = i18next.t(object_value);
+                  return accentFold(translated_object_value).toLowerCase() === accentFold(value.toLowerCase());
+                }
               },
               key_set: {
                 start: {
@@ -473,7 +502,7 @@ define(
                 },
                 translated_state: {
                   read_from: 'state',
-                  default_match: translatedStateMatch
+                  default_match: 'translatedStateMatch'
                 }
               }
             },
