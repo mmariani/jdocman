@@ -72,14 +72,14 @@
           <label for="start" data-i18n="details.start">
             Begin date:
           </label>
-          <input type="date" name="start" value="{{trimDate task.start}}" />
+          <input type="date" name="start" value="{{asYMD task.start}}" />
         </div>
 
         <div data-role="fieldcontain">
           <label for="stop" data-i18n="details.stop">
             End date:
           </label>
-          <input type="date" name="stop" value="{{trimDate task.stop}}" />
+          <input type="date" name="stop" value="{{asYMD task.stop}}" />
         </div>
 
         <div data-role="fieldcontain">

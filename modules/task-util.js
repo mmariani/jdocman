@@ -6,8 +6,9 @@ define(
     'jquery',
     'handlebars',
     'i18next',
+    'moment',
   ],
-  function ($, Handlebars, i18next) {
+  function ($, Handlebars, i18next, moment) {
     "use strict";
 
     var decode = function (str) {
@@ -74,8 +75,9 @@ define(
 
     util.registerHelpers = function () {
       // Truncate date strings to yyyy-mm-dd
-      Handlebars.registerHelper('trimDate', function (date) {
-        return new Handlebars.SafeString(date.substring(0, 10));
+      Handlebars.registerHelper('asYMD', function (date) {
+        var m = moment(date);
+        return new Handlebars.SafeString(m.format('YYYY-MM-DD'));
       });
 
       // Make translation accessible from within Handlebars templates

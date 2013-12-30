@@ -77,9 +77,9 @@
                 <span>
                   <span class="state">{{t doc.state}}</span>
                   {{t "tasks.from"}}
-                  <span class="from-date">{{trimDate doc.start}}</span>
+                  <span class="from-date">{{asYMD doc.start}}</span>
                   {{t "tasks.to"}}
-                  <span class="to-date">{{trimDate doc.stop}}</span>
+                  <span class="to-date">{{asYMD doc.stop}}</span>
                 </span>
                 <br />
               </a>

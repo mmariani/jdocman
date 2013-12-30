@@ -9,6 +9,7 @@
       logger:          'lib/js-logger/logger',
       handlebars:      'lib/handlebars/handlebars-v1.1.2',
       task_util:       'modules/task-util',
+      moment:          'lib/moment/moment-2.5.0',
       //plugins (require-css, text, json)
       css:             'lib/requirejs/plugins/require-css/css',
       normalize:       'lib/requirejs/plugins/require-css/normalize',
@@ -23,6 +24,7 @@
       rsvp:             'lib/jio/rsvp-custom.amd',
       jio:              'lib/jio/jio',
       complex_queries:  'lib/jio/complex_queries',
+      jiodate:          'lib/jio/jiodate',
       localstorage:     'lib/jio/storage/localstorage',
       davstorage:       'lib/jio/storage/davstorage',
       erp5storage:      'lib/jio/storage/erp5storage',

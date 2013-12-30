@@ -10,7 +10,9 @@ define(
     'handlebars',
     'task_util',
     'i18next',
+    'moment',
     // jio dependencies
+    'jiodate',
     'davstorage',
     'sha256',
     'localstorage',
@@ -21,7 +23,7 @@ define(
     // 'css!jqm/jquery.mobile-1.4.0-rc.1.css',   // XXX does not work
     'css!modules/taskman.css'
   ],
-  function ($, jIO, RSVP, Logger, Handlebars, task_util, i18next, davstorage) {
+  function ($, jIO, RSVP, Logger, Handlebars, task_util, i18next, moment, jiodate, davstorage) {
     "use strict";
 
     var jio_config = null,
@@ -252,12 +254,10 @@ define(
     });
 
     var parseDate = function (s) {
-      var date = null;
-      if (s.match(/\d\d\d\d-\d\d-\d\d/)) {
-        date = new Date(s);
-      }
-      if (task_util.isValidDate(date)) {
-        return date;
+      try {
+        return jiodate.JIODate(s);
+      } catch (e) {
+        return null;
       }
     };
 
@@ -285,8 +285,8 @@ define(
         ];
 
       if (search_date) {
-        // XXX this should accept partial dates (year, year+month) as well
         Logger.info('Search for date: %o', search_date);
+
         content_query_list.push({
           type: 'complex',
           operator: 'AND',
@@ -455,13 +455,7 @@ define(
             storage_description = storageDescription(config),
             key_schema = {
               cast_lookup: {
-                dateType: function (obj) {
-                  if (Object.prototype.toString.call(obj) === '[object Date]') {
-                    // no need to clone
-                    return obj;
-                  }
-                  return new Date(obj);
-                }
+                dateType: jiodate.JIODate
               },
               match_lookup: {
                 translatedStateMatch: function (object_value, value) {
@@ -481,7 +475,7 @@ define(
                 },
                 translated_state: {
                   read_from: 'state',
-                  default_match: 'translatedStateMatch'
+                  equal_match: 'translatedStateMatch'
                 }
               }
             },
