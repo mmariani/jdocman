@@ -238,16 +238,32 @@ define(
 
       var options = {
         include_docs: true,
-        query: '(type:"Project")'
-      };
+        query: '(type:"Project") OR (type:"Task")'
+      }, tasks = {};
 
       Logger.debug('Querying projects...');
       jio_tasks.allDocs(options)
         .then(function callback(response) {
-          Logger.debug('%i projects found', response.data.total_rows);
+          var i = 0, doc = null;
+
+          for (i = 0; i < response.data.total_rows; i += 1) {
+            doc = response.data.rows[i].doc;
+            if (doc.type === 'Project') {
+              tasks[doc.project] = [];
+            }
+          }
+
+          for (i = 0; i < response.data.total_rows; i += 1) {
+            doc = response.data.rows[i].doc;
+            if (doc.type === 'Task') {
+              tasks[doc.project] = tasks[doc.project] || [];
+              tasks[doc.project].push(doc);
+            }
+          }
+
           var template = Handlebars.compile($('#project-list-template').text());
           $('#project-list-container')
-            .html(template(response.data))
+            .html(template({tasks: tasks}))
             .trigger('create');
         });
       applyTranslation();
@@ -363,7 +379,7 @@ define(
     });
 
 
-    $(document).on('pagebeforeshow.task', '#task-edit-page', function (ev, data) {
+    $(document).on('pagebeforeshow.task', '#details-page', function (ev, data) {
       // XXX also trigger when directly loading this page, after everything is set up
       Logger.info('Loading Task Edit page');
       // XXX location.search may not work in Phonegap
@@ -382,8 +398,8 @@ define(
             projects_resp = responses[1],
             states_resp = responses[2];
 
-          var template = Handlebars.compile($('#task-edit-template').text());
-          $('#task-edit-container')
+          var template = Handlebars.compile($('#details-template').text());
+          $('#details-container')
             .html(template({'task': task_resp.data, 'projects': projects_resp.data.rows, 'states': states_resp.data.rows}))
             .trigger('create');
           Logger.info('Selecting: %s', task_resp.data.project);

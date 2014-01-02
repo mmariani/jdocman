@@ -12,11 +12,6 @@
     <div data-role="page" id='projects-page'>
  
       <div data-role="header" data-position="fixed">
-        <a href="#" data-role="button" data-rel="back"
-          data-icon="arrow-l" data-mini="true"
-          data-i18n="header.back">
-          Back
-        </a>
         <h2 data-i18n="header.projects">
           Projects
         </h2>
@@ -61,15 +56,22 @@
       </div><!-- /footer -->
 
       <script id="project-list-template" type="text/x-handlebars-template">
+
         <ul data-role="listview" data-inset="true">
-          {{#rows}}
-            <li>
-              <a href="project.html?id={{id}}">
-                {{doc.project}}
-              </a>
+          {{#each tasks}}
+            <li data-role="collapsible" data-iconpos="right" data-inset="false">
+            <h2>{{@key}}</h2>
+              <ul data-role="listview">
+                {{#each this}}
+                {{#with this}}
+                  <li><a href="details.html?id={{_id}}">{{title}}</a></li>
+                {{/with}}
+                {{/each}}
+              </ul>
             </li>
-          {{/rows}}
+          {{/each}}
         </ul>
+
       </script>
 
     </div><!-- /page -->
