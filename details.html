@@ -61,73 +61,89 @@
       </div><!-- /footer -->
 
       <script id="details-template" type="text/x-handlebars-template">
-        <div data-role="fieldcontain">
-          <label for="title" data-i18n="details.title">
-            Title:
-          </label>
-          <input type="text" name="title" id="title" value="{{task.title}}" />
-        </div>
+        <form>
+          <input type="hidden" id="task-id" value="{{task._id}}" />
 
-        <div data-role="fieldcontain">
-          <label for="start" data-i18n="details.start">
-            Begin date:
-          </label>
-          <input type="date" name="start" value="{{asYMD task.start}}" />
-        </div>
+          <div data-role="fieldcontain">
+            <label for="task-title" data-i18n="details.title">
+              Title:
+            </label>
+            <input type="text" name="title" id="task-title" value="{{task.title}}" />
+          </div>
 
-        <div data-role="fieldcontain">
-          <label for="stop" data-i18n="details.stop">
-            End date:
-          </label>
-          <input type="date" name="stop" value="{{asYMD task.stop}}" />
-        </div>
+          <div data-role="fieldcontain">
+            <label for="task-start" data-i18n="details.start">
+              Begin date:
+            </label>
+            <input type="date" name="start" id="task-start" value="{{asYMD task.start}}" />
+          </div>
 
-        <div data-role="fieldcontain">
-          <label for="project-select" class="select"
-                 data-i18n="details.project">
-            Project:
-          </label>
-          <select name="project-select" id="project-select" data-role="select">
-            {{#projects}}
-            <option value="{{doc.project}}">{{doc.project}}</option>
-            {{/projects}}
-          </select>
-        </div>
+          <div data-role="fieldcontain">
+            <label for="task-stop" data-i18n="details.stop">
+              End date:
+            </label>
+            <input type="date" name="stop" id="task-stop" value="{{asYMD task.stop}}" />
+          </div>
 
-        <div data-role="fieldcontain">
-          <label for="state-select" class="select"
-                 data-i18n="details.state">
-            State:
-          </label>
-          <select name="state-select" id="state-select" data-role="select">
-            {{#states}}
-            <option value="{{doc.state}}">{{t doc.state}}</option>
-            {{/states}}
-          </select>
-        </div>
+          <div data-role="fieldcontain">
+            <label for="task-project" class="select"
+                  data-i18n="details.project">
+              Project:
+            </label>
+            <select name="project-select" id="task-project" data-role="select">
+              {{#projects}}
+              <option value="{{doc.project}}">{{doc.project}}</option>
+              {{/projects}}
+            </select>
+          </div>
 
-        <div data-role="fieldcontain">
-          <label for="description" data-i18n="details.description">
-              Description:
-          </label>
-          <textarea name="description" id="description">{{task.description}}</textarea>
-        </div>
+          <div data-role="fieldcontain">
+            <label for="task-state" class="select"
+                  data-i18n="details.state">
+              State:
+            </label>
+            <select name="state-select" id="task-state" data-role="select">
+              {{#states}}
+              <option value="{{doc.state}}">{{t doc.state}}</option>
+              {{/states}}
+            </select>
+          </div>
 
-        <div data-role="fieldcontain">
-          <a href="#" data-role="button"
-             data-icon="delete"
-             data-inline="true"
-             data-i18n="details.delete">
-            Delete
-          </a>
-          <a href="#" data-role="button"
-             data-icon="check"
-             data-inline="true"
-             data-i18n="details.save">
-            Save
-          </a>
-        </div>
+          <div data-role="fieldcontain">
+            <label for="task-description" data-i18n="details.description">
+                Description:
+            </label>
+            <textarea name="description" id="task-description">{{task.description}}</textarea>
+          </div>
 
+          <div data-role="fieldcontain">
+            {{#if task._id}}
+            <a href="#" data-role="button"
+              id="task-delete"
+              data-icon="delete"
+              data-inline="true"
+              data-i18n="details.delete">
+              Delete
+            </a>
+            {{else}}
+            <a href="#" data-role="button"
+              data-rel="back"
+              data-icon="cancel"
+              data-inline="true"
+              data-i18n="details.cancel">
+              Cancel
+            </a>
+            {{/if}}
+            <a href="#" data-role="button"
+              id="task-save"
+              data-icon="check"
+              data-inline="true"
+              data-i18n="details.save">
+              Save
+            </a>
+          </div>
+
+        </form>
       </script>
 
     </div><!-- /page -->

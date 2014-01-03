@@ -49,7 +49,11 @@
       }
     }
   });
-  require(["modules/taskman"], function (taskman) {
+  require(['modules/taskman', 'jquery'], function (taskman, $) {
+    $(document).bind('mobileinit',function(){
+      $.mobile.selectmenu.prototype.options.nativeMenu = false;
+    });
+
     taskman.run();
   });
 }());

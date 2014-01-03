@@ -76,8 +76,11 @@ define(
     util.registerHelpers = function () {
       // Truncate date strings to yyyy-mm-dd
       Handlebars.registerHelper('asYMD', function (date) {
-        var m = moment(date);
-        return new Handlebars.SafeString(m.format('YYYY-MM-DD'));
+        if (date) {
+          return new Handlebars.SafeString(moment(date).format('YYYY-MM-DD'));
+        } else {
+          return '';
+        }
       });
 
       // Make translation accessible from within Handlebars templates

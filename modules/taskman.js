@@ -1,5 +1,5 @@
 /*jslint indent: 2, nomen: true, vars: true */
-/*global require, console, define, document, alert, window */
+/*global require, console, define, document, alert, window, parent */
 
 define(
   [
@@ -70,7 +70,6 @@ define(
 
         Logger.debug('Inserting %i objects..', objs.length);
         objs.map(function (obj) {
-          obj.reference = task_util.createUUID();
           obj.modified = new Date();
 
           jio.post(obj)
@@ -115,7 +114,6 @@ define(
     var createInitialConfig = function () {
       Logger.debug('Creating configuration...');
       return jio_config.post({
-        'reference': 'baeba5b3-dec7-c06e-1ae3-49585b5bd938',
         'modified': new Date(),
         'storage_type': 'local',
         'username': 'Admin',
@@ -387,10 +385,25 @@ define(
 
       var params = task_util.parseParams(window.location.search),
         projects_promise = jio_tasks.allDocs({include_docs: true, query: '(type:"Project")'}),
-        task_promise = jio_tasks.get({'_id': params.id}),
+        task_promise = null,
         states_promise = jio_tasks.allDocs({include_docs: true, query: '(type:"State")'});
 
+      if (params.id) {
+        task_promise = jio_tasks.get({'_id': params.id});
+      } else {
+        task_promise = new RSVP.Promise(function (resolve) {
+          resolve({
+            data: {
+              title: 'New task',
+              start: moment().format('YYYY-MM-DD')
+            }
+          });
+        });
+      }
+
       Logger.debug('Retrieving task %s', params.id);
+
+      // Display detail form
 
       RSVP.all([task_promise, projects_promise, states_promise])
         .then(function callback(responses) {
@@ -402,12 +415,91 @@ define(
           $('#details-container')
             .html(template({'task': task_resp.data, 'projects': projects_resp.data.rows, 'states': states_resp.data.rows}))
             .trigger('create');
-          Logger.info('Selecting: %s', task_resp.data.project);
-          task_util.jqmSetSelected('#project-select', task_resp.data.project);
+          task_util.jqmSetSelected('#task-project', task_resp.data.project);
+          task_util.jqmSetSelected('#task-state', task_resp.data.state);
           // XXX if the project does not exist anymore, the first one is selected
           applyTranslation();
         });
         // TODO handle failure (no task found)
+    });
+
+
+
+
+    //
+    // Create/Modify a task
+    //
+    $(document).on('click', '#task-save', function (ev) {
+      var id = $('#task-id').val(),
+        title = $('#task-title').val(),
+        start = $('#task-start').val(),
+        stop = $('#task-stop').val(),
+        project = $('#task-project').val(),
+        state = $('#task-state').val(),
+        description = $('#task-description').val(),
+        doc = {};
+
+      // XXX validate input
+
+      doc = {
+        type: 'Task',
+        title: title,
+        start: start,
+        stop: stop,
+        project: project,
+        state: state,
+        description: description,
+        modified: new Date()
+      };
+
+      if (id) {
+        doc._id = id;
+        jio_tasks.put(doc).
+          then(function (response) {
+            Logger.debug('Updated task %o:', response.id);
+            Logger.debug('  result %s', response.result);
+            Logger.debug('  status %s (%s)', response.status, response.statusText);
+            parent.history.back();
+            // XXX explicit redirect
+          }).
+          fail(function (error) {
+            // XXX not working
+            // errorDialog(error);
+          });
+      } else {
+        jio_tasks.post(doc).
+          then(function (response) {
+            Logger.debug('Created task %o:', response.id);
+            Logger.debug('  result %s', response.result);
+            Logger.debug('  status %s (%s)', response.status, response.statusText);
+            parent.history.back();
+            // XXX explicit redirect
+          }).
+          fail(function () {
+            // XXX not working
+            // errorDialog(error);
+          });
+      }
+    });
+
+
+    //
+    // Delete a task
+    //
+    $(document).on('click', '#task-delete', function (ev) {
+      var id = $('#task-id').val();
+
+      jio_tasks.remove({_id: id}).
+        then(function (response) {
+          Logger.debug('Deleted task %o:', response.id);
+          Logger.debug('  status %s', response.status);
+          parent.history.back();
+          // XXX explicit redirect
+        }).
+        fail(function () {
+          // XXX not working
+          // errorDialog(error);
+        });
     });
 
 
@@ -433,7 +525,8 @@ define(
     });
 
 
-    var accentFold = function (s) {
+    // remove accents and convert to lower case
+    var accentFoldLC = function (s) {
       var map = [
           [new RegExp('[àáâãäå]', 'gi'), 'a'],
           [new RegExp('æ', 'gi'), 'ae'],
@@ -447,6 +540,10 @@ define(
           [new RegExp('[ýÿ]', 'gi'), 'y']
         ];
 
+      if (!s) {
+        return s;
+      }
+
       map.forEach(function (o) {
         var rep = function (match) {
           if (match.toUpperCase() === match) {
@@ -456,7 +553,7 @@ define(
         };
         s = s.replace(o[0], rep);
       });
-      return s;
+      return s.toLowerCase();
     };
 
 
@@ -476,10 +573,18 @@ define(
               match_lookup: {
                 translatedStateMatch: function (object_value, value) {
                   var translated_object_value = i18next.t(object_value);
-                  return accentFold(translated_object_value).toLowerCase() === accentFold(value.toLowerCase());
+                  return RSVP.resolve(accentFoldLC(translated_object_value) === accentFoldLC(value));
                 }
               },
               key_set: {
+                title: {
+                  read_from: 'title',
+                  cast_to: accentFoldLC
+                },
+                description: {
+                  read_from: 'description',
+                  cast_to: accentFoldLC
+                },
                 start: {
                   read_from: 'start',
                   cast_to: 'dateType'
