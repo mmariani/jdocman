@@ -6,8 +6,10 @@
           "project_i18n": "settings.content.default"
         },
         { "type": "Project",
-          "project": "Not the default project",
-          "project_i18n": "settings.content.default"
+          "project": "Events"
+        },
+        { "type": "Project",
+          "project": "Market Garden"
         }
       ],
   "states":    [
@@ -39,6 +41,38 @@
           "stop": "2014-10-29T23:00:00.000Z",
           "state": "Confirmed",
           "description": "some description..."
+        },
+        { "type": "Task",
+          "title": "Vintage",
+          "project": "Market Garden",
+          "start": "2014-09-15",
+          "stop": "2014-10-01",
+          "state": "Confirmed",
+          "description": "La vendange est la récolte du raisin destiné à la production du vin"
+        },
+        { "type": "Task",
+          "title": "Winter Olympics",
+          "project": "Events",
+          "start": "2014-02-07",
+          "stop": "2014-02-23",
+          "state": "Confirmed",
+          "description": "2014 Winter Olympics held in Sochi, Russia."
+        },
+        { "type": "Task",
+          "title": "Solar eclipse",
+          "project": "Events",
+          "start": "2014-04-29",
+          "stop": "2014-04-29",
+          "state": "Confirmed",
+          "description": ""
+        },
+        { "type": "Task",
+          "title": "Soccer World Cup",
+          "project": "Events",
+          "start": "2014-06-12",
+          "stop": "2014-07-13",
+          "state": "Confirmed",
+          "description": "2014 FIFA World Cup held in Brazil."
         }
       ]
     }

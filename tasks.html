@@ -6,31 +6,41 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="lib/jqm/jquery.mobile-1.4.0-rc.1.css" rel="stylesheet">
-    <script data-main="main" src='lib/requirejs/require.js'></script>
+    <script data-main="main" src="lib/requirejs/require.js"></script>
   </head>
   <body>
-    <div data-role="page" id='tasks-page'>
- 
+    <div data-role="page" id="tasks-page">
+
       <div data-role="header" data-position="fixed">
+        <select id="task-sortby" data-role="select" data-mini="true">
+          <option value="" data-i18n="tasks.sortby.#">Sort by</option>
+          <option value="title" data-i18n="tasks.sortby.title">Title</option>
+          <option value="start" data-i18n="tasks.sortby.start">Begin Date</option>
+          <option value="stop" data-i18n="tasks.sortby.stop">End Date</option>
+          <option value="state" data-i18n="tasks.sortby.state">State</option>
+          <option value="description" data-i18n="tasks.sortby.description">Description</option>
+        </select>
+        <h2 data-i18n="header.tasks">
+          Tasks
+        </h2>
         <a href="details.html?id=" data-role="button" data-icon="plus"
+           class="ui-btn-right"
            data-mini="true"
            data-i18n="tasks.newtask">
           New Task
         </a>
-        <h2 data-i18n="header.tasks">
-          Tasks
-        </h2>
       </div><!-- /header -->
- 
+
       <div data-role="content">
         <div data-role="controlgroup">
           <input type="text" data-type="search" name="search" id="search-tasks"
-                 value="" class="ui-input-text" data-inline="true"></input>
-          <!-- <a href="#" id="search-trigger" data-role="button" data-inline="true">Search</a> -->
+                 value="" class="ui-input-text" data-inline="true"
+                 placeholder="filter by title, state, date or project"
+                 data-i18n="[placeholder]tasks.placeholder"></input>
         </div>
         <div id="task-list-container"></div>
       </div><!-- /content -->
- 
+
       <div data-role="footer" data-position="fixed">
 
         <div data-role="navbar" data-iconpos="left">
@@ -66,22 +76,19 @@
       </div><!-- /footer -->
 
       <script id="task-list-template" type="text/x-handlebars-template">
-        <ul data-role="listview" data-inset="true">
+        <ul data-role="listview" data-inset="true" class="task-listview">
           {{#rows}}
             <li>
               <a href="details.html?id={{id}}">
                 {{doc.title}}
-                <br />
-                <span>{{doc.description}}</span>
-                <br />
-                <span>
+                <p>{{doc.description}}</p>
+                <p>
                   <span class="state">{{t doc.state}}</span>
                   {{t "tasks.from"}}
                   <span class="from-date">{{asYMD doc.start}}</span>
                   {{t "tasks.to"}}
                   <span class="to-date">{{asYMD doc.stop}}</span>
-                </span>
-                <br />
+                </p>
               </a>
             </li>
           {{/rows}}

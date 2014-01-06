@@ -6,10 +6,10 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="lib/jqm/jquery.mobile-1.4.0-rc.1.css" rel="stylesheet">
-    <script data-main="main" src='lib/requirejs/require.js'></script>
+    <script data-main="main" src="lib/requirejs/require.js"></script>
   </head>
   <body>
-    <div data-role="page" id='projects-page'>
+    <div data-role="page" id="projects-page">
  
       <div data-role="header" data-position="fixed">
         <h2 data-i18n="header.projects">
@@ -57,14 +57,26 @@
 
       <script id="project-list-template" type="text/x-handlebars-template">
 
-        <ul data-role="listview" data-inset="true">
+        <ul data-role="listview" class="ui-listview-outer" data-inset="true">
           {{#each tasks}}
             <li data-role="collapsible" data-iconpos="right" data-inset="false">
             <h2>{{@key}}</h2>
-              <ul data-role="listview">
+              <ul data-role="listview" class="task-listview">
                 {{#each this}}
                 {{#with this}}
-                  <li><a href="details.html?id={{_id}}">{{title}}</a></li>
+                  <li>
+                    <a href="details.html?id={{_id}}">
+                      {{title}}
+                      <p>{{description}}</p>
+                      <p>
+                        <span class="state">{{t state}}</span>
+                        {{t "tasks.from"}}
+                        <span class="from-date">{{asYMD start}}</span>
+                        {{t "tasks.to"}}
+                        <span class="to-date">{{asYMD stop}}</span>
+                      </p>
+                    </a>
+                  </li>
                 {{/with}}
                 {{/each}}
               </ul>

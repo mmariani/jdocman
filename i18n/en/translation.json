@@ -10,7 +10,16 @@
     "tasks": {
       "newtask": "New Task",
       "from": "from",
-      "to": "to"
+      "to": "to",
+      "placeholder": "filter by title, state, date or project",
+      "sortby": {
+        "#": "Sort by",
+        "title": "Title",
+        "start": "Begin date",
+        "stop": "End date",
+        "state": "State",
+        "description": "Description"
+      }
     },
     "details": {
       "title": "Title:",

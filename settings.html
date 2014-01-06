@@ -6,11 +6,11 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="lib/jqm/jquery.mobile-1.4.0-rc.1.css" rel="stylesheet">
-    <script data-main="main" src='lib/requirejs/require.js'></script>
+    <script data-main="main" src="lib/requirejs/require.js"></script>
   </head>
   <body>
-    <div data-role="page" id='settings-page'>
- 
+    <div data-role="page" id="settings-page">
+
       <div data-role="header" data-position="fixed">
         <a href="#" data-role="button" data-rel="back"
           data-icon="arrow-l" data-mini="true"
@@ -21,7 +21,7 @@
           Settings
         </h2>
       </div><!-- /header -->
- 
+
       <div data-role="content">
         <select name="translate" id="translate" data-mini="true">
           <option value="en" data-i18n="settings.translate.en">English</option>
@@ -30,7 +30,7 @@
         </select>
         <div id="settings-edit-container"></div>
       </div><!-- /content -->
- 
+
       <div data-role="footer" data-position="fixed">
 
         <div data-role="navbar" data-iconpos="left">
@@ -69,15 +69,23 @@
         <fieldset data-role="controlgroup" data-mini="true">
           <legend data-i18n="settings.states">States:</legend>
           {{#states}}
-          <label data-i18n="{{doc.state}}"><input type="checkbox" name="state-{{doc.state}}" />{{t doc.state}}</label>
+          <label data-i18n="{{doc.state}}"><input type="checkbox" name="state-{{doc._id}}" value="{{doc._id}}" />{{t doc.state}}</label>
           {{/states}}
+        </fieldset>
+        <fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+          <a href="#" id="settings-del-state" data-role="button" data-icon="delete" data-inline="true">Delete selected</a>
+          <a href="#" id="settings-add-state" data-role="button" data-icon="plus" data-inline="true">New State</a>
         </fieldset>
 
         <fieldset data-role="controlgroup" data-mini="true">
           <legend data-i18n="settings.projects">Projects:</legend>
           {{#projects}}
-          <label><input type="checkbox" name="project-{{doc.project}}" />{{doc.project}}</label>
+          <label><input type="checkbox" name="project-{{doc._id}}" value="{{doc._id}}" />{{doc.project}}</label>
           {{/projects}}
+        </fieldset>
+        <fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+          <a href="#" id="settings-del-project" data-role="button" data-icon="delete" data-inline="true">Delete selected</a>
+          <a href="#" id="settings-add-project" data-role="button" data-icon="plus" data-inline="true">New Project</a>
         </fieldset>
 
       </script>

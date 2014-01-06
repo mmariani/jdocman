@@ -17,6 +17,9 @@ define(
       util = {};
 
 
+    //
+    // Parse the query string.
+    //
     util.parseParams = function (query) {
       var params = {}, e, k, v, re = /([^&=]+)=?([^&]*)/g;
       if (query) {
@@ -41,8 +44,10 @@ define(
     };
 
 
+    //
     // Update a <select> element's selected option,
     // then activates the jquery mobile event to refresh UI
+    //
     util.jqmSetSelected = function (el, value) {
       var $select = $(el);
 
@@ -56,15 +61,6 @@ define(
     };
 
 
-    // Check if a date object is valid.
-    util.isValidDate = function (d) {
-      if (Object.prototype.toString.call(d) !== "[object Date]") {
-        return false;
-      }
-      return !isNaN(d.getTime());
-    };
-
-
     util.createUUID = function () {
       var S4 = function () {
         return ('0000' + Math.floor(Math.random() * 0x10000).toString(16)).slice(-4);
@@ -74,21 +70,28 @@ define(
 
 
     util.registerHelpers = function () {
-      // Truncate date strings to yyyy-mm-dd
+      //
+      // Display date strings or objects as yyyy-mm-dd
+      // (takes timezone into account)
+      //
       Handlebars.registerHelper('asYMD', function (date) {
         if (date) {
           return new Handlebars.SafeString(moment(date).format('YYYY-MM-DD'));
-        } else {
-          return '';
         }
+        return '';
       });
 
+      //
       // Make translation accessible from within Handlebars templates
+      //
       Handlebars.registerHelper('t', function (i18n_key) {
         return new Handlebars.SafeString(i18next.t(i18n_key));
       });
 
-      // XXX also see https://github.com/assemble/handlebars-helpers/blob/master/lib/helpers/helpers-comparisons.js
+      //
+      // Add value comparisions, also see:
+      // https://github.com/assemble/handlebars-helpers/blob/master/lib/helpers/helpers-comparisons.js
+      //
       Handlebars.registerHelper('ifCond', function (v1, operator, v2, options) {
         switch (operator) {
         case '==':
@@ -108,6 +111,40 @@ define(
         }
       });
 
+    };
+
+
+    //
+    // Remove accents and convert to lower case
+    //
+    util.accentFoldLC = function (s) {
+      var map = [
+          [new RegExp('[àáâãäå]', 'gi'), 'a'],
+          [new RegExp('æ', 'gi'), 'ae'],
+          [new RegExp('ç', 'gi'), 'c'],
+          [new RegExp('[èéêë]', 'gi'), 'e'],
+          [new RegExp('[ìíîï]', 'gi'), 'i'],
+          [new RegExp('ñ', 'gi'), 'n'],
+          [new RegExp('[òóôõö]', 'gi'), 'o'],
+          [new RegExp('œ', 'gi'), 'oe'],
+          [new RegExp('[ùúûü]', 'gi'), 'u'],
+          [new RegExp('[ýÿ]', 'gi'), 'y']
+        ];
+
+      if (!s) {
+        return s;
+      }
+
+      map.forEach(function (o) {
+        var rep = function (match) {
+          if (match.toUpperCase() === match) {
+            return o[1].toUpperCase();
+          }
+          return o[1];
+        };
+        s = s.replace(o[0], rep);
+      });
+      return s.toLowerCase();
     };
 
 

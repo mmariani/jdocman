@@ -10,7 +10,16 @@
     "tasks": {
       "newtask": "新任务",
       "from": "从",
-      "to": "至"
+      "to": "至",
+      "placeholder": "过滤标题，状态，日期或项目",
+      "sortby": {
+        "#": "分类",
+        "title": "标题",
+        "start": "开始日期",
+        "stop": "结束日期",
+        "state": "状态",
+        "description": "描述"
+      }
     },
     "details": {
       "title": "标题:",

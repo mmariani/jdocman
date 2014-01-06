@@ -10,7 +10,16 @@
     "tasks": {
       "newtask": "Nouvelle tâche",
       "from": "du",
-      "to": "au"
+      "to": "au",
+      "placeholder": "filtrer par titre, état, dates ou projet",
+      "sortby": {
+        "#": "Trier par",
+        "title": "Titre",
+        "start": "Date de bébut",
+        "stop": "Date de fin",
+        "state": "Etat",
+        "description": "Description"
+      }
     },
     "details": {
       "title": "Titre:",

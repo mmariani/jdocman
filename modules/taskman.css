@@ -1,14 +1,15 @@
 
-#task-list-container span {
+.task-listview li p {
   font-size: 80%;
+  font-weight: bold;
 }
 
-#task-list-container .from-date,
-#task-list-container .to-date {
+.task-listview .from-date,
+.task-listview .to-date {
   color: #A52A2A;
 }
 
-#task-list-container .state {
+.task-listview .state {
   color: green;
 }
 

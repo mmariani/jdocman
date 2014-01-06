@@ -21,7 +21,8 @@ define(
     'text',
     'css',
     // 'css!jqm/jquery.mobile-1.4.0-rc.1.css',   // XXX does not work
-    'css!modules/taskman.css'
+    'css!modules/taskman.css',
+    'css!modules/collapsible-listview.css'
   ],
   function ($, jIO, RSVP, Logger, Handlebars, task_util, i18next, moment, jiodate, davstorage) {
     "use strict";
@@ -107,7 +108,7 @@ define(
 
 
 // XXX can we log all failed promises?
-//    RSVP.on('error', function(event) {
+//    RSVP.on('error', function (event) {
 //      console.assert(false, event.detail);
 //    });
 
@@ -143,7 +144,7 @@ define(
         for (i = 0; i < rows_length; i += 1) {
           id = response.data.rows[i].id;
           Logger.debug('Removing: %s on storage %o', id, jio);
-          jio.remove({'_id': id});
+          jio.remove({_id: id});
         }
       });
     };
@@ -231,7 +232,6 @@ define(
 
 
     $(document).on('pagebeforeshow.projects', '#projects-page', function (ev, data) {
-      // XXX also trigger when directly loading this page, after everything is set up
       Logger.info('Loading Projects page');
 
       var options = {
@@ -275,7 +275,7 @@ define(
       }
     };
 
-    var update_tasks_list = function () {
+    var updateTaskList = function (sort_by) {
       var input_text = $('#search-tasks').val(),
 //          query = '(type: "Task")' + (input_text ? ' AND (' + input_text + ')' : '');
 
@@ -339,6 +339,9 @@ define(
       var options = {
         include_docs: true,
         wildcard_character: '%',
+        sort_on: [
+          [sort_by || 'start', 'ascending']
+        ],
         query: query
       };
 
@@ -353,16 +356,17 @@ define(
         });
     };
 
+    $('#task-sortby').on('change', function () {
+      var sort_by = $(this).val();
+      updateTaskList(sort_by);
+    });
+
     $(document).on('pagebeforeshow.tasks', '#tasks-page', function (ev) {
       Logger.info('Loading Tasks page');
-      update_tasks_list();
+      $("#task-sortby-button").addClass("ui-btn-left");
+      updateTaskList();
       applyTranslation();
     });
-
-    $(document).on('click', '#search-trigger', function (ev) {
-      update_tasks_list();
-    });
-
 
     $(document).on('input', '#search-tasks', function (ev) {
       if (input_timer) {
@@ -371,14 +375,13 @@ define(
       }
       input_timer = window.setTimeout(function () {
         // var search_string = $(ev.target).val();
-        update_tasks_list();
+        updateTaskList();
         input_timer = 0;
       }, 500);
     });
 
 
     $(document).on('pagebeforeshow.task', '#details-page', function (ev, data) {
-      // XXX also trigger when directly loading this page, after everything is set up
       Logger.info('Loading Task Edit page');
       // XXX location.search may not work in Phonegap
       // TODO sanitize params.id
@@ -389,7 +392,7 @@ define(
         states_promise = jio_tasks.allDocs({include_docs: true, query: '(type:"State")'});
 
       if (params.id) {
-        task_promise = jio_tasks.get({'_id': params.id});
+        task_promise = jio_tasks.get({_id: params.id});
       } else {
         task_promise = new RSVP.Promise(function (resolve) {
           resolve({
@@ -503,12 +506,12 @@ define(
     });
 
 
-    $(document).on('pagebeforeshow.settings', '#settings-page', function (ev, data) {
-      // XXX also trigger when directly loading this page, after everything is set up
-      Logger.info('Loading Settings page');
-
-      var projects_promise = jio_tasks.allDocs({include_docs: true, query: '(type:"Project")'}),
-        states_promise = jio_tasks.allDocs({include_docs: true, query: '(type:"State")'});
+    //
+    // Update form for editing project / state list
+    //
+    var updateSettingsForm = function () {
+      var projects_promise = jio_tasks.allDocs({include_docs: true, sort_on: [['project', 'ascending']], query: '(type:"Project")'}),
+        states_promise = jio_tasks.allDocs({include_docs: true, sort_on: [['state', 'ascending']], query: '(type:"State")'});
 
       RSVP.all([projects_promise, states_promise])
         .then(function callback(responses) {
@@ -522,39 +525,112 @@ define(
           applyTranslation();
         });
         // TODO handle failure (no task found)
+    };
+
+    $(document).on('pagebeforeshow.settings', '#settings-page', function (ev, data) {
+      Logger.info('Loading Settings page');
+
+      updateSettingsForm();
     });
 
 
-    // remove accents and convert to lower case
-    var accentFoldLC = function (s) {
-      var map = [
-          [new RegExp('[àáâãäå]', 'gi'), 'a'],
-          [new RegExp('æ', 'gi'), 'ae'],
-          [new RegExp('ç', 'gi'), 'c'],
-          [new RegExp('[èéêë]', 'gi'), 'e'],
-          [new RegExp('[ìíîï]', 'gi'), 'i'],
-          [new RegExp('ñ', 'gi'), 'n'],
-          [new RegExp('[òóôõö]', 'gi'), 'o'],
-          [new RegExp('œ', 'gi'), 'oe'],
-          [new RegExp('[ùúûü]', 'gi'), 'u'],
-          [new RegExp('[ýÿ]', 'gi'), 'y']
-        ];
+    //
+    // Delete a state
+    //
+    $(document).on('click', '#settings-del-state', function (ev) {
+      var $selected = $('input:checkbox:checked[name|=state]');
+      $selected.each(function (i, el) {
+        jio_tasks.remove({_id: el.value});
+      });
 
-      if (!s) {
-        return s;
+// XXX shouldn't remove() return a promise ?
+//        del_promises = $selected.map(function (i, el) {
+//          return jio_tasks.remove({_id: el.value});
+//        });
+//
+//      RSVP.all(del_promises).then(function() {
+//        debugger;
+//      });
+//      // XXX handle failure
+    });
+
+
+    //
+    // Add a state
+    //
+    $(document).on('click', '#settings-add-state', function (ev) {
+      var state = window.prompt("State name?") || '',
+        doc = null;
+
+      state = state.trim();
+
+      if (!state) {
+        return;
       }
 
-      map.forEach(function (o) {
-        var rep = function (match) {
-          if (match.toUpperCase() === match) {
-            return o[1].toUpperCase();
-          }
-          return o[1];
-        };
-        s = s.replace(o[0], rep);
+      state = state.charAt(0).toUpperCase() + state.slice(1);
+
+      doc = {
+        'type': 'State',
+        'state': state,
+        'modified': new Date()
+      };
+
+      jio_tasks.post(doc).
+        then(function (response) {
+          var id = response.id;
+          Logger.debug('Added state: %o', response.id);
+          Logger.debug('  status %s (%s)', response.status, response.statusText);
+          updateSettingsForm();
+        });
+        // XXX handle failure
+    });
+
+
+
+    //
+    // Delete a project
+    //
+    $(document).on('click', '#settings-del-project', function (ev) {
+      var $selected = $('input:checkbox:checked[name|=project]');
+
+      $selected.each(function (i, el) {
+        jio_tasks.remove({_id: el.value});
       });
-      return s.toLowerCase();
-    };
+      updateSettingsForm();
+    });
+
+
+    //
+    // Add a project
+    //
+    $(document).on('click', '#settings-add-project', function (ev) {
+      var project = window.prompt("Project name?") || '',
+        doc = null;
+
+      project = project.trim();
+
+      if (!project) {
+        return;
+      }
+
+      project = project.charAt(0).toUpperCase() + project.slice(1);
+
+      doc = {
+        'type': 'Project',
+        'project': project,
+        'modified': new Date()
+      };
+
+      jio_tasks.post(doc).
+        then(function (response) {
+          var id = response.id;
+          Logger.debug('Added project: %o', response.id);
+          Logger.debug('  status %s (%s)', response.status, response.statusText);
+          updateSettingsForm();
+        });
+        // XXX handle failure
+    });
 
 
     var connectStorage = function () {
@@ -573,17 +649,18 @@ define(
               match_lookup: {
                 translatedStateMatch: function (object_value, value) {
                   var translated_object_value = i18next.t(object_value);
-                  return RSVP.resolve(accentFoldLC(translated_object_value) === accentFoldLC(value));
+                  return RSVP.resolve(task_util.accentFoldLC(translated_object_value) ===
+                                      task_util.accentFoldLC(value));
                 }
               },
               key_set: {
                 title: {
                   read_from: 'title',
-                  cast_to: accentFoldLC
+                  cast_to: task_util.accentFoldLC
                 },
                 description: {
                   read_from: 'description',
-                  cast_to: accentFoldLC
+                  cast_to: task_util.accentFoldLC
                 },
                 start: {
                   read_from: 'start',
