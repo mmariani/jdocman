@@ -28,7 +28,8 @@ define(
     var jio_config = null,
       jio_tasks = null,
       taskman = {},
-      input_timer = null;
+      input_timer = null,
+      details_id_target = null;   // parameter for details.html -- we cannot use URL parameters with appcache
 
     //
     // jQuery Mobile must be loaded here
@@ -261,7 +262,7 @@ define(
     };
 
 
-    $(document).on('pagebeforeshow.projects', '#projects-page', function (ev, data) {
+    $(document).on('pagebeforeshow', '#projects-page', function (ev, data) {
       Logger.debug('Loading Projects page');
 
       var options = {
@@ -391,7 +392,7 @@ define(
       updateTaskList(sort_by);
     });
 
-    $(document).on('pagebeforeshow.tasks', '#tasks-page', function (ev) {
+    $(document).on('pagebeforeshow', '#tasks-page', function (ev) {
       Logger.debug('Loading Tasks page');
       $("#task-sortby-button").addClass("ui-btn-left");
       updateTaskList();
@@ -411,18 +412,25 @@ define(
     });
 
 
-    $(document).on('pagebeforeshow.task', '#details-page', function (ev, data) {
+
+    $(document).on('click', '.details-link', function () {
+      details_id_target = $(this).data('jio-id');
+      $.mobile.changePage('details.html');
+    });
+
+
+    $(document).on('pagebeforeshow', '#details-page', function (ev, data) {
       Logger.debug('Loading Task Edit page');
       // XXX location.search may not work in Phonegap
-      // TODO sanitize params.id
 
-      var params = task_util.parseParams(window.location.search),
-        projects_promise = jio_tasks.allDocs({include_docs: true, sort_on: [['project', 'ascending']], query: '(type:"Project")'}),
+      var projects_promise = jio_tasks.allDocs({include_docs: true, sort_on: [['project', 'ascending']], query: '(type:"Project")'}),
         task_promise = null,
         states_promise = jio_tasks.allDocs({include_docs: true, sort_on: [['state', 'ascending']], query: '(type:"State")'});
 
-      if (params.id) {
-        task_promise = jio_tasks.get({_id: params.id});
+      if (details_id_target) {
+        task_promise = jio_tasks.get({_id: details_id_target});
+        Logger.debug('Retrieving task %s', details_id_target);
+        details_id_target = null;
       } else {
         task_promise = new RSVP.Promise(function (resolve) {
           resolve({
@@ -433,8 +441,6 @@ define(
           });
         });
       }
-
-      Logger.debug('Retrieving task %s', params.id);
 
       RSVP.all([task_promise, projects_promise, states_promise])
         .then(function callback(responses) {
@@ -555,7 +561,7 @@ define(
         // TODO handle failure (no task found)
     };
 
-    $(document).on('pagebeforeshow.settings', '#settings-page', function (ev, data) {
+    $(document).on('pagebeforeshow', '#settings-page', function (ev, data) {
       Logger.debug('Loading Settings page');
 
       updateSettingsForm();

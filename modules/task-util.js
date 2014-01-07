@@ -18,33 +18,6 @@ define(
 
 
     //
-    // Parse the query string.
-    //
-    util.parseParams = function (query) {
-      var params = {}, e, k, v, re = /([^&=]+)=?([^&]*)/g;
-      if (query) {
-        if (query.substr(0, 1) === '?') {
-          query = query.substr(1);
-        }
-
-        while (e = re.exec(query)) {
-          k = decode(e[1]);
-          v = decode(e[2]);
-          if (params[k] !== undefined) {
-            if (!$.isArray(params[k])) {
-              params[k] = [params[k]];
-            }
-            params[k].push(v);
-          } else {
-            params[k] = v;
-          }
-        }
-      }
-      return params;
-    };
-
-
-    //
     // Update a <select> element's selected option,
     // then activates the jquery mobile event to refresh UI
     //

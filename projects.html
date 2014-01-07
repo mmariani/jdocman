@@ -64,7 +64,7 @@
             <ul data-role="listview" class="task-listview">
               {{#each this.tasks}}
               <li>
-                <a href="details.html?id={{_id}}">
+                <a href="#" data-jio-id="{{_id}}" class="details-link">
                   {{title}}
                   <p>{{description}}</p>
                   <p>
