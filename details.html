@@ -1,16 +1,15 @@
 <!DOCTYPE html>
-<html>
+<html manifest="manifest.appcache">
   <head>
     <title>Task Manager</title>
     <link rel="shortcut icon" href="favicon.png" type="image/png"/>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="lib/jqm/jquery.mobile-1.4.0-rc.1.css" rel="stylesheet">
     <script data-main="main" src="lib/requirejs/require.js"></script>
   </head>
   <body>
     <div data-role="page" id="details-page">
- 
+
       <div data-role="header" data-position="fixed">
         <a href="#" data-role="button" data-rel="back"
           data-icon="arrow-l" data-mini="true"
@@ -21,11 +20,11 @@
           Details
         </h2>
       </div><!-- /header -->
- 
+
       <div data-role="content">
         <div id="details-container"></div>
       </div><!-- /content -->
- 
+
       <div data-role="footer" data-position="fixed">
 
         <div data-role="navbar" data-iconpos="left">

@@ -1,26 +1,25 @@
 <!DOCTYPE html>
-<html>
+<html manifest="manifest.appcache">
   <head>
     <title>Task Manager</title>
     <link rel="shortcut icon" href="favicon.png" type="image/png"/>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="lib/jqm/jquery.mobile-1.4.0-rc.1.css" rel="stylesheet">
     <script data-main="main" src="lib/requirejs/require.js"></script>
   </head>
   <body>
     <div data-role="page" id="projects-page">
- 
+
       <div data-role="header" data-position="fixed">
         <h2 data-i18n="header.projects">
           Projects
         </h2>
       </div><!-- /header -->
- 
+
       <div data-role="content">
         <div id="project-list-container"></div>
       </div><!-- /content -->
- 
+
       <div data-role="footer" data-position="fixed">
 
         <div data-role="navbar" data-iconpos="left">
@@ -59,28 +58,28 @@
 
         <ul data-role="listview" class="ui-listview-outer" data-inset="true">
           {{#each tasks}}
-            <li data-role="collapsible" data-iconpos="right" data-inset="false">
-            <h2>{{@key}}</h2>
-              <ul data-role="listview" class="task-listview">
-                {{#each this}}
-                {{#with this}}
-                  <li>
-                    <a href="details.html?id={{_id}}">
-                      {{title}}
-                      <p>{{description}}</p>
-                      <p>
-                        <span class="state">{{t state}}</span>
-                        {{t "tasks.from"}}
-                        <span class="from-date">{{asYMD start}}</span>
-                        {{t "tasks.to"}}
-                        <span class="to-date">{{asYMD stop}}</span>
-                      </p>
-                    </a>
-                  </li>
-                {{/with}}
-                {{/each}}
-              </ul>
-            </li>
+          <li data-role="collapsible" data-iconpos="right" data-inset="false">
+            <h2>{{@key}} <span class="ui-li-count">{{this.task_count}}</span></h2>
+            {{#if this.task_count}}
+            <ul data-role="listview" class="task-listview">
+              {{#each this.tasks}}
+              <li>
+                <a href="details.html?id={{_id}}">
+                  {{title}}
+                  <p>{{description}}</p>
+                  <p>
+                    <span class="state">{{t state}}</span>
+                    {{t "tasks.from"}}
+                    <span class="from-date">{{asYMD start}}</span>
+                    {{t "tasks.to"}}
+                    <span class="to-date">{{asYMD stop}}</span>
+                  </p>
+                </a>
+              </li>
+              {{/each}}
+            </ul>
+            {{/if}}
+          </li>
           {{/each}}
         </ul>
 

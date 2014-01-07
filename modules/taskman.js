@@ -4,23 +4,21 @@
 define(
   [
     'jquery',
-    'jio',
-    'rsvp',
-    'logger',
-    'handlebars',
-    'task_util',
-    'i18next',
-    'moment',
-    // jio dependencies
-    'jiodate',
-    'davstorage',
-    'sha256',
-    'localstorage',
-    // requirejs plugins
-    'json',
-    'text',
-    'css',
-    // 'css!jqm/jquery.mobile-1.4.0-rc.1.css',   // XXX does not work
+    'jio',          // data storage API
+    'rsvp',         // promises
+    'logger',       // configurable alternative to console.log
+    'handlebars',   // HTML templates
+    'task_util',    // helper functions
+    'i18next',      // translation
+    'moment',       // date and time management
+    'jiodate',      // jIO: precision-aware Date type
+    'davstorage',   // jIO: remote WebDAV storage
+    'sha256',       // jIO: dependency
+    'localstorage', // jIO: browser storage
+    'json',         // RequireJS: plugin to retrieve JSON
+    'text',         // RequireJS: plugin to retrieve text
+    'css',          // RequireJS: plugin to retrieve CSS
+    'css!lib/jqm/jquery.mobile-1.4.0-rc.1.css',
     'css!modules/taskman.css',
     'css!modules/collapsible-listview.css'
   ],
@@ -32,21 +30,41 @@ define(
       taskman = {},
       input_timer = null;
 
+    //
+    // jQuery Mobile must be loaded here
+    // if we want 'pagebeforeshow' events to work.
+    //
     require(['jqm']);
 
     Logger.useDefaults();   // log to console
-    Logger.setLevel(Logger.DEBUG);    // XXX should be WARN for production
 
+    //
+    // DEBUG for development, WARN for production
+    //
+    Logger.setLevel(Logger.DEBUG);
+
+    //
+    // Register custom 'storage connected' event
+    //
     RSVP.EventTarget.mixin(taskman);
 
+    //
+    // Register helpers for Handlebars
+    //
     task_util.registerHelpers();
 
-    // Immediately apply translation to all elements which have a data-i18n attribute.
+    //
+    // Immediately apply translation to all elements
+    // which have a data-i18n attribute.
+    //
     var applyTranslation = function () {
       $('[data-i18n]').i18n();
     };
 
+
+    //
     // Initial setup for translation
+    //
     $.i18n.init({
       detectLngQS: 'lang',
       fallbackLng: 'fr',
@@ -57,12 +75,21 @@ define(
       applyTranslation();
     });
 
-    var TYPES = {
-      Project: 'Project',
-      State: 'State',
-      Task: 'Task'
-    };
 
+    //
+    // Change language from UI
+    //
+    $('#translate').on('change', function () {
+      var curr_lang = $(this).val();
+      $.i18n.setLng(curr_lang, function () {
+        applyTranslation();
+      });
+    });
+
+
+    //
+    // Fill with default/test data
+    //
     var populateInitialStorage = function (jio) {
       Logger.info('Populating initial storage...');
       require(['json!data/tasks.json'], function (data) {
@@ -84,16 +111,10 @@ define(
     };
 
 
-    $('#translate').on('change', function () {
-      var curr_lang = $(this).val();
-      $.i18n.setLng(curr_lang, function () {
-        applyTranslation();
-      });
-    });
-
-
+    //
+    // Create the UI
+    //
     taskman.on('task_storage_connected', function (event) {
-      // Create the UI
       jio_tasks = event.detail;
 
       jio_tasks.allDocs().then(function callback(response) {
@@ -127,8 +148,10 @@ define(
     };
 
 
+    //
+    // Display an 'error' object as received by jIO methods
+    //
     var errorDialog = function (error) {
-      // display an 'error' object as received by jIO methods
       // XXX there must be a better way to fill the content.
       $(document).on('pagebeforeshow.errordialog', '#errordialog', function (ev, data) {
         $(ev.target).find('.error-header').html(error.statusText);
@@ -138,6 +161,9 @@ define(
       $.mobile.changePage('errordialog.html', {role: 'dialog'});
     };
 
+    //
+    // Remove all data from a storage.
+    //
     var deleteStorageContent = function (jio) {
       jio.allDocs().then(function callback(response) {
         var i, id, rows_length = response.data.rows.length;
@@ -149,8 +175,10 @@ define(
       });
     };
 
+    //
+    // Remove test data, must reload to create again.
+    //
     $('#btn-reset-data').on('click', function (ev) {
-      // remove configuration and everything.
       Logger.info('Clearing tasks storage.');
       if (jio_tasks) {
         deleteStorageContent(jio_tasks);
@@ -163,8 +191,10 @@ define(
       // XXX: repopulate by reloading
     });
 
+    //
+    // Return a storage description according to a configuration document.
+    //
     var storageDescription = function (config) {
-      // returns a storage description according to a configuration document.
       if (config.storage_type === 'local') {
         return {
           'type': 'local',
@@ -232,11 +262,12 @@ define(
 
 
     $(document).on('pagebeforeshow.projects', '#projects-page', function (ev, data) {
-      Logger.info('Loading Projects page');
+      Logger.debug('Loading Projects page');
 
       var options = {
         include_docs: true,
-        query: '(type:"Project") OR (type:"Task")'
+        query: '(type:"Project") OR (type:"Task")',
+        sort_on: [['project', 'ascending']]
       }, tasks = {};
 
       Logger.debug('Querying projects...');
@@ -247,15 +278,16 @@ define(
           for (i = 0; i < response.data.total_rows; i += 1) {
             doc = response.data.rows[i].doc;
             if (doc.type === 'Project') {
-              tasks[doc.project] = [];
+              tasks[doc.project] = {tasks: [], task_count: 0};
             }
           }
 
           for (i = 0; i < response.data.total_rows; i += 1) {
             doc = response.data.rows[i].doc;
             if (doc.type === 'Task') {
-              tasks[doc.project] = tasks[doc.project] || [];
-              tasks[doc.project].push(doc);
+              tasks[doc.project] = tasks[doc.project] || {tasks: [], task_count: 0};
+              tasks[doc.project].tasks.push(doc);
+              tasks[doc.project].task_count += 1;
             }
           }
 
@@ -267,7 +299,7 @@ define(
       applyTranslation();
     });
 
-    var parseDate = function (s) {
+    var parseJIODate = function (s) {
       try {
         return jiodate.JIODate(s);
       } catch (e) {
@@ -277,11 +309,9 @@ define(
 
     var updateTaskList = function (sort_by) {
       var input_text = $('#search-tasks').val(),
-//          query = '(type: "Task")' + (input_text ? ' AND (' + input_text + ')' : '');
-
         search_string = input_text ? '%' + input_text + '%' : '%',
         query = null,
-        search_date = parseDate(input_text),      // ? moment(input_text).format('YYYY-MM-DD') : null,
+        search_date = parseJIODate(input_text),
         content_query_list = [
           {
             type: 'simple',
@@ -299,7 +329,7 @@ define(
         ];
 
       if (search_date) {
-        Logger.info('Search for date: %o', search_date);
+        Logger.debug('Search for date: %o', search_date);
 
         content_query_list.push({
           type: 'complex',
@@ -362,7 +392,7 @@ define(
     });
 
     $(document).on('pagebeforeshow.tasks', '#tasks-page', function (ev) {
-      Logger.info('Loading Tasks page');
+      Logger.debug('Loading Tasks page');
       $("#task-sortby-button").addClass("ui-btn-left");
       updateTaskList();
       applyTranslation();
@@ -382,14 +412,14 @@ define(
 
 
     $(document).on('pagebeforeshow.task', '#details-page', function (ev, data) {
-      Logger.info('Loading Task Edit page');
+      Logger.debug('Loading Task Edit page');
       // XXX location.search may not work in Phonegap
       // TODO sanitize params.id
 
       var params = task_util.parseParams(window.location.search),
-        projects_promise = jio_tasks.allDocs({include_docs: true, query: '(type:"Project")'}),
+        projects_promise = jio_tasks.allDocs({include_docs: true, sort_on: [['project', 'ascending']], query: '(type:"Project")'}),
         task_promise = null,
-        states_promise = jio_tasks.allDocs({include_docs: true, query: '(type:"State")'});
+        states_promise = jio_tasks.allDocs({include_docs: true, sort_on: [['state', 'ascending']], query: '(type:"State")'});
 
       if (params.id) {
         task_promise = jio_tasks.get({_id: params.id});
@@ -405,8 +435,6 @@ define(
       }
 
       Logger.debug('Retrieving task %s', params.id);
-
-      // Display detail form
 
       RSVP.all([task_promise, projects_promise, states_promise])
         .then(function callback(responses) {
@@ -528,7 +556,7 @@ define(
     };
 
     $(document).on('pagebeforeshow.settings', '#settings-page', function (ev, data) {
-      Logger.info('Loading Settings page');
+      Logger.debug('Loading Settings page');
 
       updateSettingsForm();
     });
@@ -542,6 +570,7 @@ define(
       $selected.each(function (i, el) {
         jio_tasks.remove({_id: el.value});
       });
+      updateSettingsForm();
 
 // XXX shouldn't remove() return a promise ?
 //        del_promises = $selected.map(function (i, el) {
@@ -633,13 +662,16 @@ define(
     });
 
 
+    //
+    // connect to the configured storage
+    //
     var connectStorage = function () {
-      // connect to the configured storage
       jio_config.allDocs({include_docs: true})
         .then(function callback(response) {
-          // XXX only considers the first document from jio_config
-          // (but there can be only one, right?)
-          console.assert(response.data.total_rows === 1);
+          //
+          // Only considers the first document from jio_config,
+          // but there can be only one
+          //
           var config = response.data.rows[0].doc,
             storage_description = storageDescription(config),
             key_schema = {
@@ -667,7 +699,6 @@ define(
                   cast_to: 'dateType'
                 },
                 stop: {
-                  // XXX this should actually be the end of month/year/whatever...
                   read_from: 'stop',
                   cast_to: 'dateType'
                 },
