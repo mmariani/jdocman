@@ -8,40 +8,36 @@
     <script data-main="main" src="lib/requirejs/require.js"></script>
   </head>
   <body>
-    <div data-role="page" data-theme="a">
+    <div data-role="page" id="tasks-page">
 
       <div data-role="header" data-position="fixed">
-        <h2 data-i18n="header.task_manager">
-          Task Manager
+        <select id="task-sortby" data-role="select" data-mini="true">
+          <option value="" data-i18n="tasks.sortby.#">Sort by</option>
+          <option value="title" data-i18n="tasks.sortby.title">Title</option>
+          <option value="start" data-i18n="tasks.sortby.start">Begin Date</option>
+          <option value="stop" data-i18n="tasks.sortby.stop">End Date</option>
+          <option value="state" data-i18n="tasks.sortby.state">State</option>
+          <option value="description" data-i18n="tasks.sortby.description">Description</option>
+        </select>
+        <h2 data-i18n="header.tasks">
+          Tasks
         </h2>
-        <a href="#" data-role="button" class="ui-btn-right" id="btn-reset-data">
-          Reset data
+        <a href="details.html?id=" data-role="button" data-icon="plus"
+           class="ui-btn-right"
+           data-mini="true"
+           data-i18n="tasks.newtask">
+          New Task
         </a>
       </div><!-- /header -->
 
       <div data-role="content">
-        <p>
-          This mobile web app is written with <a href="http://jquerymobile.com/">jQuery Mobile</a> and <a href="http://jio.readthedocs.org/en/latest/">jIO</a>.
-        </p>
-
-        <p>
-          It is designed to run on laptop, tablets, smartphone and all devices with a web browser regardless of the OS.
-        </p>
-
-        <p>
-          No server-side component is needed. No Python, PHP, Java, nothing.
-        </p>
-
-        <p>
-          All data is stored in the browser by default, but with jIO
-          it can be automatically replicated on an existing server (S3, WebDAV, XWiki, ERP5...)
-        </p>
-
-        <p>
-          The application also uses <a href="http://handlebarsjs.com/">handlebars</a> to render HTML templates,
-          <a href="http://momentjs.com/">Moment.js</a> for date/time manipulation and <a href="http://i18next.com/">i18next</a> for translations.
-        </p>
-
+        <div data-role="controlgroup">
+          <input type="text" data-type="search" name="search" id="search-tasks"
+                 value="" class="ui-input-text" data-inline="true"
+                 placeholder="filter by title, state, date or project"
+                 data-i18n="[placeholder]tasks.placeholder" />
+        </div>
+        <div id="task-list-container"></div>
       </div><!-- /content -->
 
       <div data-role="footer" data-position="fixed">
@@ -49,22 +45,16 @@
         <div data-role="navbar" data-iconpos="left">
           <ul>
             <li>
-              <a href="index.html" data-icon="home"
+              <a href="tasks.html"
                  class="ui-btn-active"
-                 data-i18n="navbar.home">
-                Home
+                 data-i18n="navbar.tasks">
+                Tasks
               </a>
             </li>
             <li>
               <a href="projects.html"
                  data-i18n="navbar.projects">
                 Projects
-              </a>
-            </li>
-            <li>
-              <a href="tasks.html"
-                 data-i18n="navbar.tasks">
-                Tasks
               </a>
             </li>
             <li>
@@ -77,6 +67,32 @@
         </div><!-- /navbar -->
 
       </div><!-- /footer -->
+
+      <script id="task-list-template" type="text/x-handlebars-template">
+        <ul data-role="listview" data-inset="true" class="task-listview">
+          {{#if rows}}
+          {{#rows}}
+            <li>
+              <a href="#" data-jio-id="{{id}}" class="details-link">
+                {{doc.title}}
+                <p>{{doc.description}}</p>
+                <p>
+                  <span class="state">{{t doc.state}}</span>
+                  {{t "tasks.from"}}
+                  <span class="from-date">{{asYMD doc.start}}</span>
+                  {{t "tasks.to"}}
+                  <span class="to-date">{{asYMD doc.stop}}</span>
+                </p>
+              </a>
+            </li>
+          {{/rows}}
+          {{else}}
+            <li>
+            <h3 data-i18n="tasks.noresult">No results found.</h3>
+            </li>
+          {{/if}}
+        </ul>
+      </script>
 
     </div><!-- /page -->
 

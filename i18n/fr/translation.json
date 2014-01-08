@@ -12,6 +12,7 @@
       "from": "du",
       "to": "au",
       "placeholder": "filtrer par titre, état, dates ou projet",
+      "noresult": "Aucun résultat trouvé.",
       "sortby": {
         "#": "Trier par",
         "title": "Titre",

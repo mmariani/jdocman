@@ -18,7 +18,7 @@
       i18next:         'lib/i18next/i18next.amd.withJQuery-1.7.1',
       // jQuery, jQuery mobile
       jquery:           'lib/jquery/jquery-1.10.2',
-      jqm:              'lib/jqm/jquery.mobile-1.4.0-rc.1',
+      jqm:              'lib/jqm/jquery.mobile-1.4.0.min',
       // jio
       sha256:           'lib/jio/sha256.amd',
       rsvp:             'lib/jio/rsvp-custom.amd',

@@ -6,15 +6,12 @@ define(
     'jquery',
     'handlebars',
     'i18next',
-    'moment',
+    'moment'
   ],
   function ($, Handlebars, i18next, moment) {
     "use strict";
 
-    var decode = function (str) {
-        return decodeURIComponent(str.replace(/\+/g, ' '));
-      },
-      util = {};
+    var util = {};
 
 
     //
@@ -24,11 +21,13 @@ define(
     util.jqmSetSelected = function (el, value) {
       var $select = $(el);
 
+      /*jslint unparam: true*/
       $select.children().each(function (i, op) {
         if (op.getAttribute('value') === value) {
           op.setAttribute('selected', 'selected');
         }
       });
+      /*jslint unparam: false*/
 
       $select.selectmenu('refresh');
     };
@@ -67,8 +66,6 @@ define(
       //
       Handlebars.registerHelper('ifCond', function (v1, operator, v2, options) {
         switch (operator) {
-        case '==':
-          return (v1 == v2) ? options.fn(this) : options.inverse(this);
         case '===':
           return (v1 === v2) ? options.fn(this) : options.inverse(this);
         case '<':

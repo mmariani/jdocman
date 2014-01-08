@@ -1,5 +1,5 @@
-/*jslint indent: 2, nomen: true, vars: true */
-/*global require, console, define, document, alert, window, parent */
+/*jslint indent: 2, nomen: true, vars: true, browser: true */
+/*global alert, define, require */
 
 define(
   [
@@ -18,7 +18,9 @@ define(
     'json',         // RequireJS: plugin to retrieve JSON
     'text',         // RequireJS: plugin to retrieve text
     'css',          // RequireJS: plugin to retrieve CSS
-    'css!lib/jqm/jquery.mobile-1.4.0-rc.1.css',
+    'css!modules/themes/taskman-theme.css',
+    'css!modules/themes/jquery.mobile.icons.min.css',
+    'css!lib/jqm/jquery.mobile.structure-1.4.0.min.css',
     'css!modules/taskman.css',
     'css!modules/collapsible-listview.css'
   ],
@@ -66,21 +68,23 @@ define(
     //
     // Initial setup for translation
     //
+    /*jslint unparam: true*/
     $.i18n.init({
       detectLngQS: 'lang',
-      fallbackLng: 'fr',
+      fallbackLng: 'en',
       ns: 'translation',
       resGetPath: 'i18n/__lng__/__ns__.json',
       preload: ['en', 'fr', 'zh']
     }, function (t) {
       applyTranslation();
     });
+    /*jslint unparam: false*/
 
 
     //
     // Change language from UI
     //
-    $('#translate').on('change', function () {
+    $(document).on('change', '#translate', function () {
       var curr_lang = $(this).val();
       $.i18n.setLng(curr_lang, function () {
         applyTranslation();
@@ -102,7 +106,7 @@ define(
           obj.modified = new Date();
 
           jio.post(obj)
-            .then(function (response) {
+            .then(function () {  // (response)
               Logger.debug('Inserted %s: %o', obj.type, obj);
               // XXX handle failure
             });
@@ -110,6 +114,19 @@ define(
 
       });
     };
+
+
+    // dialogs are transparent
+
+    /*jslint unparam: true*/
+    $(document).on('pagebeforeshow', 'div[data-role="dialog"]', function (e, ui) {
+      ui.prevPage.addClass("ui-dialog-background ");
+    });
+
+    $(document).on('pagehide', 'div[data-role="dialog"]', function (e, ui) {
+      $(".ui-dialog-background ").removeClass("ui-dialog-background ");
+    });
+    /*jslint unparam: false*/
 
 
     //
@@ -154,7 +171,7 @@ define(
     //
     var errorDialog = function (error) {
       // XXX there must be a better way to fill the content.
-      $(document).on('pagebeforeshow.errordialog', '#errordialog', function (ev, data) {
+      $(document).on('pagebeforeshow.errordialog', '#errordialog', function (ev) {
         $(ev.target).find('.error-header').html(error.statusText);
         $(ev.target).find('.error-message').html(error.message);
         $(document).off('pagebeforeshow.errordialog');
@@ -179,7 +196,7 @@ define(
     //
     // Remove test data, must reload to create again.
     //
-    $('#btn-reset-data').on('click', function (ev) {
+    $(document).on('click', '#btn-reset-data', function () {
       Logger.info('Clearing tasks storage.');
       if (jio_tasks) {
         deleteStorageContent(jio_tasks);
@@ -262,7 +279,7 @@ define(
     };
 
 
-    $(document).on('pagebeforeshow', '#projects-page', function (ev, data) {
+    $(document).on('pagebeforeshow', '#projects-page', function () {
       Logger.debug('Loading Projects page');
 
       var options = {
@@ -384,28 +401,31 @@ define(
           $('#task-list-container')
             .html(template(response.data))
             .trigger('create');
+          applyTranslation();
         });
     };
 
-    $('#task-sortby').on('change', function () {
+
+    $(document).on('change', '#task-sortby', function () {
       var sort_by = $(this).val();
       updateTaskList(sort_by);
     });
 
-    $(document).on('pagebeforeshow', '#tasks-page', function (ev) {
+
+    $(document).on('pagebeforeshow', '#tasks-page', function () {
       Logger.debug('Loading Tasks page');
       $("#task-sortby-button").addClass("ui-btn-left");
       updateTaskList();
       applyTranslation();
     });
 
-    $(document).on('input', '#search-tasks', function (ev) {
+
+    $(document).on('input', '#search-tasks', function () {
       if (input_timer) {
         window.clearTimeout(input_timer);
         input_timer = null;
       }
       input_timer = window.setTimeout(function () {
-        // var search_string = $(ev.target).val();
         updateTaskList();
         input_timer = 0;
       }, 500);
@@ -419,7 +439,7 @@ define(
     });
 
 
-    $(document).on('pagebeforeshow', '#details-page', function (ev, data) {
+    $(document).on('pagebeforeshow', '#details-page', function () {
       Logger.debug('Loading Task Edit page');
       // XXX location.search may not work in Phonegap
 
@@ -457,7 +477,7 @@ define(
           // XXX if the project does not exist anymore, the first one is selected
           applyTranslation();
         });
-        // TODO handle failure (no task found)
+        // XXX handle failure (no task found)
     });
 
 
@@ -466,7 +486,7 @@ define(
     //
     // Create/Modify a task
     //
-    $(document).on('click', '#task-save', function (ev) {
+    $(document).on('click', '#task-save', function () {
       var id = $('#task-id').val(),
         title = $('#task-title').val(),
         start = $('#task-start').val(),
@@ -499,9 +519,10 @@ define(
             parent.history.back();
             // XXX explicit redirect
           }).
-          fail(function (error) {
+          fail(function () { // (error)
             // XXX not working
             // errorDialog(error);
+            return;
           });
       } else {
         jio_tasks.post(doc).
@@ -515,6 +536,7 @@ define(
           fail(function () {
             // XXX not working
             // errorDialog(error);
+            return;
           });
       }
     });
@@ -523,7 +545,7 @@ define(
     //
     // Delete a task
     //
-    $(document).on('click', '#task-delete', function (ev) {
+    $(document).on('click', '#task-delete', function () {
       var id = $('#task-id').val();
 
       jio_tasks.remove({_id: id}).
@@ -536,6 +558,7 @@ define(
         fail(function () {
           // XXX not working
           // errorDialog(error);
+          return;
         });
     });
 
@@ -557,11 +580,14 @@ define(
             .html(template({'projects': projects_resp.data.rows, 'states': states_resp.data.rows}))
             .trigger('create');
           applyTranslation();
+
+          // update select menu with current selected language
+          task_util.jqmSetSelected('#translate', i18next.lng());
         });
-        // TODO handle failure (no task found)
+        // XXX handle failure (no task found)
     };
 
-    $(document).on('pagebeforeshow', '#settings-page', function (ev, data) {
+    $(document).on('pagebeforeshow', '#settings-page', function () {
       Logger.debug('Loading Settings page');
 
       updateSettingsForm();
@@ -571,11 +597,13 @@ define(
     //
     // Delete a state
     //
-    $(document).on('click', '#settings-del-state', function (ev) {
+    $(document).on('click', '#settings-del-state', function () {
       var $selected = $('input:checkbox:checked[name|=state]');
+      /*jslint unparam: true*/
       $selected.each(function (i, el) {
         jio_tasks.remove({_id: el.value});
       });
+      /*jslint unparam: false*/
       updateSettingsForm();
 
 // XXX shouldn't remove() return a promise ?
@@ -593,7 +621,7 @@ define(
     //
     // Add a state
     //
-    $(document).on('click', '#settings-add-state', function (ev) {
+    $(document).on('click', '#settings-add-state', function () {
       var state = window.prompt("State name?") || '',
         doc = null;
 
@@ -613,7 +641,6 @@ define(
 
       jio_tasks.post(doc).
         then(function (response) {
-          var id = response.id;
           Logger.debug('Added state: %o', response.id);
           Logger.debug('  status %s (%s)', response.status, response.statusText);
           updateSettingsForm();
@@ -626,12 +653,14 @@ define(
     //
     // Delete a project
     //
-    $(document).on('click', '#settings-del-project', function (ev) {
+    $(document).on('click', '#settings-del-project', function () {
       var $selected = $('input:checkbox:checked[name|=project]');
 
+      /*jslint unparam: true*/
       $selected.each(function (i, el) {
         jio_tasks.remove({_id: el.value});
       });
+      /*jslint unparam: false*/
       updateSettingsForm();
     });
 
@@ -639,7 +668,7 @@ define(
     //
     // Add a project
     //
-    $(document).on('click', '#settings-add-project', function (ev) {
+    $(document).on('click', '#settings-add-project', function () {
       var project = window.prompt("Project name?") || '',
         doc = null;
 
@@ -659,7 +688,6 @@ define(
 
       jio_tasks.post(doc).
         then(function (response) {
-          var id = response.id;
           Logger.debug('Added project: %o', response.id);
           Logger.debug('  status %s (%s)', response.status, response.statusText);
           updateSettingsForm();
@@ -747,7 +775,7 @@ define(
           Logger.debug('No configuration found, populating initial storage');
           // XXX how can we tell a new storage from an empty one?
           createInitialConfig()
-            .then(function (response) {
+            .then(function () {
               Logger.info('Configuration created.');
               connectStorage();
             }, function (error) {

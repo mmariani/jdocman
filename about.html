@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html manifest="manifest.appcache">
+  <head>
+    <title>Task Manager</title>
+    <link rel="shortcut icon" href="favicon.png" type="image/png"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script data-main="main" src="lib/requirejs/require.js"></script>
+  </head>
+  <body>
+    <div data-role="dialog" data-theme="a">
+
+      <div data-role="header" data-position="fixed">
+        <h2 data-i18n="header.task_manager">
+          Task Manager
+        </h2>
+      </div><!-- /header -->
+
+      <div data-role="content">
+        <p>
+          This mobile web app is written with <a href="http://jquerymobile.com/">jQuery Mobile</a> and <a href="http://jio.readthedocs.org/en/latest/">jIO</a>.
+        </p>
+
+        <p>
+          It is designed to run on laptop, tablets, smartphone and all devices with a web browser regardless of the OS.
+        </p>
+
+        <p>
+          No server-side component is needed. No Python, PHP, Java, nothing.
+        </p>
+
+        <p>
+          All data is stored in the browser by default, but with jIO
+          it can be automatically replicated on an existing server (S3, WebDAV, XWiki, ERP5...)
+        </p>
+
+        <p>
+          The application also uses <a href="http://handlebarsjs.com/">handlebars</a> to render HTML templates,
+          <a href="http://momentjs.com/">Moment.js</a> for date/time manipulation and <a href="http://i18next.com/">i18next</a> for translations.
+        </p>
+
+        <p>
+          <a href="#" data-role="button" id="btn-reset-data">
+            Reset data
+          </a>
+        </p>
+      </div><!-- /content -->
+
+    </div><!-- /page -->
+
+  </body>
+</html>

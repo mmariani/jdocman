@@ -12,6 +12,7 @@
       "from": "从",
       "to": "至",
       "placeholder": "过滤标题，状态，日期或项目",
+      "noresult": "No results found.",
       "sortby": {
         "#": "分类",
         "title": "标题",

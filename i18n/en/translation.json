@@ -12,6 +12,7 @@
       "from": "from",
       "to": "to",
       "placeholder": "filter by title, state, date or project",
+      "noresult": "No results found.",
       "sortby": {
         "#": "Sort by",
         "title": "Title",
