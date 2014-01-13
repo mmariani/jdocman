@@ -9,6 +9,8 @@ $(document).on('mobileinit', function () {
     input_timer = null,
     details_id_target = null;   // parameter for details.html -- we cannot use URL parameters with appcache
 
+  $('.initHandler').removeClass('initHandler')
+
   $.mobile.selectmenu.prototype.options.nativeMenu = false;
 
   Logger.useDefaults();   // log to console
@@ -61,7 +63,6 @@ $(document).on('mobileinit', function () {
       applyTranslation();
     });
   });
-
 
 
   // dialogs are transparent

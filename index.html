@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="modules/taskman.css">
     <link rel="stylesheet" href="modules/collapsible-listview.css">
   </head>
-  <body>
+  <body class="initHandler">
     <div data-role="page" id="tasks-page">
 
       <div data-role="header" data-position="fixed">
@@ -37,7 +37,7 @@
       <div data-role="content">
         <div data-role="controlgroup">
           <input type="text" data-type="search" name="search" id="search-tasks"
-                 value="" class="ui-input-text" data-inline="true"
+                 value="" class="ui-input-text"
                  placeholder="filter by title, state, date or project"
                  data-i18n="[placeholder]tasks.placeholder" />
         </div>
