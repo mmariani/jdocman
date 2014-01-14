@@ -1,5 +1,5 @@
 CACHE MANIFEST
-# 2014-01-13:v4
+# 2014-01-14:v1
 
 CACHE:
 about.html
@@ -32,7 +32,6 @@ lib/jqm/jquery.mobile.structure-1.4.0.min.css
 lib/jquery/jquery-1.10.2.js
 lib/js-logger/logger.js
 lib/moment/moment-2.5.0.js
-main.js
 modules/collapsible-listview.css
 modules/taskman.css
 modules/taskman.js
@@ -147,3 +146,4 @@ modules/patterns/tweed_@2X.png
 modules/patterns/tweed.png
 projects.html
 settings.html
+storage.html

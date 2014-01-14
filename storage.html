@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="modules/collapsible-listview.css">
   </head>
   <body class="initHandler">
-    <div data-role="page" id="settings-page">
+    <div data-role="page" id="storage-page">
 
       <div data-role="header" data-position="fixed">
         <a href="#" data-role="button" data-rel="back"
@@ -20,31 +20,15 @@
           data-i18n="header.back">
           Back
         </a>
-        <h2 data-i18n="header.settings">
-          Settings
+        <h2 data-i18n="header.storage">
+          Storages
         </h2>
-        <a href="about.html"
-           data-role="button"
-           data-mini="true"
-           data-icon="info"
-           data-i18n="navbar.about">
-          About
-        </a>
       </div><!-- /header -->
 
       <div data-role="content">
-        <select name="translate" id="translate" data-mini="true">
-          <option value="en" data-i18n="settings.translate.en">English</option>
-          <option value="fr" data-i18n="settings.translate.fr">Français</option>
-          <option value="zh" data-i18n="settings.translate.zh">中文 (Chinese)</option>
-        </select>
-        <form>
-          <div id="settings-form-container"></div>
+        <form id="storage-form">
+          <div id="storage-form-container"></div>
         </form>
-        <a href="storage.html"
-           data-role="button">
-          Configure Storage
-        </a>
       </div><!-- /content -->
 
       <div data-role="footer" data-position="fixed">
@@ -75,27 +59,32 @@
 
       </div><!-- /footer -->
 
-      <script id="settings-form-template" type="text/x-handlebars-template">
-        <fieldset data-role="controlgroup" data-mini="true">
-          <legend data-i18n="settings.states">States:</legend>
-          {{#states}}
-          <label data-i18n="{{doc.state}}"><input type="checkbox" name="state-{{doc._id}}" value="{{doc._id}}" />{{t doc.state}}</label>
-          {{/states}}
-        </fieldset>
-        <fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
-          <a href="#" id="settings-del-state" data-role="button" data-icon="delete" data-inline="true">Delete selected</a>
-          <a href="#" id="settings-add-state" data-role="button" data-icon="plus" data-inline="true">New State</a>
-        </fieldset>
+      <script id="storage-form-template" type="text/x-handlebars-template">
+        <table data-role="table" id="storage-table" data-mode="columntoggle" class="ui-responsive table-stripe" data-column-btn-text="Columns..">
+          <thead>
+            <tr>
+              <th>Storage</th>
+              <th data-priority="1">Type</th>
+              <th data-priority="2">URL</th>
+              <th data-priority="3">Username</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#storage_list}}
+            <tr>
+              <th><label>{{doc.application_name}}<input type="radio" name="storage" value="{{doc._id}}" /></label></th>
+              <th>{{doc.storage_type}}</th>
+              <th>{{doc.url}}</th>
+              <th>{{doc.username}}</th>
+            </tr>
+            {{/storage_list}}
+          </tbody>
+        </table>
 
-        <fieldset data-role="controlgroup" data-mini="true">
-          <legend data-i18n="settings.projects">Projects:</legend>
-          {{#projects}}
-          <label><input type="checkbox" name="project-{{doc._id}}" value="{{doc._id}}" />{{doc.project}}</label>
-          {{/projects}}
-        </fieldset>
         <fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
-          <a href="#" id="settings-del-project" data-role="button" data-icon="delete" data-inline="true">Delete selected</a>
-          <a href="#" id="settings-add-project" data-role="button" data-icon="plus" data-inline="true">New Project</a>
+          <a href="#" id="settings-del-storage" data-role="button" data-icon="delete" data-inline="true">Delete</a>
+          <a href="#" id="settings-edit-storage" data-role="button" data-icon="edit" data-inline="true">Edit</a>
+          <a href="#" id="settings-add-storage" data-role="button" data-icon="plus" data-inline="true">New Storage</a>
         </fieldset>
       </script>
     </div><!-- /page -->

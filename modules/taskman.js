@@ -4,12 +4,13 @@
 $(document).on('mobileinit', function () {
   "use strict";
 
-  var jio_config = null,
-    taskman = {},
+  var taskman = {},
     input_timer = null,
+    default_storage_name = 'Local',
+    selected_storage_id = null,
     details_id_target = null;   // parameter for details.html -- we cannot use URL parameters with appcache
 
-  $('.initHandler').removeClass('initHandler')
+  $('.initHandler').removeClass('initHandler');
 
   $.mobile.selectmenu.prototype.options.nativeMenu = false;
 
@@ -105,7 +106,7 @@ $(document).on('mobileinit', function () {
       var jio_config = jIO.createJIO({
         'type': 'local',
         'username': 'Admin',
-        'application_name': 'TASK-MANAGER_config'
+        'application_name': 'Taskman-config'
       });
 
       if (_jio_config) {
@@ -116,27 +117,44 @@ $(document).on('mobileinit', function () {
         //
         Logger.debug('Reading config: %o', jio_config);
         jio_config.allDocs().then(function (response) {
+          var post_promise = [];
+
           if (response.data.total_rows) {
             _jio_config = jio_config;
             resolve(_jio_config);
           } else {
             Logger.debug('No configuration found, populating initial storage');
-            jio_config.post({
-              'modified': new Date(),
-              'storage_type': 'local',
-              'username': 'Admin',
-              'application_name': 'TASK-MANAGER',
-              'type': 'Task Report',
-              'url': '',
-              'realm': ''
-            }).then(function () {
-              Logger.info('Configuration created.');
-              _jio_config = jio_config;
-              resolve(_jio_config);
-            }).fail(function () {
-              // XXX handle error, if it can happen
-              Logger.error('Fail!');
-            });
+            post_promise.push(
+              jio_config.post({
+                'modified': new Date(),
+                'storage_type': 'local',
+                'username': 'Admin',
+                'application_name': 'Local',
+                'type': 'Storage Configuration',
+                'url': '',
+                'realm': ''
+              })
+            );
+            post_promise.push(
+              jio_config.post({
+                'modified': new Date(),
+                'storage_type': 'local',
+                'username': 'Admin',
+                'application_name': 'Taskman-local 2',
+                'type': 'Storage Configuration',
+                'url': '',
+                'realm': ''
+              })
+            );
+            RSVP.all(post_promise).
+              then(function () {
+                Logger.info('Configuration created.');
+                _jio_config = jio_config;
+                resolve(_jio_config);
+              }).fail(function () {
+                // XXX handle error, if it can happen
+                Logger.error('Fail!');
+              });
           }
         });
       }
@@ -294,10 +312,17 @@ $(document).on('mobileinit', function () {
 
             jio_config.allDocs({include_docs: true})
               .then(function (response) {
-                // Only considers the first document from jio_config,
-                // but there can be only one
-                var config = response.data.rows[0].doc,
-                  storage_description = storageDescription(config);
+                var storage_config = null;
+                Logger.debug('Selected storage: ', selected_storage_id);
+                response.data.rows.forEach(function (row) {
+                  if ((selected_storage_id && (row.doc._id === selected_storage_id))
+                      || (!selected_storage_id && (row.doc.application_name === default_storage_name))) {
+                    storage_config = row.doc;
+                  }
+                });
+                var storage_description = storageDescription(storage_config);
+
+                Logger.debug('Using storage: %s (%s)', storage_config.application_name, storage_config._id);
 
                 storage_description.key_schema = key_schema;
                 _jio_tasks = jIO.createJIO(storage_description);
@@ -654,8 +679,8 @@ $(document).on('mobileinit', function () {
           var projects_resp = responses[0],
             states_resp = responses[1];
 
-          var template = Handlebars.compile($('#settings-edit-template').text());
-          $('#settings-edit-container')
+          var template = Handlebars.compile($('#settings-form-template').text());
+          $('#settings-form-container')
             .html(template({'projects': projects_resp.data.rows, 'states': states_resp.data.rows}))
             .trigger('create');
           applyTranslation();
@@ -672,6 +697,48 @@ $(document).on('mobileinit', function () {
       Logger.debug('Loading Settings page');
       updateSettingsForm(jio);
     });
+  });
+
+
+
+  //
+  // Update form for editing storages
+  //
+  var updateStorageForm = function (jio_config) {
+    jio_config.allDocs({include_docs: true})
+      .then(function (response) {
+        var template = Handlebars.compile($('#storage-form-template').text());
+        if (!selected_storage_id) {
+          response.data.rows.forEach(function (row) {
+            if (row.doc.application_name === default_storage_name) {
+              selected_storage_id = row.id;
+            }
+          });
+        }
+        $('#storage-form-container')
+          .html(template({'storage_list': response.data.rows}))
+          .trigger('create');
+        applyTranslation();
+        // initialize radio button with previously selected, or default, value
+        $('#storage-form input:radio[name=storage][value=' + selected_storage_id + ']').prop('checked', true).checkboxradio('refresh');
+      });
+      // XXX handle failure (no config found)
+  };
+
+
+
+  $(document).on('pagebeforeshow', '#storage-page', function () {
+    jioConfigConnect().then(function (jio_config) {
+      Logger.debug('Loading Storage page');
+      updateStorageForm(jio_config);
+    });
+  });
+
+  $(document).on('change', 'input:radio[name=storage]', function () {
+    selected_storage_id = $(this).val();
+    // force reload from config
+    _jio_tasks = null;
+    Logger.debug('Switching storage to', selected_storage_id);
   });
 
 
