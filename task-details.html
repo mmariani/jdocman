@@ -10,9 +10,10 @@
     <link rel="stylesheet" href="lib/jqm/jquery.mobile.structure-1.4.0.min.css">
     <link rel="stylesheet" href="modules/taskman.css">
     <link rel="stylesheet" href="modules/collapsible-listview.css">
+    <link rel="stylesheet" href="lib/jquery.mobile.datepicker/jquery.mobile.datepicker.css">
   </head>
   <body class="initHandler">
-    <div data-role="page" id="details-page">
+    <div data-role="page" id="task-details-page">
 
       <div data-role="header" data-position="fixed">
         <a href="#" data-role="button" data-rel="back"
@@ -26,7 +27,7 @@
       </div><!-- /header -->
 
       <div data-role="content">
-        <div id="details-container"></div>
+        <div id="task-details-container"></div>
       </div><!-- /content -->
 
       <div data-role="footer" data-position="fixed">
@@ -57,7 +58,7 @@
 
       </div><!-- /footer -->
 
-      <script id="details-template" type="text/x-handlebars-template">
+      <script id="task-details-template" type="text/x-handlebars-template">
         <form>
           <input type="hidden" id="task-id" value="{{task._id}}" />
 
@@ -72,14 +73,14 @@
             <label for="task-start" data-i18n="details.start">
               Begin date:
             </label>
-            <input type="date" name="start" id="task-start" value="{{asYMD task.start}}" />
+            <input type="date" name="start" data-role="date" value="{{asYMD task.start}}" />
           </div>
 
           <div data-role="fieldcontain">
             <label for="task-stop" data-i18n="details.stop">
               End date:
             </label>
-            <input type="date" name="stop" id="task-stop" value="{{asYMD task.stop}}" />
+            <input type="date" name="stop" data-role="date" value="{{asYMD task.stop}}" />
           </div>
 
           <div data-role="fieldcontain">
@@ -145,6 +146,7 @@
     </div><!-- /page -->
 
     <script src="lib/jquery/jquery-1.10.2.js"></script>
+    <script src="lib/jquery.mobile.datepicker/jquery.ui.datepicker.js"></script>
     <script src="lib/jio/sha256.amd.js"></script>
     <script src="lib/jio/rsvp-custom.js"></script>
     <script src="lib/jio/jio.js"></script>
@@ -160,6 +162,7 @@
     <script src="modules/task-data.js"></script>
     <script src="modules/taskman.js"></script>
     <script src="lib/jqm/jquery.mobile-1.4.0.min.js"></script>
+    <script src="lib/jquery.mobile.datepicker/jquery.mobile.datepicker.js"></script>
 
   </body>
 </html>

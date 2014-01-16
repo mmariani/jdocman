@@ -8,11 +8,13 @@ $(document).on('mobileinit', function () {
     input_timer = null,
     default_storage_name = 'Local',
     selected_storage_id = null,
-    details_task_id_target = null;   // parameter for details.html -- we cannot use URL parameters with appcache
+    details_task_id_target = null,    // parameter for details.html -- we cannot use URL parameters with appcache
+    details_storage_id_target = null; // parameter for storage_details.html
 
   $('.initHandler').removeClass('initHandler');
 
   $.mobile.selectmenu.prototype.options.nativeMenu = false;
+  $.datepicker.setDefaults({dateFormat: 'yy-mm-dd'});
 
   Logger.useDefaults();   // log to console
 
@@ -240,7 +242,7 @@ $(document).on('mobileinit', function () {
         storage_list: [{
           type: 'gid',
           constraints: {
-            default: {
+            'default': {
               type: 'string',
               reference: 'string'
             }
@@ -253,7 +255,7 @@ $(document).on('mobileinit', function () {
         }, {
           type: 'gid',
           constraints: {
-            default: {
+            'default': {
               type: 'string',
               reference: 'string'
             }
@@ -542,11 +544,11 @@ $(document).on('mobileinit', function () {
 
   $(document).on('click', '.details-link', function () {
     details_task_id_target = $(this).data('jio-id');
-    $.mobile.navigate('details.html');
+    $.mobile.navigate('task-details.html');
   });
 
 
-  $(document).on('pagebeforeshow', '#details-page', function () {
+  $(document).on('pagebeforeshow', '#task-details-page', function () {
     jioConnect().then(function (jio) {
       Logger.debug('Loading Task Edit page');
       var projects_promise = jio.allDocs({include_docs: true, sort_on: [['project', 'ascending']], query: '(type:"Project")'}),
@@ -574,9 +576,9 @@ $(document).on('mobileinit', function () {
             projects_resp = responses[1],
             states_resp = responses[2];
 
-          var template = Handlebars.compile($('#details-template').text());
-          $('#details-container')
-            .html(template({'task': task_resp.data, 'projects': projects_resp.data.rows, 'states': states_resp.data.rows}))
+          var template = Handlebars.compile($('#task-details-template').text());
+          $('#task-details-container')
+            .html(template({task: task_resp.data, projects: projects_resp.data.rows, states: states_resp.data.rows}))
             .trigger('create');
           task_util.jqmSetSelected('#task-project', task_resp.data.project);
           task_util.jqmSetSelected('#task-state', task_resp.data.state);
@@ -684,7 +686,7 @@ $(document).on('mobileinit', function () {
 
         var template = Handlebars.compile($('#settings-form-template').text());
         $('#settings-form-container')
-          .html(template({'projects': projects_resp.data.rows, 'states': states_resp.data.rows}))
+          .html(template({projects: projects_resp.data.rows, states: states_resp.data.rows}))
           .trigger('create');
         applyTranslation();
 
@@ -719,7 +721,7 @@ $(document).on('mobileinit', function () {
           });
         }
         $('#storage-form-container')
-          .html(template({'storage_list': response.data.rows}))
+          .html(template({storage_list: response.data.rows}))
           .trigger('create');
         applyTranslation();
         // initialize radio button with previously selected, or default, value
@@ -749,13 +751,33 @@ $(document).on('mobileinit', function () {
   //
   // Open the details page for a storage
   //
+  $(document).on('click', '#settings-edit-storage', function () {
+    details_storage_id_target = $('#storage-form input:radio[name=storage]:checked').val();
+    $.mobile.navigate('task-details.html');
+  });
 
 
   $(document).on('pagebeforeshow', '#storage-details-page', function () {
     jioConfigConnect().then(function (jio_config) {
-      Logger.debug('Loading Storage Edit page:', selected_storage_id);
-      jio_config.get({_id: selected_storage_id}).
-        then(function (response) {
+      Logger.debug('Loading Storage Edit page:', details_storage_id_target);
+      var storage_promise = null;
+
+      if (details_storage_id_target) {
+        storage_promise = jio_config.get({_id: details_storage_id_target});
+        Logger.debug('Retrieving storage %s', details_storage_id_target);
+        details_storage_id_target = null;
+      } else {
+        storage_promise = new RSVP.Promise(function (resolve) {
+          resolve({
+            data: {
+              storage_type: 'local'
+            }
+          });
+        });
+      }
+
+      storage_promise
+        .then(function (response) {
           var template = Handlebars.compile($('#storage-details-template').text());
           $('#storage-details-container')
             .html(template({storage: response.data}))
