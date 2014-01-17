@@ -119,39 +119,39 @@ $(document).on('mobileinit', function () {
         //
         Logger.debug('Reading config: %o', jio_config);
         jio_config.allDocs().then(function (response) {
-          var post_promise = [];
+          var post_promise = null,
+            default_config_list = [
+              {
+                storage_type: 'local',
+                username: 'Admin',
+                application_name: 'Local',
+                url: '',
+                realm: '',
+                auth_type: '',
+                password: ''
+              }, {
+                storage_type: 'local',
+                username: 'Admin',
+                application_name: 'Taskman-local 2',
+                url: '',
+                realm: '',
+                auth_type: '',
+                password: ''
+              }
+            ];
 
           if (response.data.total_rows) {
             _jio_config = jio_config;
             resolve(_jio_config);
           } else {
             Logger.debug('No configuration found, populating initial storage');
-            post_promise.push(
-              jio_config.post({
-                'modified': new Date(),
-                'storage_type': 'local',
-                'username': 'Admin',
-                'application_name': 'Local',
-                'type': 'Storage Configuration',
-                'url': '',
-                'realm': '',
-                'auth_type': '',
-                'password': ''
-              })
-            );
-            post_promise.push(
-              jio_config.post({
-                'modified': new Date(),
-                'storage_type': 'local',
-                'username': 'Admin',
-                'application_name': 'Taskman-local 2',
-                'type': 'Storage Configuration',
-                'url': '',
-                'realm': '',
-                'auth_type': '',
-                'password': ''
-              })
-            );
+            post_promise = default_config_list.map(function (config) {
+              return jio_config.post({
+                modified: new Date(),
+                type: 'Storage Configuration',
+                config: JSON.stringify(config)
+              });
+            });
             RSVP.all(post_promise).
               then(function () {
                 Logger.info('Configuration created.');
@@ -321,14 +321,14 @@ $(document).on('mobileinit', function () {
                 var storage_config = null;
                 Logger.debug('Selected storage: ', selected_storage_id);
                 response.data.rows.forEach(function (row) {
+                  var config = JSON.parse(row.doc.config);
                   if ((selected_storage_id && (row.doc._id === selected_storage_id))
-                      || (!selected_storage_id && (row.doc.application_name === default_storage_name))) {
-                    storage_config = row.doc;
+                      || (!selected_storage_id && (config.application_name === default_storage_name))) {
+                    storage_config = config;
+                    Logger.debug('Using storage: %s (%s)', storage_config.application_name, row.doc._id);
                   }
                 });
                 var storage_description = storageDescription(storage_config);
-
-                Logger.debug('Using storage: %s (%s)', storage_config.application_name, storage_config._id);
 
                 storage_description.key_schema = key_schema;
                 _jio_tasks = jIO.createJIO(storage_description);
@@ -542,7 +542,7 @@ $(document).on('mobileinit', function () {
   // Open the details page for a task
   //
 
-  $(document).on('click', '.details-link', function () {
+  $(document).on('click', '.task-details-link', function () {
     details_task_id_target = $(this).data('jio-id');
     $.mobile.navigate('task-details.html');
   });
@@ -712,7 +712,9 @@ $(document).on('mobileinit', function () {
   var updateStorageForm = function (jio_config) {
     jio_config.allDocs({include_docs: true})
       .then(function (response) {
-        var template = Handlebars.compile($('#storage-form-template').text());
+        var template = Handlebars.compile($('#storage-form-template').text()),
+          storage_list = [];
+
         if (!selected_storage_id) {
           response.data.rows.forEach(function (row) {
             if (row.doc.application_name === default_storage_name) {
@@ -720,8 +722,16 @@ $(document).on('mobileinit', function () {
             }
           });
         }
+
+        storage_list = response.data.rows.map(function (row) {
+          return {
+            id: row.doc._id,
+            config: JSON.parse(row.doc.config)
+          };
+        });
+
         $('#storage-form-container')
-          .html(template({storage_list: response.data.rows}))
+          .html(template({storage_list: storage_list}))
           .trigger('create');
         applyTranslation();
         // initialize radio button with previously selected, or default, value
@@ -753,7 +763,7 @@ $(document).on('mobileinit', function () {
   //
   $(document).on('click', '#settings-edit-storage', function () {
     details_storage_id_target = $('#storage-form input:radio[name=storage]:checked').val();
-    $.mobile.navigate('task-details.html');
+    $.mobile.navigate('storage-details.html');
   });
 
 
@@ -770,7 +780,9 @@ $(document).on('mobileinit', function () {
         storage_promise = new RSVP.Promise(function (resolve) {
           resolve({
             data: {
-              storage_type: 'local'
+              config: JSON.stringify({
+                storage_type: 'local'
+              })
             }
           });
         });
@@ -778,9 +790,10 @@ $(document).on('mobileinit', function () {
 
       storage_promise
         .then(function (response) {
-          var template = Handlebars.compile($('#storage-details-template').text());
+          var storage = JSON.parse(response.data.config),
+            template = Handlebars.compile($('#storage-details-template').text());
           $('#storage-details-container')
-            .html(template({storage: response.data}))
+            .html(template({storage: storage}))
             .trigger('create');
           applyTranslation();
         });
@@ -802,20 +815,25 @@ $(document).on('mobileinit', function () {
         realm = $('#storage-realm').val(),
         username = $('#storage-username').val(),
         password = $('#storage-password').val(),
-        doc = {};
+        config = null,
+        doc = null;
 
       // XXX validate input
 
-      doc = {
-        type: 'Storage Configuration',
+      config = JSON.stringify({
         application_name: application_name,
         storage_type: storage_type,
         url: url,
         auth_type: auth_type,
         realm: realm,
         username: username,
-        password: password,
-        modified: new Date()
+        password: password
+      });
+
+      doc = {
+        modified: new Date(),
+        type: 'Storage Configuration',
+        config: config
       };
 
       if (id) {
