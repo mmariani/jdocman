@@ -60,59 +60,59 @@
 
       <script id="storage-details-template" type="text/x-handlebars-template">
         <form>
-          <input type="hidden" id="storage-id" value="{{storage._id}}" />
+          <input type="hidden" id="storage-id" value="{{id}}" />
 
           <div data-role="fieldcontain">
             <label for="storage-application_name" data-i18n="i18n.todo">
               Name:
             </label>
-            <input type="text" name="application_name" id="storage-application_name" value="{{storage.application_name}}" />
+            <input type="text" name="application_name" id="storage-application_name" value="{{config.application_name}}" />
           </div>
 
           <div data-role="fieldcontain">
             <label for="storage-storage_type" data-i18n="i18n.todo">
               Type:
             </label>
-            <input type="text" name="storage_type" id="storage-storage_type" value="{{storage.storage_type}}" />
+            <input type="text" name="storage_type" id="storage-storage_type" value="{{config.storage_type}}" />
           </div>
 
           <div data-role="fieldcontain">
             <label for="storage-url" data-i18n="i18n.todo">
               URL:
             </label>
-            <input type="text" name="url" id="storage-url" value="{{storage.url}}" />
+            <input type="text" name="url" id="storage-url" value="{{config.url}}" />
           </div>
 
           <div data-role="fieldcontain">
             <label for="storage-auth_type" data-i18n="i18n.todo">
               Auth Type:
             </label>
-            <input type="text" name="auth_type" id="storage-auth_type" value="{{storage.auth_type}}" />
+            <input type="text" name="auth_type" id="storage-auth_type" value="{{config.auth_type}}" />
           </div>
 
           <div data-role="fieldcontain">
             <label for="storage-realm" data-i18n="i18n.todo">
               Realm:
             </label>
-            <input type="text" name="realm" id="storage-realm" value="{{storage.realm}}" />
+            <input type="text" name="realm" id="storage-realm" value="{{config.realm}}" />
           </div>
 
           <div data-role="fieldcontain">
             <label for="storage-username" data-i18n="i18n.todo">
               Username:
             </label>
-            <input type="text" name="username" id="storage-username" value="{{storage.username}}" />
+            <input type="text" name="username" id="storage-username" value="{{config.username}}" />
           </div>
 
           <div data-role="fieldcontain">
             <label for="storage-password" data-i18n="i18n.todo">
               Password:
             </label>
-            <input type="text" name="password" id="storage-password" value="{{storage.password}}" />
+            <input type="text" name="password" id="storage-password" value="{{config.password}}" />
           </div>
 
           <div data-role="fieldcontain">
-            {{#if storage._id}}
+            {{#if id}}
             <a href="#" data-role="button"
               id="storage-delete"
               data-icon="delete"

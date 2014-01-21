@@ -71,14 +71,14 @@
             </tr>
           </thead>
           <tbody>
-            {{#storage_list}}
+            {{#storage_config_list}}
             <tr>
-              <th><label>{{this.config.application_name}}<input type="radio" name="storage" value="{{this.id}}" /></label></th>
+              <th><label>{{this.config.application_name}}<input type="radio" name="storage" value="{{this.doc._id}}" /></label></th>
               <th>{{this.config.storage_type}}</th>
               <th>{{this.config.url}}</th>
               <th>{{this.config.username}}</th>
             </tr>
-            {{/storage_list}}
+            {{/storage_config_list}}
           </tbody>
         </table>
 
