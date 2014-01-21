@@ -116,6 +116,7 @@ $(document).on('mobileinit', function () {
           var post_promise = null,
             default_config_list = [
               {
+                // first of the list is the default storage
                 storage_type: 'local',
                 username: 'Admin',
                 application_name: 'Local',
@@ -796,7 +797,7 @@ $(document).on('mobileinit', function () {
         then(function (config) {
           var template = Handlebars.compile($('#storage-details-template').text());
           $('#storage-details-container')
-            .html(template({id: id, config: config}))
+            .html(template({id: id, config: config, default_storage_id: default_storage_id}))
             .trigger('create');
           applyTranslation();
         });
@@ -877,6 +878,7 @@ $(document).on('mobileinit', function () {
         then(function (response) {
           Logger.debug('Deleted storage %o:', response.id);
           Logger.debug('  status %s', response.status);
+          selected_storage_id = default_storage_id;
           $.mobile.navigate('storage.html');
         }).
         fail(function (error) {

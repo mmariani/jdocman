@@ -112,7 +112,9 @@
           </div>
 
           <div data-role="fieldcontain">
+
             {{#if id}}
+            {{#ifCond id '!==' default_storage_id}}
             <a href="#" data-role="button"
               id="storage-delete"
               data-icon="delete"
@@ -120,15 +122,16 @@
               data-i18n="details.delete">
               Delete
             </a>
-            {{else}}
-            <a href="#" data-role="button"
-              data-rel="back"
+            {{/ifCond}}
+            {{/if}}
+
+            <a href="storage.html" data-role="button"
               data-icon="cancel"
               data-inline="true"
               data-i18n="details.cancel">
               Cancel
             </a>
-            {{/if}}
+
             <a href="#" data-role="button"
               id="storage-save"
               data-icon="check"
