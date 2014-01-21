@@ -1,10 +1,9 @@
 CACHE MANIFEST
-# 2014-01-16:v2
+# 2014-01-21:v1
 
 CACHE:
 about.html
 data/tasks.json
-details.html
 errordialog.html
 favicon.png
 i18n/en/translation.json
@@ -148,3 +147,4 @@ projects.html
 settings.html
 storage.html
 storage-details.html
+task-details.html

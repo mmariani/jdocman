@@ -6,8 +6,8 @@ $(document).on('mobileinit', function () {
 
   var taskman = {},
     input_timer = null,
-    default_storage_name = 'Local',
-    selected_storage_id = null,
+    default_storage_id = 'default_storage',
+    selected_storage_id = default_storage_id,
     details_task_id_target = null,    // parameter for details.html -- we cannot use URL parameters with appcache
     details_storage_id_target = null; // parameter for storage_details.html
 
@@ -81,12 +81,6 @@ $(document).on('mobileinit', function () {
   /*jslint unparam: false*/
 
 
-// XXX can we log all failed promises?
-//    RSVP.on('error', function (event) {
-//      console.assert(false, event.detail);
-//    });
-
-
   //
   // Display an 'error' object as received by jIO methods
   //
@@ -145,13 +139,15 @@ $(document).on('mobileinit', function () {
             resolve(_jio_config);
           } else {
             Logger.debug('No configuration found, populating initial storage');
-            post_promise = default_config_list.map(function (config) {
+            post_promise = default_config_list.map(function (config, i) {
               var metadata = {
                 modified: new Date(),
-                type: 'Storage Configuration',
-                title: config.application_name
+                type: 'Storage Configuration'
               },
                 blob = new Blob([JSON.stringify(config)], {type: 'application/json'});
+              if (i === 0) {
+                metadata._id = default_storage_id;
+              }
               return jio_config.post(metadata).then(function (response) {
                 return jio_config.putAttachment({
                   _id: response.id,
@@ -315,7 +311,6 @@ $(document).on('mobileinit', function () {
 
   var _jio_tasks = null;
 
-
   var jioConnect = function () {
     return new RSVP.Promise(function (resolve) {
       if (_jio_tasks) {
@@ -323,31 +318,13 @@ $(document).on('mobileinit', function () {
       } else {
         jioConfigConnect().
           then(function (jio_config) {
-            return jio_config.allDocs({include_docs: true});
+            return jio_config.getAttachment({_id: selected_storage_id, _attachment: 'config'});
           }).
-          then(function (alldocs) {
-            var attachments_promise = alldocs.data.rows.map(function (row) {
-              var prom = _jio_config.        // XXX _jio_config
-                getAttachment({_id: row.id, _attachment: 'config'}).
-                then(function (response) {
-                  return jIO.util.readBlobAsText(response.data);
-                }).
-                then(function (ev) {
-                  var config = JSON.parse(ev.target.result);
-                  if ((selected_storage_id && (row.id === selected_storage_id))
-                      || (!selected_storage_id && (config.application_name === default_storage_name))) {
-                    return config;
-                  }
-                });
-              return prom;
-            });
-            return RSVP.all(attachments_promise);
+          then(function (response) {
+            return jIO.util.readBlobAsText(response.data);
           }).
-          then(function (config_list) {
-            config_list = config_list.filter(function (el) {
-              return (el !== undefined);
-            });
-            return config_list[0];
+          then(function (ev) {
+            return JSON.parse(ev.target.result);
           }).
           then(function (config) {
             Logger.debug('Using storage: %o', config);
@@ -359,12 +336,9 @@ $(document).on('mobileinit', function () {
           then(function () {
             resolve(_jio_tasks);
           });
-          // XXX handle error
       }
     });
   };
-
-
 
 
   //
@@ -381,6 +355,7 @@ $(document).on('mobileinit', function () {
       });
     });
   };
+
 
   //
   // Remove test data, must reload to create again.
@@ -526,12 +501,11 @@ $(document).on('mobileinit', function () {
 
 
   $(document).on('change', '#task-sortby', function () {
+    var sort_by = $(this).val();
     jioConnect().then(function (jio) {
-      var sort_by = $(this).val();
       updateTaskList(jio, sort_by);
     });
   });
-
 
 
   $(document).on('pagebeforeshow', '#tasks-page', function () {
@@ -613,7 +587,7 @@ $(document).on('mobileinit', function () {
   //
   // Create/Modify a task
   //
-  $(document).one('click', '#task-save', function () {
+  $(document).on('click', '#task-save', function () {
     jioConnect().then(function (jio) {
       var id = $('#task-id').val(),
         title = $('#task-title').val(),
@@ -622,11 +596,12 @@ $(document).on('mobileinit', function () {
         project = $('#task-project').val(),
         state = $('#task-state').val(),
         description = $('#task-description').val(),
-        doc = {};
+        metadata = {},
+        update_prom = null;
 
       // XXX validate input
 
-      doc = {
+      metadata = {
         type: 'Task',
         title: title,
         start: start,
@@ -638,35 +613,19 @@ $(document).on('mobileinit', function () {
       };
 
       if (id) {
-        doc._id = id;
-        jio.put(doc).
-          then(function (response) {
-            Logger.debug('Updated task %o:', response.id);
-            Logger.debug('  result %s', response.result);
-            Logger.debug('  status %s (%s)', response.status, response.statusText);
-            parent.history.back();
-            // XXX explicit redirect
-          }).
-          fail(function () { // (error)
-            // XXX not working
-            // errorDialog(error);
-            return;
-          });
+        metadata._id = id;
+        update_prom = jio.put(metadata);
       } else {
-        jio.post(doc).
-          then(function (response) {
-            Logger.debug('Created task %o:', response.id);
-            Logger.debug('  result %s', response.result);
-            Logger.debug('  status %s (%s)', response.status, response.statusText);
-            parent.history.back();
-            // XXX explicit redirect
-          }).
-          fail(function () {
-            // XXX not working
-            // errorDialog(error);
-            return;
-          });
+        update_prom = jio.post(metadata);
       }
+
+      update_prom.
+        then(function (response) {
+          Logger.debug('Updated task %o:', response.id);
+          Logger.debug('  status %s (%s)', response.status, response.statusText);
+          parent.history.back();
+        });
+
     });
   });
 
@@ -760,14 +719,6 @@ $(document).on('mobileinit', function () {
       .then(function (storage_config_list) {
         var template = Handlebars.compile($('#storage-form-template').text());
 
-        if (!selected_storage_id) {
-          storage_config_list.forEach(function (o) {
-            if (o.config.application_name === default_storage_name) {
-              selected_storage_id = o.doc._id;
-            }
-          });
-        }
-
         $('#storage-form-container')
           .html(template({storage_config_list: storage_config_list}))
           .trigger('create');
@@ -819,7 +770,7 @@ $(document).on('mobileinit', function () {
       } else {
         jio_config.get({_id: id}).
           then(function (response) {
-            var prom = jio_config.
+            var promise = jio_config.
               getAttachment({_id: response.id, _attachment: 'config'}).
               then(function (response) {
                 return jIO.util.readBlobAsText(response.data);
@@ -827,7 +778,7 @@ $(document).on('mobileinit', function () {
               then(function (ev) {
                 return JSON.parse(ev.target.result);
               });
-            resolve(prom);
+            resolve(promise);
           });
       }
     });
