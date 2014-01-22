@@ -1,5 +1,5 @@
 CACHE MANIFEST
-# 2014-01-21:v1
+# 2014-01-22:v1
 
 CACHE:
 about.html
@@ -31,6 +31,9 @@ lib/jqm/jquery.mobile.structure-1.4.0.min.css
 lib/jquery/jquery-1.10.2.js
 lib/js-logger/logger.js
 lib/moment/moment-2.5.0.js
+lib/jquery.mobile.datepicker/jquery.mobile.datepicker.css
+lib/jquery.mobile.datepicker/jquery.mobile.datepicker.js
+lib/jquery.mobile.datepicker/jquery.ui.datepicker.js
 modules/collapsible-listview.css
 modules/taskman.css
 modules/taskman.js
