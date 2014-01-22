@@ -15,45 +15,45 @@ $(document).on('mobileinit', function () {
   $.mobile.selectmenu.prototype.options.nativeMenu = false;
   $.datepicker.setDefaults({dateFormat: 'yy-mm-dd'});
 
+  task_util.registerHandlebarsHelpers();
+
   Logger.useDefaults();   // log to console
 
-  //
   // DEBUG for development, WARN for production
-  //
   Logger.setLevel(Logger.DEBUG);
 
-  //
-  // Register helpers for Handlebars
-  //
-  task_util.registerHelpers();
-
-  //
-  // Immediately apply translation to all elements
-  // which have a data-i18n attribute.
-  //
+  /**
+   * Immediately apply translation to all elements
+   * which have a data-i18n attribute.
+   */
   var applyTranslation = function () {
     $('[data-i18n]').i18n();
   };
 
-  //
-  // Initial setup for translation
-  //
-  /*jslint unparam: true*/
+  /**
+   * Set up the translations for i18next.
+   * This might trigger a 404 for an unsupported locale
+   * before falling back, i.e. en-US -> en
+   * Also applies translations to the current page as soon
+   * as the data is ready.
+   * For the options, see http://i18next.com/pages/doc_init.html
+   */
   $.i18n.init({
     detectLngQS: 'lang',
     fallbackLng: 'en',
     ns: 'translation',
     resGetPath: 'i18n/__lng__/__ns__.json',
     preload: ['en', 'fr', 'zh']
-  }, function (t) {
+  }, function () {
     applyTranslation();
   });
-  /*jslint unparam: false*/
 
 
-  //
-  // Change language from UI
-  //
+  /**
+   * Apply a language change upon selection from the menu.
+   * This will store the selected language in the 'i18next'
+   * session cookie.
+   */
   $(document).on('change', '#translate', function () {
     var curr_lang = $(this).val();
     $.i18n.setLng(curr_lang, function () {
@@ -62,8 +62,11 @@ $(document).on('mobileinit', function () {
   });
 
 
-  // dialogs are transparent
-
+  /**
+   * Attempt to make jqm dialogs transparent.
+   * XXX this does not work if the page has been changed before
+   * opening the dialog.
+   */
   /*jslint unparam: true*/
   $(document).on('pagebeforeshow', 'div[data-role="dialog"]', function (e, ui) {
     ui.prevPage.addClass("ui-dialog-background ");
@@ -75,9 +78,10 @@ $(document).on('mobileinit', function () {
   /*jslint unparam: false*/
 
 
-  //
-  // Display an 'error' object as received by jIO methods
-  //
+  /**
+   * Display an error's title and message, within a dialog,
+   * as received by jIO methods.
+   */
   var errorDialog = function (error) {
     // XXX there must be a better way to fill the content.
     $(document).on('pagebeforeshow.errordialog', '#errordialog', function (ev) {
@@ -175,6 +179,12 @@ $(document).on('mobileinit', function () {
   };
 
 
+  /**
+   * Defines a schema of search keys for the task queries,
+   * as described in http://jio.readthedocs.org/en/latest/keys.html
+   * This schema implements filtering with partial dates, titles and descriptions
+   * regardless of the accents and letter case, and translated state values.
+   */
   var key_schema = {
     cast_lookup: {
       dateType: jiodate.JIODate
@@ -211,9 +221,9 @@ $(document).on('mobileinit', function () {
   };
 
 
-  //
-  // Return a storage description according to a configuration document.
-  //
+  /**
+   * Creates a storage description from to a configuration document.
+   */
   var storageDescription = function (config) {
     if (config.storage_type === 'local') {
       return {
@@ -233,57 +243,59 @@ $(document).on('mobileinit', function () {
       );
     }
 
-    if (config.storage_type === 'erp5') {
-      return {
-        type: 'erp5',
-        url: config.url,
-        username: config.username,
-        password: config.password
-      };
-    }
-
-    if (config.storage_type === 'replicate') {
-      //replicate storage with erp5
-      return {
-        type: 'replicate',
-        storage_list: [{
-          type: 'gid',
-          constraints: {
-            'default': {
-              type: 'string',
-              reference: 'string'
-            }
-          },
-          sub_storage: {
-            type: 'local',
-            username: config.username,
-            application_name: 'task-manager'
-          }
-        }, {
-          type: 'gid',
-          constraints: {
-            'default': {
-              type: 'string',
-              reference: 'string'
-            }
-          },
-          sub_storage: {
-            type: 'erp5',
-            url: config.url,
-            username: config.username,
-            password: config.password
-          }
-        }]
-      };
-    }
+// XXX not implemented / not tested yet
+//    if (config.storage_type === 'erp5') {
+//      return {
+//        type: 'erp5',
+//        url: config.url,
+//        username: config.username,
+//        password: config.password
+//      };
+//    }
+//
+//    if (config.storage_type === 'replicate') {
+//      //replicate storage with erp5
+//      return {
+//        type: 'replicate',
+//        storage_list: [{
+//          type: 'gid',
+//          constraints: {
+//            'default': {
+//              type: 'string',
+//              reference: 'string'
+//            }
+//          },
+//          sub_storage: {
+//            type: 'local',
+//            username: config.username,
+//            application_name: 'task-manager'
+//          }
+//        }, {
+//          type: 'gid',
+//          constraints: {
+//            'default': {
+//              type: 'string',
+//              reference: 'string'
+//            }
+//          },
+//          sub_storage: {
+//            type: 'erp5',
+//            url: config.url,
+//            username: config.username,
+//            password: config.password
+//          }
+//        }]
+//      };
+//    }
 
     alert('unsupported storage type: ' + config.storage_type);
   };
 
 
-  //
-  // Fill with default/test data, if the storage is empty
-  //
+  /**
+   * If a storage is empty, inserts default/test data
+   * with projects, states, and tasks.
+   */
   var populateInitialTasks = function (jio) {
     return new RSVP.Promise(function (resolve) {
       jio.allDocs().then(function (response) {
@@ -311,6 +323,7 @@ $(document).on('mobileinit', function () {
       });
     });
   };
+
 
   var _jio_tasks = null;
 
@@ -344,9 +357,11 @@ $(document).on('mobileinit', function () {
   };
 
 
-  //
-  // Remove all data from a storage.
-  //
+  /**
+   * Remove all data from a storage.
+   *
+   * @param {Object} jio The storage to clear
+   */
   var deleteStorageContent = function (jio) {
     jio.allDocs().then(function (response) {
       var del_promises = response.data.rows.map(function (row) {
@@ -360,9 +375,9 @@ $(document).on('mobileinit', function () {
   };
 
 
-  //
-  // Remove test data, must reload to create again.
-  //
+  /**
+   * Remove test data, must reload the page to create it again.
+   */
   $(document).on('click', '#btn-reset-data', function () {
     jioConfigConnect().then(function (jio_config) {
       jioConnect().then(function (jio) {
@@ -370,11 +385,18 @@ $(document).on('mobileinit', function () {
         deleteStorageContent(jio);
         Logger.info('Clearing configuration storage.');
         deleteStorageContent(jio_config);
+        // XXX user notification
       });
     });
   });
 
 
+  /**
+   * Prepare the projects.html page before displaying.
+   * This queries the storage for a list of the projects and tasks,
+   * then provides them as parameters to Handlebars.
+   * Translation is applied after rendering the template.
+   */
   $(document).on('pagebeforeshow', '#projects-page', function () {
     Logger.debug('Loading Projects page');
     jioConnect().then(function (jio) {
@@ -388,6 +410,9 @@ $(document).on('mobileinit', function () {
       jio.allDocs(options).
         then(function (response) {
           var i = 0, doc = null;
+
+          // Handlebars has very limited support for traversing data,
+          // so we have to group/count everything in advance.
 
           for (i = 0; i < response.data.total_rows; i += 1) {
             doc = response.data.rows[i].doc;
@@ -408,12 +433,21 @@ $(document).on('mobileinit', function () {
           var template = Handlebars.compile($('#project-list-template').text());
           $('#project-list-container')
             .html(template({tasks: tasks}))
-            .trigger('create');
+            .trigger('create'); // notify jqm of the changes we made
         });
       applyTranslation();
     });
   });
 
+
+  /**
+   * Attempt to parse a string to a (possibly partial) date.
+   * The returned object can be directly fed to a query if
+   * the right key_schema has been provided.
+   *
+   * @param {String} s The string to be parsed
+   * @return {Object} a JIODate instance if possible, or null
+   */
   var parseJIODate = function (s) {
     try {
       return jiodate.JIODate(s);
@@ -422,6 +456,15 @@ $(document).on('mobileinit', function () {
     }
   };
 
+
+  /**
+   * Display (or refresh) a list of tasks in the current page,
+   * performing a search if there is search input.
+   * Translation is applied after rendering the template.
+   *
+   * @param {Object} jio The storage instance
+   * @param {String} sort_by name of the metadata property to sort on
+   */
   var updateTaskList = function (jio, sort_by) {
     var input_text = $('#search-tasks').val(),
       search_string = input_text ? '%' + input_text + '%' : '%',
@@ -503,6 +546,9 @@ $(document).on('mobileinit', function () {
   };
 
 
+  /**
+   * Apply a sort order change to the task list, upon selection from the menu.
+   */
   $(document).on('change', '#task-sortby', function () {
     var sort_by = $(this).val();
     jioConnect().then(function (jio) {
@@ -511,15 +557,23 @@ $(document).on('mobileinit', function () {
   });
 
 
+  /**
+   * Initial rendering of the 'task list' page.
+   */
   $(document).on('pagebeforeshow', '#tasks-page', function () {
     Logger.debug('Loading Tasks page');
     jioConnect().then(function (jio) {
+      // attempt to fix cosmetic issue with a select menu in the header
       $('#task-sortby-button').addClass('ui-btn-left');
       updateTaskList(jio);
     });
   });
 
 
+  /**
+   * Perform a search and update the task list.
+   * A timer is used to avoid querying for each character.
+   */
   $(document).on('input', '#search-tasks', function () {
     jioConnect().then(function (jio) {
       if (input_timer) {
@@ -534,17 +588,24 @@ $(document).on('mobileinit', function () {
   });
 
 
-
-  //
-  // Open the details page for a task
-  //
-
+  /**
+   * Redirects to the details page for a task, when a task is
+   * clicked in the list.
+   * Since we cannot pass the task id argument as a query
+   * parameter (does not work with the appcache) we store it
+   * in a closure variable.
+   */
   $(document).on('click', '.task-details-link', function () {
     details_task_id_target = $(this).data('jio-id');
     $.mobile.navigate('task-details.html');
   });
 
 
+  /**
+   * Display the form to edit a single task's details,
+   * or to create a new task.
+   * Translation is applied after rendering the template.
+   */
   $(document).on('pagebeforeshow', '#task-details-page', function () {
     jioConnect().then(function (jio) {
       Logger.debug('Loading Task Edit page');
@@ -587,9 +648,10 @@ $(document).on('mobileinit', function () {
   });
 
 
-  //
-  // Create/Modify a task
-  //
+  /**
+   * Apply changes to the edited task, or create
+   * a new task in the storage.
+   */
   $(document).on('click', '#task-save', function () {
     jioConnect().then(function (jio) {
       var id = $('#task-id').val(),
@@ -633,9 +695,9 @@ $(document).on('mobileinit', function () {
   });
 
 
-  //
-  // Delete a task
-  //
+  /**
+   * Delete the currently open task from the storage.
+   */
   $(document).on('click', '#task-delete', function () {
     jioConnect().then(function (jio) {
       var id = $('#task-id').val();
@@ -654,9 +716,9 @@ $(document).on('mobileinit', function () {
   });
 
 
-  //
-  // Update form for editing project / state list
-  //
+  /**
+   * Update the settings form to edit project/state list.
+   */
   var updateSettingsForm = function (jio) {
     var projects_promise = jio.allDocs({include_docs: true, sort_on: [['project', 'ascending']], query: '(type:"Project")'}),
       states_promise = jio.allDocs({include_docs: true, sort_on: [['state', 'ascending']], query: '(type:"State")'});
@@ -672,7 +734,7 @@ $(document).on('mobileinit', function () {
           .trigger('create');
         applyTranslation();
 
-        // update select menu with current selected language
+        // select the current language on the menu
         task_util.jqmSetSelected('#translate', i18n.lng());
       });
       // XXX handle failure (no task found)
@@ -686,9 +748,13 @@ $(document).on('mobileinit', function () {
   });
 
 
-  //
-  // resolves to a list of {doc: .., config: ...} with the storage configurations
-  //
+  /**
+   * Retrieve all the storage metadata and configuration attachments.
+   *
+   * @param {Object} jio_config The configuration storage
+   * @return {Promise} A Promise which resolves to a list
+   * of objects {doc: {...}, config: {...}}
+   */
   var storageConfigList = function (jio_config) {
     return new RSVP.Promise(function (resolve) {
       jio_config.allDocs({include_docs: true}).
@@ -713,57 +779,64 @@ $(document).on('mobileinit', function () {
   };
 
 
-  //
-  // Update form for editing storages
-  //
-
-  var updateStorageForm = function (jio_config) {
-    storageConfigList(jio_config)
-      .then(function (storage_config_list) {
-        var template = Handlebars.compile($('#storage-form-template').text());
-
-        $('#storage-form-container')
-          .html(template({storage_config_list: storage_config_list}))
-          .trigger('create');
-        applyTranslation();
-        // initialize radio button with previously selected, or default, value
-        $('#storage-form input:radio[name=storage][value=' + selected_storage_id + ']').prop('checked', true).checkboxradio('refresh');
-        // XXX handle failure (no config found)
-      });
-  };
-
-
-
+  /**
+   * Display the form to switch between storages
+   */
   $(document).on('pagebeforeshow', '#storage-page', function () {
-    jioConfigConnect().then(function (jio_config) {
-      Logger.debug('Loading Storage page');
-      updateStorageForm(jio_config);
-    });
+    jioConfigConnect().
+      then(function (jio_config) {
+        Logger.debug('Loading Storage page');
+        storageConfigList(jio_config)
+          .then(function (storage_config_list) {
+            var template = Handlebars.compile($('#storage-form-template').text());
+
+            $('#storage-form-container')
+              .html(template({storage_config_list: storage_config_list}))
+              .trigger('create');
+            applyTranslation();
+
+            // initialize the radio button with the previously selected, or default, value
+            $('#storage-form input:radio[name=storage][value=' + selected_storage_id + ']').
+              prop('checked', true).
+              checkboxradio('refresh');
+            // XXX handle failure (no config found)
+          });
+      });
   });
 
+
+  /**
+   * When a storage is selected, force the next jioConnect() call
+   * to use its configuration.
+   */
   $(document).on('change', 'input:radio[name=storage]', function () {
     selected_storage_id = $(this).val();
-    // force reload from config
     _jio_tasks = null;
     Logger.debug('Switching storage to', selected_storage_id);
   });
 
 
-
-  //
-  // Open the details page for a storage
-  //
+  /**
+   * Redirects to the details page for the selected storage.
+   * Since we cannot pass the task id argument as a query
+   * parameter (does not work with the appcache) we store it
+   * in a closure variable.
+   */
   $(document).on('click', '#settings-edit-storage', function () {
     details_storage_id_target = $('#storage-form input:radio[name=storage]:checked').val();
     $.mobile.navigate('storage-details.html');
   });
 
 
-
-  //
-  // resolves to the configuration object of the specified storage.
-  // If id is null, resolves to a default configuration.
-  //
+  /**
+   * Retrieve a single storage's configuration,
+   * or provide the default value for a configuration object.
+   *
+   * @param {Object} jio_config The configuration storage
+   * @param {String} id The id of the configuration to retrieve (may be null)
+   * @return {Promise} A Promise which resolves to the
+   * configuration object.
+   */
   var storageConfig = function (jio_config, id) {
     return new RSVP.Promise(function (resolve) {
       if (id === null) {
@@ -788,7 +861,11 @@ $(document).on('mobileinit', function () {
   };
 
 
-
+  /**
+   * Display the form to edit a single storage's details,
+   * or to create a new storage.
+   * Translation is applied after rendering the template.
+   */
   $(document).on('pagebeforeshow', '#storage-details-page', function () {
     jioConfigConnect().then(function (jio_config) {
       var id = details_storage_id_target;
@@ -808,9 +885,10 @@ $(document).on('mobileinit', function () {
   });
 
 
-  //
-  // Create/Modify a storage
-  //
+  /**
+   * Apply changes to the edited storage configuration,
+   * or create a new one.
+   */
   $(document).one('click', '#storage-save', function () {
     jioConfigConnect().then(function (jio_config) {
       var id = $('#storage-id').val(),
@@ -869,9 +947,11 @@ $(document).on('mobileinit', function () {
   });
 
 
-  //
-  // Delete a storage
-  //
+  /**
+   * Delete the currently open storage configuration.
+   * Does not actually touch the storage's content, and resets
+   * the selected storage to the default one.
+   */
   $(document).on('click', '#storage-delete', function () {
     jioConfigConnect().then(function (jio_config) {
       var id = $('#storage-id').val();
@@ -891,9 +971,9 @@ $(document).on('mobileinit', function () {
 
 
 
-  //
-  // Delete a state
-  //
+  /**
+   * Delete a state.
+   */
   $(document).on('click', '#settings-del-state', function () {
     jioConnect().then(function (jio) {
       var selected = $('input:checkbox:checked[name|=state]').get(),
@@ -909,9 +989,9 @@ $(document).on('mobileinit', function () {
   });
 
 
-  //
-  // Add a state
-  //
+  /**
+   * Create a new state. XXX Does not check for duplicates.
+   */
   $(document).on('click', '#settings-add-state', function () {
     jioConnect().then(function (jio) {
       var state = window.prompt("State name?") || '',
@@ -943,9 +1023,9 @@ $(document).on('mobileinit', function () {
 
 
 
-  //
-  // Delete a project
-  //
+  /**
+   * Delete a project. XXX even if it contains tasks
+   */
   $(document).on('click', '#settings-del-project', function () {
     jioConnect().then(function (jio) {
       var selected = $('input:checkbox:checked[name|=project]').get(),
@@ -961,9 +1041,9 @@ $(document).on('mobileinit', function () {
   });
 
 
-  //
-  // Add a project
-  //
+  /**
+   * Create a new project. XXX Does not check for duplicates.
+   */
   $(document).on('click', '#settings-add-project', function () {
     jioConnect().then(function (jio) {
       var project = window.prompt("Project name?") || '',

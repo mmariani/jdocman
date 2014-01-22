@@ -6,10 +6,11 @@
 
   var util = {};
 
-  //
-  // Update a <select> element's selected option,
-  // then activates the jquery mobile event to refresh UI
-  //
+
+  /**
+   * Update a <select> element's selected option,
+   * then activates the jquery mobile event to refresh UI
+   */
   util.jqmSetSelected = function (el, value) {
     var $select = $(el);
 
@@ -25,6 +26,11 @@
   };
 
 
+  /**
+   * Create a 36 digit random ID.
+   *
+   * @return {String} the UUID.
+   */
   util.createUUID = function () {
     var S4 = function () {
       return ('0000' + Math.floor(Math.random() * 0x10000).toString(16)).slice(-4);
@@ -33,11 +39,11 @@
   };
 
 
-  util.registerHelpers = function () {
-    //
-    // Display date strings or objects as yyyy-mm-dd
-    // (takes timezone into account)
-    //
+  util.registerHandlebarsHelpers = function () {
+    /**
+     * Display date strings or objects as yyyy-mm-dd
+     * (takes timezone into account)
+     */
     Handlebars.registerHelper('asYMD', function (date) {
       if (date) {
         return new Handlebars.SafeString(moment(date).format('YYYY-MM-DD'));
@@ -45,17 +51,19 @@
       return '';
     });
 
-    //
-    // Make translation accessible from within Handlebars templates
-    //
+
+    /**
+     * Make translations accessible from within Handlebars templates
+     */
     Handlebars.registerHelper('t', function (i18n_key) {
       return new Handlebars.SafeString(i18n.t(i18n_key));
     });
 
-    //
-    // Add value comparisions, also see:
-    // https://github.com/assemble/handlebars-helpers/blob/master/lib/helpers/helpers-comparisons.js
-    //
+
+    /**
+     * Add value comparisions, see also:
+     * http://github.com/assemble/handlebars-helpers/blob/master/lib/helpers/helpers-comparisons.js
+     */
     Handlebars.registerHelper('ifCond', function (v1, operator, v2, options) {
       switch (operator) {
       case '!==':
@@ -78,9 +86,13 @@
   };
 
 
-  //
-  // Remove accents and convert to lower case
-  //
+
+  /**
+   * Remove accents and convert to lower case
+   *
+   * @param {String} s the string to convert.
+   * @return {String} the converted string.
+   */
   util.accentFoldLC = function (s) {
     var map = [
         [new RegExp('[àáâãäå]', 'gi'), 'a'],
