@@ -1,11 +1,10 @@
 /*jslint indent: 2, nomen: true, vars: true, browser: true */
-/*global alert, $, Logger, RSVP, task_util, dav_storage, Handlebars, jiodate, moment, i18n, jIO, task_data, Blob, FileReader */
+/*global alert, $, Logger, RSVP, task_util, dav_storage, Handlebars, jiodate, moment, i18n, jIO, task_data, Blob  */
 
 $(document).on('mobileinit', function () {
   "use strict";
 
-  var taskman = {},
-    input_timer = null,
+  var input_timer = null,
     default_storage_id = 'default_storage',
     selected_storage_id = default_storage_id,
     details_task_id_target = null,    // parameter for details.html -- we cannot use URL parameters with appcache
@@ -22,11 +21,6 @@ $(document).on('mobileinit', function () {
   // DEBUG for development, WARN for production
   //
   Logger.setLevel(Logger.DEBUG);
-
-  //
-  // Register custom 'storage connected' event
-  //
-  RSVP.EventTarget.mixin(taskman);
 
   //
   // Register helpers for Handlebars
@@ -123,6 +117,14 @@ $(document).on('mobileinit', function () {
                 url: '',
                 realm: '',
                 auth_type: '',
+                password: ''
+              }, {
+                storage_type: 'dav',
+                username: 'Admin',
+                application_name: 'WebDAV',
+                url: 'http://localhost/',
+                realm: '',
+                auth_type: 'none',
                 password: ''
               }, {
                 storage_type: 'local',
@@ -222,13 +224,13 @@ $(document).on('mobileinit', function () {
     }
 
     if (config.storage_type === 'dav') {
-      return dav_storage.createDescription({
-        url: config.url,
-        auth_type: config.auth_type,
-        realm: config.realm,
-        username: config.username,
-        password: config.password
-      });
+      return dav_storage.createDescription(
+        config.url,
+        config.auth_type,
+        config.realm,
+        config.username,
+        config.password
+      );
     }
 
     if (config.storage_type === 'erp5') {
