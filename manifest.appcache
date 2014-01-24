@@ -1,5 +1,17 @@
 CACHE MANIFEST
-# 2014-01-22:v1
+
+#
+# A list of the resources that browsers should cache to have
+# the application running completely offline.
+#
+# To update offline instances of the application, this file needs
+# to be modified, either in the list or in the comments.
+#
+# To understand how all this works, read http://appcachefacts.info/
+# and the linked references.
+#
+
+# 2014-01-24:v1
 
 CACHE:
 about.html

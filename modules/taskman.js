@@ -79,6 +79,31 @@ $(document).on('mobileinit', function () {
 
 
   /**
+   * This function must be used as a then parameter if you don't want to manage
+   * errors. It changes the promise to the fulfilment channel with no fulfilment
+   * value.
+   *
+   *     doSomething().fail(ignoreError).then(...);
+   */
+  function ignoreError() {
+    Logger.error("Error ignored!");
+    // no error propagated here
+  }
+
+
+  /**
+   * This function must be used as a then parameter if you don't want to
+   * propagate notifications.
+   *
+   *     doSomething().progress(stopProgressPropagation).then(...);
+   */
+  function stopProgressPropagation() {
+    // stop progress propagation
+    throw new Error("Progress stopped");
+  }
+
+
+  /**
    * Display an error's title and message, within a dialog,
    * as received by jIO methods.
    */
@@ -94,88 +119,108 @@ $(document).on('mobileinit', function () {
 
 
   var _jio_config = null;
+  var _jio_config_promise = null;
 
+
+  /**
+   * This function creates the global _jio_config instance bound to localStorage
+   * and, if the storage is empty, inserts some hard coded configurations.
+   * The returned promise will have the _jio_config as fulfilment value or undefined,
+   * and it will never be rejected.
+   * This promise is not cancellable and sends no notifications.
+   *
+   * @return {Promise} The promise < _jio_config, post_error >
+   */
   var jioConfigConnect = function () {
-    return new RSVP.Promise(function (resolve) {
-      var jio_config = jIO.createJIO({
-        'type': 'local',
-        'username': 'Admin',
-        'application_name': 'Taskman-config'
+    if (_jio_config) {
+      return RSVP.resolve(_jio_config);
+    }
+    if (_jio_config_promise) {
+      // another call to jioConfigConnect() has been made,
+      // but the promise has not resolved yet, so we return it again
+      return _jio_config_promise;
+    }
+
+    var jio_config = jIO.createJIO({
+      'type': 'local',
+      'username': 'Admin',
+      'application_name': 'Taskman-config'
+    });
+
+    //
+    // either load configuration from local storage, or create it
+    //
+    Logger.debug('Reading config: %o', jio_config);
+
+    var postSomeConfIfNecessary = function (alldocs_response) {
+      if (alldocs_response.data.total_rows) {
+        _jio_config = jio_config;
+        return _jio_config;
+      }
+      Logger.debug('No configuration found, populating initial storage');
+
+      var post_promise = null,
+        default_config_list = [
+          {
+            // first of the list is the default storage
+            storage_type: 'local',
+            username: 'Admin',
+            application_name: 'Local',
+            url: '',
+            realm: '',
+            auth_type: '',
+            password: ''
+          }, {
+            storage_type: 'dav',
+            username: 'Admin',
+            application_name: 'WebDAV',
+            url: 'http://localhost/',
+            realm: '',
+            auth_type: 'none',
+            password: ''
+          }, {
+            storage_type: 'local',
+            username: 'Admin',
+            application_name: 'Taskman-local 2',
+            url: '',
+            realm: '',
+            auth_type: '',
+            password: ''
+          }
+        ];
+
+      post_promise = default_config_list.map(function (config, i) {
+        var metadata = {
+          modified: new Date(),
+          type: 'Storage Configuration'
+        },
+          blob = new Blob([JSON.stringify(config)], {type: 'application/json'});
+        if (i === 0) {
+          metadata._id = default_storage_id;
+        }
+        return jio_config.post(metadata).then(function (response) {
+          return jio_config.putAttachment({
+            _id: response.id,
+            _attachment: 'config',
+            _data: blob
+          });
+        });
       });
 
-      if (_jio_config) {
-        resolve(_jio_config);
-      } else {
-        //
-        // either load configuration from local storage, or create it
-        //
-        Logger.debug('Reading config: %o', jio_config);
-        jio_config.allDocs().then(function (response) {
-          var post_promise = null,
-            default_config_list = [
-              {
-                // first of the list is the default storage
-                storage_type: 'local',
-                username: 'Admin',
-                application_name: 'Local',
-                url: '',
-                realm: '',
-                auth_type: '',
-                password: ''
-              }, {
-                storage_type: 'dav',
-                username: 'Admin',
-                application_name: 'WebDAV',
-                url: 'http://localhost/',
-                realm: '',
-                auth_type: 'none',
-                password: ''
-              }, {
-                storage_type: 'local',
-                username: 'Admin',
-                application_name: 'Taskman-local 2',
-                url: '',
-                realm: '',
-                auth_type: '',
-                password: ''
-              }
-            ];
-
-          if (response.data.total_rows) {
-            _jio_config = jio_config;
-            resolve(_jio_config);
-          } else {
-            Logger.debug('No configuration found, populating initial storage');
-            post_promise = default_config_list.map(function (config, i) {
-              var metadata = {
-                modified: new Date(),
-                type: 'Storage Configuration'
-              },
-                blob = new Blob([JSON.stringify(config)], {type: 'application/json'});
-              if (i === 0) {
-                metadata._id = default_storage_id;
-              }
-              return jio_config.post(metadata).then(function (response) {
-                return jio_config.putAttachment({
-                  _id: response.id,
-                  _attachment: 'config',
-                  _data: blob
-                });
-              });
-            });
-            RSVP.all(post_promise).
-              then(function () {
-                Logger.info('Configuration created.');
-                _jio_config = jio_config;
-                resolve(_jio_config);
-              }).
-              fail(function (error) {
-                errorDialog(error);
-              });
-          }
+      return RSVP.all(post_promise).
+        then(function () {
+          Logger.info('Configuration created.');
+          _jio_config = jio_config;
+          return _jio_config;
         });
-      }
-    });
+    };
+
+    _jio_config_promise = jio_config.allDocs().
+      then(postSomeConfIfNecessary).
+      then(null, ignoreError, stopProgressPropagation);
+    // XXX we should never ignore errors!
+    return _jio_config_promise;
+
   };
 
 
