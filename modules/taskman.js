@@ -731,6 +731,7 @@ $(document).on('mobileinit', function () {
           task_util.jqmSetSelected('#task-state', task_resp.data.state);
           // XXX if the project does not exist anymore, the first one is selected
           applyTranslation();
+          $('textarea').jqte();
         });
         // XXX handle failure (no task found)
     });

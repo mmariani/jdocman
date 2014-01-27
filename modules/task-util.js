@@ -1,5 +1,5 @@
 /*jslint indent: 2 */
-/*global window, jQuery, Handlebars, i18n, moment */
+/*global document, window, jQuery, Handlebars, i18n, moment, Sanitize */
 
 (function ($, Handlebars, i18n, moment) {
   "use strict";
@@ -40,9 +40,37 @@
 
 
   util.registerHandlebarsHelpers = function () {
+
+    /**
+     * Clean up HTML before display for security reasons.
+     * See https://github.com/gbirke/Sanitize.js
+     *
+     * @param {String} html The insecure string to sanitize.
+     * @return {String} The safe (will not be escaped) string to render in HTML.
+     */
+    Handlebars.registerHelper('sanitize', function (html) {
+      // Sanitize only works on a DOM node, so we create one from the string...
+      var node = $('<div>' + html + '</div>'),
+        s = new Sanitize(Sanitize.Config.RELAXED),
+        clean_fragment = s.clean_node(node[0]),
+        // ...take the resulting fragment...
+        tmpdiv = document.createElement('div');
+
+      // ...and wrap the fragment around a node...
+      tmpdiv.appendChild(clean_fragment);
+      // ...only to access its innerHTML property.
+      // It would be simpler if Sanitize took a string
+      return new Handlebars.SafeString(tmpdiv.innerHTML);
+    });
+
+
     /**
      * Display date strings or objects as yyyy-mm-dd
      * (takes timezone into account)
+     *
+     * @param {String} date The date string (or Date object) to display.
+     * @return {String} The safe (will not be escaped) string to render in HTML.
+     * Escaped or not, it doesn't make a real difference here.
      */
     Handlebars.registerHelper('asYMD', function (date) {
       if (date) {

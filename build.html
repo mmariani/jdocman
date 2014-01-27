@@ -14,45 +14,6 @@
     <link rel="stylesheet" href="lib/jquery-te/jquery-te-1.4.0.css">
   </head>
   <body class="initHandler">
-    <div data-role="dialog">
-
-      <div data-role="header" data-position="fixed">
-        <h2 data-i18n="header.task_manager">
-          Task Manager
-        </h2>
-      </div><!-- /header -->
-
-      <div data-role="content">
-        <p>
-          This mobile web app is written with <a data-rel="external" href="http://jquerymobile.com/">jQuery Mobile</a> and <a data-rel="external" href="http://jio.readthedocs.org/en/latest/">jIO</a>.
-        </p>
-
-        <p>
-          It is designed to run on laptop, tablets, smartphone and all devices with a web browser regardless of the OS.
-        </p>
-
-        <p>
-          No server-side component is needed. No Python, PHP, Java, nothing.
-        </p>
-
-        <p>
-          All data is stored in the browser by default, but with jIO
-          it can be automatically replicated on an existing server (S3, WebDAV, XWiki, ERP5...)
-        </p>
-
-        <p>
-          The application also uses <a data-rel="external" href="http://handlebarsjs.com/">handlebars</a> to render HTML templates,
-          <a data-rel="external" href="http://momentjs.com/">Moment.js</a> for date/time manipulation and <a data-rel="external" href="http://i18next.com/">i18next</a> for translations.
-        </p>
-
-        <p>
-          <a href="#" data-role="button" id="btn-reset-data">
-            Reset data
-          </a>
-        </p>
-      </div><!-- /content -->
-    </div><!-- /page -->
-
     <script src="lib/jquery/jquery-1.10.2.js"></script>
     <script src="lib/jquery.mobile.datepicker/jquery.ui.datepicker.js"></script>
     <script src="lib/jio/sha256.amd.js"></script>
@@ -72,8 +33,48 @@
     <script src="lib/jqm/jquery.mobile-1.4.0.min.js"></script>
     <script src="lib/jquery.mobile.datepicker/jquery.mobile.datepicker.js"></script>
     <script src="lib/jquery-te/jquery-te-1.4.0.min.js"></script>
-    <script src="lib/sanitize/sanitize.js"></script>
-    <script src="lib/sanitize/relaxed.js"></script>
 
+    <div id="buildbox">
+
+      <input type="button" value="Build" />
+      <textarea id="minified_code"></textarea>
+
+      <script>
+      (function injectuglify() {
+        var scripts = document.getElementsByTagName('script');
+        var current = scripts[scripts.length-1];
+        var uglify = document.createElement('script');
+        uglify.setAttribute('src', 'lib/uglifyjs/uglifyweb.js');
+        current.parentNode.insertBefore(uglify, current.nextSibling);
+      }());
+
+      jQuery(function ($) {
+        var js = $('script[src]').get();
+        var css = $('link[rel=stylesheet]').get();
+        var deferred = js.map(function(element) {
+          var url = element.getAttribute('src');
+          return $.get(url);
+        });
+        $.when.apply($, deferred).then(function (stuff) {
+          console.log(stuff);
+          debugger;
+        }, function (e) {
+          console.log('ajax call failed');
+          debugger;
+        });
+      });
+
+//          , function(source_code) {
+//            var min = uglify(source_code);
+//            if (min.length >= source_code.length * 0.9) {
+//              console.log('Unchanged:', url);
+//              return source_code;
+//            }
+//            console.log('Minified:', url);
+
+
+      </script>
+
+    </div>
   </body>
 </html>
