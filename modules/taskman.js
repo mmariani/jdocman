@@ -1,5 +1,5 @@
 /*jslint indent: 2, nomen: true, vars: true, browser: true */
-/*global alert, $, Logger, RSVP, task_util, dav_storage, Handlebars, jiodate, moment, i18n, jIO, task_data, Blob  */
+/*global alert, $, Logger, RSVP, task_util, dav_storage, Handlebars, jiodate, moment, i18n, jIO, task_data, Blob, complex_queries  */
 
 $(document).on('mobileinit', function () {
   "use strict";
@@ -7,8 +7,16 @@ $(document).on('mobileinit', function () {
   var input_timer = null,
     default_storage_id = 'default_storage',
     selected_storage_id = default_storage_id,
-    details_task_id_target = null,    // parameter for details.html -- we cannot use URL parameters with appcache
-    details_storage_id_target = null; // parameter for storage_details.html
+    //
+    // we keep around the configuration of the current storage,
+    // to check its capabilities (i.e. if queries are supported)
+    selected_storage_config = null,
+    //
+    // parameter for details.html -- we cannot use URL parameters with appcache
+    details_task_id_target = null,
+    //
+    // parameter for storage_details.html
+    details_storage_id_target = null;
 
   $('.initHandler').removeClass('initHandler');
 
@@ -160,9 +168,9 @@ $(document).on('mobileinit', function () {
       Logger.debug('No configuration found, populating initial storage');
 
       var post_promise = null,
+        // first of the list is the default storage
         default_config_list = [
           {
-            // first of the list is the default storage
             storage_type: 'local',
             username: 'Admin',
             application_name: 'Local',
@@ -390,6 +398,7 @@ $(document).on('mobileinit', function () {
           then(function (config) {
             Logger.debug('Using storage: %o', config);
             var storage_description = storageDescription(config);
+            selected_storage_config = config;
             storage_description.key_schema = key_schema;
             _jio_tasks = jIO.createJIO(storage_description);
             return populateInitialTasks(_jio_tasks);
@@ -437,6 +446,41 @@ $(document).on('mobileinit', function () {
 
 
   /**
+   * Perform a query with allDocs(), and return a promise
+   * that resolves to the list of 'doc' objects.
+   * Only works with 'include_docs: true'
+   * In case of a 'dav' storage, also perform the filtering
+   * by creating and running a complex query.
+   * This is intended to be a temporary fix until the IndexStorage
+   * has support for queries.
+   *
+   * @param {Object} jio the storage instance to use
+   * @param {Object} options the argument to use with allDocs()
+   * @param {Object} storage_config The configuration object of the storage
+   * @return {Promise} A Promise which resolves to a list of 'doc' objects
+   */
+  var docQuery = function (jio, options, storage_config) {
+    if (storage_config.storage_type === 'dav') {
+      // the storage did not perform the filtering, we do it by hand
+      return jio.allDocs(options).
+        then(function (response) {
+          var docs = response.data.rows.map(function (row) {
+            return row.doc;
+          });
+          return complex_queries.QueryFactory.create(options.query).
+            exec(docs, {sort_on: options.sort_on});
+        });
+    }
+    return jio.allDocs(options).
+      then(function (response) {
+        return RSVP.resolve(response.data.rows.map(function (row) {
+          return row.doc;
+        }));
+      });
+  };
+
+
+  /**
    * Prepare the projects.html page before displaying.
    * This queries the storage for a list of the projects and tasks,
    * then provides them as parameters to Handlebars.
@@ -452,26 +496,24 @@ $(document).on('mobileinit', function () {
       }, tasks = {};
 
       Logger.debug('Querying projects...');
-      jio.allDocs(options).
-        then(function (response) {
-          var i = 0, doc = null;
+      docQuery(jio, options, selected_storage_config).
+        then(function (docs) {
+          var i = 0;
 
           // Handlebars has very limited support for traversing data,
           // so we have to group/count everything in advance.
 
-          for (i = 0; i < response.data.total_rows; i += 1) {
-            doc = response.data.rows[i].doc;
-            if (doc.type === 'Project') {
-              tasks[doc.project] = {tasks: [], task_count: 0};
+          for (i = 0; i < docs.length; i += 1) {
+            if (docs[i].type === 'Project') {
+              tasks[docs[i].project] = {tasks: [], task_count: 0};
             }
           }
 
-          for (i = 0; i < response.data.total_rows; i += 1) {
-            doc = response.data.rows[i].doc;
-            if (doc.type === 'Task') {
-              tasks[doc.project] = tasks[doc.project] || {tasks: [], task_count: 0};
-              tasks[doc.project].tasks.push(doc);
-              tasks[doc.project].task_count += 1;
+          for (i = 0; i < docs.length; i += 1) {
+            if (docs[i].type === 'Task') {
+              tasks[docs[i].project] = tasks[docs[i].project] || {tasks: [], task_count: 0};
+              tasks[docs[i].project].tasks.push(docs[i]);
+              tasks[docs[i].project].task_count += 1;
             }
           }
 
@@ -569,22 +611,21 @@ $(document).on('mobileinit', function () {
       ]
     };
 
-    var options = {
-      include_docs: true,
-      wildcard_character: '%',
-      sort_on: [
-        [sort_by || 'start', 'ascending']
-      ],
-      query: query
-    };
+    var sort_on = [[sort_by || 'start', 'ascending']],
+      options = {
+        include_docs: true,
+        wildcard_character: '%',
+        sort_on: sort_on,
+        query: query
+      };
 
     Logger.debug('Querying tasks with: "%s" (%o)...', input_text, options.query);
-    jio.allDocs(options).
-      then(function (response) {
-        Logger.debug('%i tasks found', response.data.total_rows);
+    docQuery(jio, options, selected_storage_config).
+      then(function (tasks) {
+        Logger.debug('%i tasks found', tasks.length);
         var template = Handlebars.compile($('#task-list-template').text());
         $('#task-list-container')
-          .html(template(response.data))
+          .html(template({tasks: tasks}))
           .trigger('create');
         applyTranslation();
       });
@@ -642,6 +683,7 @@ $(document).on('mobileinit', function () {
    */
   $(document).on('click', '.task-details-link', function () {
     details_task_id_target = $(this).data('jio-id');
+    Logger.info('task target id', details_task_id_target);
     $.mobile.navigate('task-details.html');
   });
 
@@ -654,9 +696,11 @@ $(document).on('mobileinit', function () {
   $(document).on('pagebeforeshow', '#task-details-page', function () {
     jioConnect().then(function (jio) {
       Logger.debug('Loading Task Edit page');
-      var projects_promise = jio.allDocs({include_docs: true, sort_on: [['project', 'ascending']], query: '(type:"Project")'}),
+      var project_options = {include_docs: true, sort_on: [['project', 'ascending']], query: '(type:"Project")'},
+        projects_promise = docQuery(jio, project_options, selected_storage_config),
         task_promise = null,
-        states_promise = jio.allDocs({include_docs: true, sort_on: [['state', 'ascending']], query: '(type:"State")'});
+        state_options = {include_docs: true, sort_on: [['state', 'ascending']], query: '(type:"State")'},
+        states_promise = docQuery(jio, state_options, selected_storage_config);
 
       if (details_task_id_target) {
         task_promise = jio.get({_id: details_task_id_target});
@@ -676,12 +720,12 @@ $(document).on('mobileinit', function () {
       RSVP.all([task_promise, projects_promise, states_promise]).
         then(function (responses) {
           var task_resp = responses[0],
-            projects_resp = responses[1],
-            states_resp = responses[2];
+            projects = responses[1],
+            states = responses[2];
 
           var template = Handlebars.compile($('#task-details-template').text());
           $('#task-details-container')
-            .html(template({task: task_resp.data, projects: projects_resp.data.rows, states: states_resp.data.rows}))
+            .html(template({task: task_resp.data, projects: projects, states: states}))
             .trigger('create');
           task_util.jqmSetSelected('#task-project', task_resp.data.project);
           task_util.jqmSetSelected('#task-state', task_resp.data.state);
@@ -765,17 +809,19 @@ $(document).on('mobileinit', function () {
    * Update the settings form to edit project/state list.
    */
   var updateSettingsForm = function (jio) {
-    var projects_promise = jio.allDocs({include_docs: true, sort_on: [['project', 'ascending']], query: '(type:"Project")'}),
-      states_promise = jio.allDocs({include_docs: true, sort_on: [['state', 'ascending']], query: '(type:"State")'});
+    var project_options = {include_docs: true, sort_on: [['project', 'ascending']], query: '(type:"Project")'},
+      projects_promise = docQuery(jio, project_options, selected_storage_config),
+      state_options = {include_docs: true, sort_on: [['state', 'ascending']], query: '(type:"State")'},
+      states_promise = docQuery(jio, state_options, selected_storage_config);
 
     RSVP.all([projects_promise, states_promise]).
       then(function (responses) {
-        var projects_resp = responses[0],
-          states_resp = responses[1];
+        var projects = responses[0],
+          states = responses[1];
 
         var template = Handlebars.compile($('#settings-form-template').text());
         $('#settings-form-container')
-          .html(template({projects: projects_resp.data.rows, states: states_resp.data.rows}))
+          .html(template({projects: projects, states: states}))
           .trigger('create');
         applyTranslation();
 
@@ -856,6 +902,7 @@ $(document).on('mobileinit', function () {
    */
   $(document).on('change', 'input:radio[name=storage]', function () {
     selected_storage_id = $(this).val();
+    selected_storage_config = null;
     _jio_tasks = null;
     Logger.debug('Switching storage to', selected_storage_id);
   });
@@ -1006,6 +1053,7 @@ $(document).on('mobileinit', function () {
           Logger.debug('Deleted storage %o:', response.id);
           Logger.debug('  status %s', response.status);
           selected_storage_id = default_storage_id;
+          selected_storage_config = null;
           $.mobile.navigate('storage.html');
         }).
         fail(function (error) {

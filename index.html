@@ -76,22 +76,22 @@
 
       <script id="task-list-template" type="text/x-handlebars-template">
         <ul data-role="listview" data-inset="true" class="task-listview">
-          {{#if rows}}
-          {{#rows}}
+          {{#if tasks}}
+          {{#tasks}}
             <li>
-              <a href="#" data-jio-id="{{id}}" class="task-details-link">
-                {{doc.title}}
-                <p>{{doc.description}}</p>
+              <a href="#" data-jio-id="{{this._id}}" class="task-details-link">
+                {{this.title}}
+                <p>{{this.description}}</p>
                 <p>
-                  <span class="state">{{t doc.state}}</span>
+                  <span class="state">{{t this.state}}</span>
                   {{t "tasks.from"}}
-                  <span class="from-date">{{asYMD doc.start}}</span>
+                  <span class="from-date">{{asYMD this.start}}</span>
                   {{t "tasks.to"}}
-                  <span class="to-date">{{asYMD doc.stop}}</span>
+                  <span class="to-date">{{asYMD this.stop}}</span>
                 </p>
               </a>
             </li>
-          {{/rows}}
+          {{/tasks}}
           {{else}}
             <li>
             <h3 data-i18n="tasks.noresult">No results found.</h3>

@@ -80,7 +80,7 @@
         <fieldset data-role="controlgroup" data-mini="true">
           <legend data-i18n="settings.states">States:</legend>
           {{#states}}
-          <label data-i18n="{{doc.state}}"><input type="checkbox" name="state-{{doc._id}}" value="{{doc._id}}" />{{t doc.state}}</label>
+          <label data-i18n="{{this.state}}"><input type="checkbox" name="state-{{this._id}}" value="{{this._id}}" />{{t this.state}}</label>
           {{/states}}
         </fieldset>
         <fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
@@ -91,7 +91,7 @@
         <fieldset data-role="controlgroup" data-mini="true">
           <legend data-i18n="settings.projects">Projects:</legend>
           {{#projects}}
-          <label><input type="checkbox" name="project-{{doc._id}}" value="{{doc._id}}" />{{doc.project}}</label>
+          <label><input type="checkbox" name="project-{{this._id}}" value="{{this._id}}" />{{this.project}}</label>
           {{/projects}}
         </fieldset>
         <fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
