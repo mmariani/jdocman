@@ -12,11 +12,9 @@ $(document).on('mobileinit', function () {
     // to check its capabilities (i.e. if queries are supported)
     selected_storage_config = null,
     //
-    // parameter for details.html -- we cannot use URL parameters with appcache
-    details_task_id_target = null,
-    //
-    // parameter for storage_details.html
-    details_storage_id_target = null;
+    // Data passed around for page changes -- we cannot use URL parameters with appcache
+    // Waiting for better parameter support in JQM 1.5 (http://jquerymobile.com/roadmap/)
+    page_params = {};
 
   $('.initHandler').removeClass('initHandler');
 
@@ -682,8 +680,8 @@ $(document).on('mobileinit', function () {
    * in a closure variable.
    */
   $(document).on('click', '.task-details-link', function () {
-    details_task_id_target = $(this).data('jio-id');
-    Logger.info('task target id', details_task_id_target);
+    page_params = {task_id: $(this).data('jio-id')};
+    Logger.info('task target id', page_params.task_id);
     $.mobile.navigate('task-details.html');
   });
 
@@ -702,10 +700,10 @@ $(document).on('mobileinit', function () {
         state_options = {include_docs: true, sort_on: [['state', 'ascending']], query: '(type:"State")'},
         states_promise = docQuery(jio, state_options, selected_storage_config);
 
-      if (details_task_id_target) {
-        task_promise = jio.get({_id: details_task_id_target});
-        Logger.debug('Retrieving task %s', details_task_id_target);
-        details_task_id_target = null;
+      if (page_params.task_id) {
+        task_promise = jio.get({_id: page_params.task_id});
+        Logger.debug('Retrieving task %s', page_params.task_id);
+        page_params = {};
       } else {
         task_promise = new RSVP.Promise(function (resolve) {
           resolve({
@@ -915,7 +913,7 @@ $(document).on('mobileinit', function () {
    * in a closure variable.
    */
   $(document).on('click', '#settings-edit-storage', function () {
-    details_storage_id_target = $('#storage-form input:radio[name=storage]:checked').val();
+    page_params = {storage_id: $('#storage-form input:radio[name=storage]:checked').val()};
     $.mobile.navigate('storage-details.html');
   });
 
@@ -931,11 +929,7 @@ $(document).on('mobileinit', function () {
    */
   var storageConfig = function (jio_config, id) {
     return new RSVP.Promise(function (resolve) {
-      if (id === null) {
-        resolve({
-          storage_type: 'local'
-        });
-      } else {
+      if (id) {
         jio_config.get({_id: id}).
           then(function (response) {
             var promise = jio_config.
@@ -948,6 +942,10 @@ $(document).on('mobileinit', function () {
               });
             resolve(promise);
           });
+      } else {
+        resolve({
+          storage_type: 'local'
+        });
       }
     });
   };
@@ -960,9 +958,9 @@ $(document).on('mobileinit', function () {
    */
   $(document).on('pagebeforeshow', '#storage-details-page', function () {
     jioConfigConnect().then(function (jio_config) {
-      var id = details_storage_id_target;
+      var id = page_params.storage_id;
       Logger.debug('Loading Storage Edit page:', id);
-      details_storage_id_target = null;
+      page_params = {};
 
       storageConfig(jio_config, id).
         then(function (config) {

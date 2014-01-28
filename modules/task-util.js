@@ -61,8 +61,13 @@
 
 
     /**
-     * Add value comparisions, see also:
+     * Add value comparisions, see also
      * http://github.com/assemble/handlebars-helpers/blob/master/lib/helpers/helpers-comparisons.js
+     * The operator must be quoted:
+     *
+     * {{#ifCond v1 '===' v2}}
+     * ...
+     * {{/ifCond}}
      */
     Handlebars.registerHelper('ifCond', function (v1, operator, v2, options) {
       switch (operator) {
@@ -84,7 +89,6 @@
     });
 
   };
-
 
 
   /**
