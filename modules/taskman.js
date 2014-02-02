@@ -6,15 +6,22 @@ $(document).on('mobileinit', function () {
 
   var input_timer = null,
     default_storage_id = 'default_storage',
-    selected_storage_id = default_storage_id,
-    //
-    // we keep around the configuration of the current storage,
-    // to check its capabilities (i.e. if queries are supported)
-    selected_storage_config = null,
     //
     // Data passed around for page changes -- we cannot use URL parameters with appcache
     // Waiting for better parameter support in JQM 1.5 (http://jquerymobile.com/roadmap/)
     page_params = {};
+
+  var getSelectedStorage = function () {
+    return localStorage.getItem('set_selected_storage');
+  };
+
+  var setSelectedStorage = function (val) {
+    return localStorage.setItem('set_selected_storage', val);
+  };
+
+  if (!getSelectedStorage()) {
+    setSelectedStorage(default_storage_id);
+  }
 
   $('.initHandler').removeClass('initHandler');
 
@@ -285,13 +292,16 @@ $(document).on('mobileinit', function () {
     }
 
     if (config.storage_type === 'dav') {
-      return dav_storage.createDescription(
-        config.url,
-        config.auth_type,
-        config.realm,
-        config.username,
-        config.password
-      );
+      return {
+        type: 'query',
+        sub_storage: dav_storage.createDescription(
+          config.url,
+          config.auth_type,
+          config.realm,
+          config.username,
+          config.password
+        )
+      };
     }
 
 // XXX not implemented / not tested yet
@@ -385,7 +395,7 @@ $(document).on('mobileinit', function () {
       } else {
         jioConfigConnect().
           then(function (jio_config) {
-            return jio_config.getAttachment({_id: selected_storage_id, _attachment: 'config'});
+            return jio_config.getAttachment({_id: getSelectedStorage(), _attachment: 'config'});
           }).
           then(function (response) {
             return jIO.util.readBlobAsText(response.data);
@@ -396,7 +406,6 @@ $(document).on('mobileinit', function () {
           then(function (config) {
             Logger.debug('Using storage: %o', config);
             var storage_description = storageDescription(config);
-            selected_storage_config = config;
             storage_description.key_schema = key_schema;
             _jio_tasks = jIO.createJIO(storage_description);
             return populateInitialTasks(_jio_tasks);
@@ -446,29 +455,12 @@ $(document).on('mobileinit', function () {
   /**
    * Perform a query with allDocs(), and return a promise
    * that resolves to the list of 'doc' objects.
-   * Only works with 'include_docs: true'
-   * In case of a 'dav' storage, also perform the filtering
-   * by creating and running a complex query.
-   * This is intended to be a temporary fix until the IndexStorage
-   * has support for queries.
    *
    * @param {Object} jio the storage instance to use
    * @param {Object} options the argument to use with allDocs()
-   * @param {Object} storage_config The configuration object of the storage
    * @return {Promise} A Promise which resolves to a list of 'doc' objects
    */
-  var docQuery = function (jio, options, storage_config) {
-    if (storage_config.storage_type === 'dav') {
-      // the storage did not perform the filtering, we do it by hand
-      return jio.allDocs(options).
-        then(function (response) {
-          var docs = response.data.rows.map(function (row) {
-            return row.doc;
-          });
-          return complex_queries.QueryFactory.create(options.query).
-            exec(docs, {sort_on: options.sort_on});
-        });
-    }
+  var docQuery = function (jio, options) {
     return jio.allDocs(options).
       then(function (response) {
         return RSVP.resolve(response.data.rows.map(function (row) {
@@ -494,7 +486,7 @@ $(document).on('mobileinit', function () {
       }, tasks = {};
 
       Logger.debug('Querying projects...');
-      docQuery(jio, options, selected_storage_config).
+      docQuery(jio, options).
         then(function (docs) {
           var i = 0;
 
@@ -618,7 +610,7 @@ $(document).on('mobileinit', function () {
       };
 
     Logger.debug('Querying tasks with: "%s" (%o)...', input_text, options.query);
-    docQuery(jio, options, selected_storage_config).
+    docQuery(jio, options).
       then(function (tasks) {
         Logger.debug('%i tasks found', tasks.length);
         var template = Handlebars.compile($('#task-list-template').text());
@@ -695,10 +687,10 @@ $(document).on('mobileinit', function () {
     jioConnect().then(function (jio) {
       Logger.debug('Loading Task Edit page');
       var project_options = {include_docs: true, sort_on: [['project', 'ascending']], query: '(type:"Project")'},
-        projects_promise = docQuery(jio, project_options, selected_storage_config),
+        projects_promise = docQuery(jio, project_options),
         task_promise = null,
         state_options = {include_docs: true, sort_on: [['state', 'ascending']], query: '(type:"State")'},
-        states_promise = docQuery(jio, state_options, selected_storage_config);
+        states_promise = docQuery(jio, state_options);
 
       if (page_params.task_id) {
         task_promise = jio.get({_id: page_params.task_id});
@@ -808,9 +800,9 @@ $(document).on('mobileinit', function () {
    */
   var updateSettingsForm = function (jio) {
     var project_options = {include_docs: true, sort_on: [['project', 'ascending']], query: '(type:"Project")'},
-      projects_promise = docQuery(jio, project_options, selected_storage_config),
+      projects_promise = docQuery(jio, project_options),
       state_options = {include_docs: true, sort_on: [['state', 'ascending']], query: '(type:"State")'},
-      states_promise = docQuery(jio, state_options, selected_storage_config);
+      states_promise = docQuery(jio, state_options);
 
     RSVP.all([projects_promise, states_promise]).
       then(function (responses) {
@@ -885,7 +877,7 @@ $(document).on('mobileinit', function () {
             applyTranslation();
 
             // initialize the radio button with the previously selected, or default, value
-            $('#storage-form input:radio[name=storage][value=' + selected_storage_id + ']').
+            $('#storage-form input:radio[name=storage][value=' + getSelectedStorage() + ']').
               prop('checked', true).
               checkboxradio('refresh');
             // XXX handle failure (no config found)
@@ -899,10 +891,9 @@ $(document).on('mobileinit', function () {
    * to use its configuration.
    */
   $(document).on('change', 'input:radio[name=storage]', function () {
-    selected_storage_id = $(this).val();
-    selected_storage_config = null;
+    setSelectedStorage($(this).val());
     _jio_tasks = null;
-    Logger.debug('Switching storage to', selected_storage_id);
+    Logger.debug('Switching storage to', getSelectedStorage());
   });
 
 
@@ -1050,8 +1041,7 @@ $(document).on('mobileinit', function () {
         then(function (response) {
           Logger.debug('Deleted storage %o:', response.id);
           Logger.debug('  status %s', response.status);
-          selected_storage_id = default_storage_id;
-          selected_storage_config = null;
+          setSelectedStorage(default_storage_id);
           $.mobile.navigate('storage.html');
         }).
         fail(function (error) {
