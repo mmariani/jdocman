@@ -105,6 +105,28 @@ $(document).on('mobileinit', function () {
 
 
   /**
+   * Display an error's title and message, within a JQM dialog box,
+   * as received by jIO methods.
+   * In case of exception, shows the stack trace.
+   * This function can be used as a then parameter.
+   *
+   *     doSomething().fail(displayError).then(...);
+   */
+  function displayError(error) {
+    var message = error.stack ? ('<pre>' + error.stack + ' </pre>') : error.message,
+      header = error.statusText || 'Application error';
+    // XXX there must be a better way to fill the content.
+    // XXX dialog is too small to display a proper stack trace
+    $(document).on('pagebeforeshow.errordialog', '#errordialog', function (ev) {
+      $(ev.target).find('.error-header').html(header);
+      $(ev.target).find('.error-message').html(message);
+      $(document).off('pagebeforeshow.errordialog');
+    });
+    $.mobile.navigate('errordialog.html');
+  }
+
+
+  /**
    * This function must be used as a then parameter if you don't want to
    * propagate notifications.
    *
@@ -114,21 +136,6 @@ $(document).on('mobileinit', function () {
     // stop progress propagation
     throw new Error("Progress stopped");
   }
-
-
-  /**
-   * Display an error's title and message, within a dialog,
-   * as received by jIO methods.
-   */
-  var errorDialog = function (error) {
-    // XXX there must be a better way to fill the content.
-    $(document).on('pagebeforeshow.errordialog', '#errordialog', function (ev) {
-      $(ev.target).find('.error-header').html(error.statusText);
-      $(ev.target).find('.error-message').html(error.message);
-      $(document).off('pagebeforeshow.errordialog');
-    });
-    $.mobile.navigate('errordialog.html');
-  };
 
 
   var _jio_config = null;
@@ -230,7 +237,7 @@ $(document).on('mobileinit', function () {
 
     _jio_config_promise = jio_config.allDocs().
       then(postSomeConfIfNecessary).
-      then(null, ignoreError, stopProgressPropagation);
+      then(null, displayError, stopProgressPropagation);
     // XXX we should never ignore errors!
     return _jio_config_promise;
 
@@ -304,51 +311,6 @@ $(document).on('mobileinit', function () {
       };
     }
 
-// XXX not implemented / not tested yet
-//    if (config.storage_type === 'erp5') {
-//      return {
-//        type: 'erp5',
-//        url: config.url,
-//        username: config.username,
-//        password: config.password
-//      };
-//    }
-//
-//    if (config.storage_type === 'replicate') {
-//      //replicate storage with erp5
-//      return {
-//        type: 'replicate',
-//        storage_list: [{
-//          type: 'gid',
-//          constraints: {
-//            'default': {
-//              type: 'string',
-//              reference: 'string'
-//            }
-//          },
-//          sub_storage: {
-//            type: 'local',
-//            username: config.username,
-//            application_name: 'task-manager'
-//          }
-//        }, {
-//          type: 'gid',
-//          constraints: {
-//            'default': {
-//              type: 'string',
-//              reference: 'string'
-//            }
-//          },
-//          sub_storage: {
-//            type: 'erp5',
-//            url: config.url,
-//            username: config.username,
-//            password: config.password
-//          }
-//        }]
-//      };
-//    }
-
     alert('unsupported storage type: ' + config.storage_type);
   };
 
@@ -357,17 +319,14 @@ $(document).on('mobileinit', function () {
    * If a storage is empty, inserts default/test data
    * with projects, states, and tasks.
    */
-  var populateInitialTasks = function (jio) {
-    return new RSVP.Promise(function (resolve) {
-      jio.allDocs().then(function (response) {
-        var total_rows = response.data.total_rows;
-        Logger.info('Found %i objects.', total_rows);
-        if (total_rows) {
-          resolve();
-          return;
+  var populateInitialTasksIfNeeded = function (jio) {
+    return jio.allDocs().
+      then(function (response) {
+        if (response.data.total_rows) {
+          Logger.debug('The storage contains data.');
+          return RSVP.resolve();
         }
 
-        Logger.info('Populating initial storage...');
         var objs = Array.prototype.concat(task_data.projects, task_data.states, task_data.tasks),
           ins_promises = objs.map(function (obj) {
             obj.modified = new Date();
@@ -375,14 +334,10 @@ $(document).on('mobileinit', function () {
             return jio.post(obj);
           });
 
-        RSVP.all(ins_promises).
-          then(function () {
-            Logger.debug('Inserted %i objects', ins_promises.length);
-            resolve();
-          });
-          // XXX handle failure
+        Logger.info('The storage is empty. Populating with %i objects...', ins_promises.length);
+        return RSVP.all(ins_promises);
+        // XXX handle failure
       });
-    });
   };
 
 
@@ -424,12 +379,12 @@ $(document).on('mobileinit', function () {
         var storage_description = storageDescription(config);
         storage_description.key_schema = key_schema;
         _jio_tasks = jIO.createJIO(storage_description);
-        return populateInitialTasks(_jio_tasks);
+        return populateInitialTasksIfNeeded(_jio_tasks);
       }).
       then(function () {
         return _jio_tasks;
       }).
-      then(null, ignoreError, stopProgressPropagation);
+      then(null, displayError, stopProgressPropagation);
     // XXX we should never ignore errors!
     return _jio_tasks_promise;
   };
@@ -441,12 +396,12 @@ $(document).on('mobileinit', function () {
    * @param {Object} jio The storage to clear
    */
   var deleteStorageContent = function (jio) {
-    jio.allDocs().then(function (response) {
+    return jio.allDocs().then(function (response) {
       var del_promises = response.data.rows.map(function (row) {
         Logger.debug('Removing: %s on storage %o', row.id, jio);
         return jio.remove({_id: row.id});
       });
-      RSVP.all(del_promises).then(function () {
+      return RSVP.all(del_promises).then(function () {
         Logger.debug('%i object(s) have been removed from %o', del_promises.length, jio);
       });
     });
@@ -458,13 +413,20 @@ $(document).on('mobileinit', function () {
    */
   $(document).on('click', '#btn-reset-data', function () {
     jioConfigConnect().then(function (jio_config) {
-      jioConnect().then(function (jio) {
-        Logger.info('Clearing tasks storage.');
-        deleteStorageContent(jio);
-        Logger.info('Clearing configuration storage.');
-        deleteStorageContent(jio_config);
+      jioConnect().
+        then(function (jio) {
+          Logger.info('Clearing tasks storage.');
+          deleteStorageContent(jio);
+        }).
+        then(function () {
+          Logger.info('Clearing configuration storage.');
+          deleteStorageContent(jio_config);
         // XXX user notification
-      });
+        }).
+        then(function () {
+          Logger.info('Set current storage to default.');
+          setSelectedStorage(default_storage_id);
+        });
     });
   });
 
@@ -805,9 +767,7 @@ $(document).on('mobileinit', function () {
           parent.history.back();
           // XXX explicit redirect
         }).
-        fail(function (error) {
-          errorDialog(error);
-        });
+        fail(displayError);
     });
   });
 
@@ -1062,9 +1022,7 @@ $(document).on('mobileinit', function () {
           setSelectedStorage(default_storage_id);
           $.mobile.navigate('storage.html');
         }).
-        fail(function (error) {
-          errorDialog(error);
-        });
+        fail(displayError);
     });
   });
 
