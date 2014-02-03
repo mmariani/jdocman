@@ -4,7 +4,56 @@
 $(document).on('mobileinit', function () {
   "use strict";
 
+  /**
+   * Defines a schema of search keys for the task queries,
+   * as described in http://jio.readthedocs.org/en/latest/keys.html
+   * This schema implements filtering with partial dates, titles and descriptions
+   * regardless of the accents and letter case, and translated state values.
+   */
+  var key_schema = {
+    cast_lookup: {
+      dateType: jiodate.JIODate
+    },
+    match_lookup: {
+      translatedStateMatch: function (object_value, value) {
+        var translated_object_value = i18n.t(object_value);
+        return RSVP.resolve(task_util.accentFoldLC(translated_object_value) ===
+                            task_util.accentFoldLC(value));
+      }
+    },
+    key_set: {
+      title: {
+        read_from: 'title',
+        cast_to: task_util.accentFoldLC
+      },
+      description: {
+        read_from: 'description',
+        cast_to: task_util.accentFoldLC
+      },
+      start: {
+        read_from: 'start',
+        cast_to: 'dateType'
+      },
+      stop: {
+        read_from: 'stop',
+        cast_to: 'dateType'
+      },
+      translated_state: {
+        read_from: 'state',
+        equal_match: 'translatedStateMatch'
+      }
+    }
+  };
+
   var default_storage_id = 'default_storage';
+
+
+
+  /***********************************
+   *                                 *
+   * Function definitions start here *
+   *                                 *
+   ***********************************/
 
 
   function getSelectedStorage() {
@@ -176,120 +225,6 @@ $(document).on('mobileinit', function () {
   }
 
 
-  /***************************
-   *                         *
-   * Application starts here *
-   *                         *
-   ***************************/
-
-  var input_timer = null,
-    //
-    // Data passed around for page changes -- we cannot use URL parameters with appcache
-    // Waiting for better parameter support in JQM 1.5 (http://jquerymobile.com/roadmap/)
-    page_params = {};
-
-  if (!getSelectedStorage()) {
-    setSelectedStorage(default_storage_id);
-  }
-
-  $('.initHandler').removeClass('initHandler');
-
-  $.mobile.selectmenu.prototype.options.nativeMenu = false;
-  $.datepicker.setDefaults({dateFormat: 'yy-mm-dd'});
-
-  task_util.registerHandlebarsHelpers();
-
-  Logger.useDefaults();   // log to console
-
-  // DEBUG for development, WARN for production
-  Logger.setLevel(Logger.DEBUG);
-
-  /**
-   * Set up the translations for i18next.
-   * This might trigger a 404 for an unsupported locale
-   * before falling back, i.e. en-US -> en
-   * Also applies translations to the current page as soon
-   * as the data is ready.
-   * For the options, see http://i18next.com/pages/doc_init.html
-   */
-  $.i18n.init({
-    detectLngQS: 'lang',
-    fallbackLng: 'en',
-    ns: 'translation',
-    resGetPath: 'i18n/__lng__/__ns__.json',
-    preload: ['en', 'fr', 'zh']
-  }, applyTranslation);
-
-
-  /**
-   * Apply a language change upon selection from the menu.
-   * This will store the selected language in the 'i18next'
-   * session cookie.
-   */
-  $(document).on('change', '#translate', function () {
-    var curr_lang = $(this).val();
-    $.i18n.setLng(curr_lang, applyTranslation);
-  });
-
-
-  /**
-   * Attempt to make jqm dialogs transparent.
-   * XXX this does not work if the page has been changed before
-   * opening the dialog.
-   */
-  /*jslint unparam: true*/
-  $(document).on('pagebeforeshow', 'div[data-role="dialog"]', function (e, ui) {
-    ui.prevPage.addClass('ui-dialog-background ');
-  });
-
-  $(document).on('pagehide', 'div[data-role="dialog"]', function (e, ui) {
-    $('.ui-dialog-background ').removeClass('ui-dialog-background ');
-  });
-  /*jslint unparam: false*/
-
-
-  /**
-   * Defines a schema of search keys for the task queries,
-   * as described in http://jio.readthedocs.org/en/latest/keys.html
-   * This schema implements filtering with partial dates, titles and descriptions
-   * regardless of the accents and letter case, and translated state values.
-   */
-  var key_schema = {
-    cast_lookup: {
-      dateType: jiodate.JIODate
-    },
-    match_lookup: {
-      translatedStateMatch: function (object_value, value) {
-        var translated_object_value = i18n.t(object_value);
-        return RSVP.resolve(task_util.accentFoldLC(translated_object_value) ===
-                            task_util.accentFoldLC(value));
-      }
-    },
-    key_set: {
-      title: {
-        read_from: 'title',
-        cast_to: task_util.accentFoldLC
-      },
-      description: {
-        read_from: 'description',
-        cast_to: task_util.accentFoldLC
-      },
-      start: {
-        read_from: 'start',
-        cast_to: 'dateType'
-      },
-      stop: {
-        read_from: 'stop',
-        cast_to: 'dateType'
-      },
-      translated_state: {
-        read_from: 'state',
-        equal_match: 'translatedStateMatch'
-      }
-    }
-  };
-
-
   /**
    * Creates a storage description from to a configuration object.
    */
@@ -314,7 +249,6 @@ $(document).on('mobileinit', function () {
         )
       };
     }
-
     alert('unsupported storage type: ' + config.storage_type);
   }
 
@@ -342,7 +276,6 @@ $(document).on('mobileinit', function () {
         return RSVP.all(ins_promises);
       });
   }
-
 
 
   var _jio_tasks = null;
@@ -635,8 +568,7 @@ $(document).on('mobileinit', function () {
    *
    * @param {Object} jio_config The configuration storage
    * @param {String} id The id of the configuration to retrieve (may be null)
-   * @return {Promise} A Promise which resolves to the
-   * configuration object.
+   * @return {Promise} A Promise which resolves to the configuration object.
    */
   function storageConfig(jio_config, id) {
     if (!id) {
@@ -657,6 +589,90 @@ $(document).on('mobileinit', function () {
           });
       });
   }
+
+
+
+
+  /***************************
+   *                         *
+   * Application starts here *
+   *                         *
+   ***************************/
+
+  var input_timer = null,
+    //
+    // Data passed around for page changes -- we cannot use URL parameters with appcache
+    // Waiting for better parameter support in JQM 1.5 (http://jquerymobile.com/roadmap/)
+    page_params = {};
+
+  if (!getSelectedStorage()) {
+    setSelectedStorage(default_storage_id);
+  }
+
+  $('.initHandler').removeClass('initHandler');
+
+  $.mobile.selectmenu.prototype.options.nativeMenu = false;
+  $.datepicker.setDefaults({dateFormat: 'yy-mm-dd'});
+
+  task_util.registerHandlebarsHelpers();
+
+  Logger.useDefaults();   // log to console
+
+  // DEBUG for development, WARN for production
+  Logger.setLevel(Logger.DEBUG);
+
+  /**
+   * Set up the translations for i18next.
+   * This might trigger a 404 for an unsupported locale
+   * before falling back, i.e. en-US -> en
+   * Also applies translations to the current page as soon
+   * as the data is ready.
+   * For the options, see http://i18next.com/pages/doc_init.html
+   */
+  $.i18n.init({
+    detectLngQS: 'lang',
+    fallbackLng: 'en',
+    ns: 'translation',
+    resGetPath: 'i18n/__lng__/__ns__.json',
+    preload: ['en', 'fr', 'zh']
+  }, applyTranslation);
+
+
+  /**
+   * Attempt to make jqm dialogs transparent.
+   * XXX this does not work if the page has been changed before
+   * opening the dialog.
+   */
+  /*jslint unparam: true*/
+  $(document).on('pagebeforeshow', 'div[data-role="dialog"]', function (e, ui) {
+    ui.prevPage.addClass('ui-dialog-background ');
+  });
+
+  $(document).on('pagehide', 'div[data-role="dialog"]', function (e, ui) {
+    $('.ui-dialog-background ').removeClass('ui-dialog-background ');
+  });
+  /*jslint unparam: false*/
+
+
+
+
+
+  /********************************
+   *                              *
+   * UI event handlers start here *
+   *                              *
+   ********************************/
+
+
+  /**
+   * Apply a language change upon selection from the menu.
+   * This will store the selected language in the 'i18next'
+   * session cookie.
+   */
+  $(document).on('change', '#translate', function () {
+    var curr_lang = $(this).val();
+    $.i18n.setLng(curr_lang, applyTranslation);
+  });
 
 
   $(document).on('pagebeforeshow', '#settings-page', function () {
@@ -1070,7 +1086,6 @@ $(document).on('mobileinit', function () {
   });
 
 
-
   /**
    * Delete a state.
    */
@@ -1169,5 +1184,6 @@ $(document).on('mobileinit', function () {
         });
     }).fail(displayError);
   });
+
 });
 
