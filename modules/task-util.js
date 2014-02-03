@@ -72,7 +72,10 @@
       if (maxsize && text.length > maxsize) {
         // truncate string to word boundary
         text = text.substr(0, maxsize - 1);
-        text = text.substr(0, text.lastIndexOf(' '));
+        if (text.indexOf(' ') !== -1) {
+          // single huge word, cut it
+          text = text.substr(0, text.lastIndexOf(' '));
+        }
         text = text + '&hellip;';
       }
 
