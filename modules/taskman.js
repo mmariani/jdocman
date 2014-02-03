@@ -34,7 +34,7 @@ $(document).on('mobileinit', function () {
    *     doSomething().fail(ignoreError).then(...);
    */
   function ignoreError() {
-    Logger.error("Error ignored!");
+    Logger.error('Error ignored!');
     // no error propagated here
   }
 
@@ -45,7 +45,7 @@ $(document).on('mobileinit', function () {
    * In case of exception, shows the stack trace.
    * This function can be used as a then parameter.
    *
-   *     doSomething().fail(displayError).then(...);
+   *     doSomething().then(...).fail(displayError);
    */
   function displayError(error) {
     var message = error.stack ? ('<pre>' + error.stack + ' </pre>') : error.message,
@@ -69,9 +69,8 @@ $(document).on('mobileinit', function () {
    */
   function stopProgressPropagation() {
     // stop progress propagation
-    throw new Error("Progress stopped");
+    throw new Error('Progress stopped');
   }
-
 
 
   var _jio_config = null;
@@ -177,6 +176,11 @@ $(document).on('mobileinit', function () {
   }
 
 
+  /***************************
+   *                         *
+   * Application starts here *
+   *                         *
+   ***************************/
 
   var input_timer = null,
     //
@@ -235,11 +239,11 @@ $(document).on('mobileinit', function () {
    */
   /*jslint unparam: true*/
   $(document).on('pagebeforeshow', 'div[data-role="dialog"]', function (e, ui) {
-    ui.prevPage.addClass("ui-dialog-background ");
+    ui.prevPage.addClass('ui-dialog-background ');
   });
 
   $(document).on('pagehide', 'div[data-role="dialog"]', function (e, ui) {
-    $(".ui-dialog-background ").removeClass("ui-dialog-background ");
+    $('.ui-dialog-background ').removeClass('ui-dialog-background ');
   });
   /*jslint unparam: false*/
 
@@ -442,31 +446,47 @@ $(document).on('mobileinit', function () {
 
 
   /**
-   * Display (or refresh) a list of tasks in the current page,
-   * performing a search if there is search input.
-   * Translation is applied after rendering the template.
+   * Create a query string from the input text, if the
+   * text already complies to the complex_queries grammar.
+   * Basically adds a filter for the task type.
+   * XXX nice to have: check grammar
    *
-   * @param {Object} jio The storage instance
-   * @param {String} sort_by name of the metadata property to sort on
+   * @param {Object} input_text a grammar-complying query string
+   * @return {String} A query string that can be used with allDocs
    */
-  function updateTaskList(jio, sort_by) {
-    var input_text = $('#search-tasks').val(),
-      search_string = input_text ? '%' + input_text + '%' : '%',
+  function grammarQuery(search_string) {
+    var query = '(type: "Task")';
+    if (search_string) {
+      query += ' AND ' + search_string;
+    }
+    return query;
+  }
+
+
+  /**
+   * Create a query tree from the input text,
+   * comparing with multiple properties and the start-stop date range.
+   *
+   * @param {Object} input_text a search term to be compared
+   * @return {String} A query tree that can be used with allDocs
+   */
+  function smartQuery(search_string) {
+    var wildcard_search_string = search_string ? ('%' + search_string + '%') : '%',
       query = null,
-      search_date = parseJIODate(input_text),
+      search_date = parseJIODate(search_string),
       content_query_list = [
         {
           type: 'simple',
           key: 'title',
-          value: search_string
+          value: wildcard_search_string
         }, {
           type: 'simple',
           key: 'description',
-          value: search_string
+          value: wildcard_search_string
         }, {
           type: 'simple',
           key: 'translated_state',
-          value: input_text
+          value: search_string
         }
       ];
 
@@ -508,15 +528,40 @@ $(document).on('mobileinit', function () {
       ]
     };
 
-    var sort_on = [[sort_by || 'start', 'ascending']],
+    return query;
+  }
+
+
+  /**
+   * Retrieves the text a user is using for searches.
+   *
+   * @return {String} the search string
+   */
+  function getSearchString() {
+    return $('#search-tasks').val().trim();
+  }
+
+
+  /**
+   * Display (or refresh) a list of tasks in the current page,
+   * performing a search if there is search input.
+   * Translation is applied after rendering the template.
+   *
+   * @param {Object} jio The storage instance
+   * @param {String} sort_by name of the metadata property to sort on
+   */
+  function updateTaskList(jio, sort_by) {
+    var search_string = getSearchString(),
+      sort_on = [[sort_by || 'start', 'ascending']],
+      query_function = search_string.charAt(0) === '(' ? grammarQuery : smartQuery,
       options = {
         include_docs: true,
         wildcard_character: '%',
         sort_on: sort_on,
-        query: query
+        query: query_function(search_string)
       };
 
-    Logger.debug('Querying tasks with: "%s" (%o)...', input_text, options.query);
+    Logger.debug('Querying tasks with: "%s" (%o)...', search_string, options.query);
     return docQuery(jio, options).
       then(function (tasks) {
         Logger.debug('%i tasks found', tasks.length);
@@ -527,7 +572,6 @@ $(document).on('mobileinit', function () {
         applyTranslation();
       });
   }
-
 
 
   /**
@@ -722,13 +766,26 @@ $(document).on('mobileinit', function () {
    * A timer is used to avoid querying for each character.
    */
   $(document).on('input', '#search-tasks', function () {
-    return jioConnect().then(function (jio) {
+    var search_string = getSearchString();
+
+    // Grammar vs Smart queries will be discriminated by parentheses.
+    // To avoid flooding the server, a beginning parens requires an
+    // ending parens. Also, all queries are delayed by 500 ms in case
+    // of further input.
+
+    if (search_string.charAt(0) === '(' &&
+        search_string.charAt(search_string.length - 1) !== ')') {
+      return;
+    }
+
+    jioConnect().then(function (jio) {
       if (input_timer) {
         window.clearTimeout(input_timer);
         input_timer = null;
       }
       input_timer = window.setTimeout(function () {
-        updateTaskList(jio);
+        updateTaskList(jio); // XXX errors from this promise are not propagated
+                             // and would have to be handled separately.
         input_timer = 0;
       }, 500);
     }).fail(displayError);
@@ -1037,7 +1094,7 @@ $(document).on('mobileinit', function () {
    */
   $(document).on('click', '#settings-add-state', function () {
     jioConnect().then(function (jio) {
-      var state = window.prompt("State name?") || '',
+      var state = window.prompt('State name?') || '',
         doc = null;
 
       state = state.trim();
@@ -1064,7 +1121,6 @@ $(document).on('mobileinit', function () {
   });
 
 
-
   /**
    * Delete a project. XXX even if it contains tasks
    */
@@ -1088,7 +1144,7 @@ $(document).on('mobileinit', function () {
    */
   $(document).on('click', '#settings-add-project', function () {
     jioConnect().then(function (jio) {
-      var project = window.prompt("Project name?") || '',
+      var project = window.prompt('Project name?') || '',
         doc = null;
 
       project = project.trim();
@@ -1113,6 +1169,5 @@ $(document).on('mobileinit', function () {
         });
     }).fail(displayError);
   });
-
 });
 
