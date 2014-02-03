@@ -4,91 +4,26 @@
 $(document).on('mobileinit', function () {
   "use strict";
 
-  var input_timer = null,
-    default_storage_id = 'default_storage',
-    //
-    // Data passed around for page changes -- we cannot use URL parameters with appcache
-    // Waiting for better parameter support in JQM 1.5 (http://jquerymobile.com/roadmap/)
-    page_params = {};
+  var default_storage_id = 'default_storage';
 
-  var getSelectedStorage = function () {
+
+  function getSelectedStorage() {
     return localStorage.getItem('set_selected_storage');
-  };
-
-  var setSelectedStorage = function (val) {
-    return localStorage.setItem('set_selected_storage', val);
-  };
-
-  if (!getSelectedStorage()) {
-    setSelectedStorage(default_storage_id);
   }
 
-  $('.initHandler').removeClass('initHandler');
 
-  $.mobile.selectmenu.prototype.options.nativeMenu = false;
-  $.datepicker.setDefaults({dateFormat: 'yy-mm-dd'});
+  function setSelectedStorage(val) {
+    return localStorage.setItem('set_selected_storage', val);
+  }
 
-  task_util.registerHandlebarsHelpers();
-
-  Logger.useDefaults();   // log to console
-
-  // DEBUG for development, WARN for production
-  Logger.setLevel(Logger.DEBUG);
 
   /**
    * Immediately apply translation to all elements
    * which have a data-i18n attribute.
    */
-  var applyTranslation = function () {
+  function applyTranslation() {
     $('[data-i18n]').i18n();
-  };
-
-  /**
-   * Set up the translations for i18next.
-   * This might trigger a 404 for an unsupported locale
-   * before falling back, i.e. en-US -> en
-   * Also applies translations to the current page as soon
-   * as the data is ready.
-   * For the options, see http://i18next.com/pages/doc_init.html
-   */
-  $.i18n.init({
-    detectLngQS: 'lang',
-    fallbackLng: 'en',
-    ns: 'translation',
-    resGetPath: 'i18n/__lng__/__ns__.json',
-    preload: ['en', 'fr', 'zh']
-  }, function () {
-    applyTranslation();
-  });
-
-
-  /**
-   * Apply a language change upon selection from the menu.
-   * This will store the selected language in the 'i18next'
-   * session cookie.
-   */
-  $(document).on('change', '#translate', function () {
-    var curr_lang = $(this).val();
-    $.i18n.setLng(curr_lang, function () {
-      applyTranslation();
-    });
-  });
-
-
-  /**
-   * Attempt to make jqm dialogs transparent.
-   * XXX this does not work if the page has been changed before
-   * opening the dialog.
-   */
-  /*jslint unparam: true*/
-  $(document).on('pagebeforeshow', 'div[data-role="dialog"]', function (e, ui) {
-    ui.prevPage.addClass("ui-dialog-background ");
-  });
-
-  $(document).on('pagehide', 'div[data-role="dialog"]', function (e, ui) {
-    $(".ui-dialog-background ").removeClass("ui-dialog-background ");
-  });
-  /*jslint unparam: false*/
+  }
 
 
   /**
@@ -138,9 +73,9 @@ $(document).on('mobileinit', function () {
   }
 
 
+
   var _jio_config = null;
   var _jio_config_promise = null;
-
 
   /**
    * This function creates the global _jio_config instance bound to localStorage
@@ -151,7 +86,7 @@ $(document).on('mobileinit', function () {
    *
    * @return {Promise} The promise < _jio_config, post_error >
    */
-  var jioConfigConnect = function () {
+  function jioConfigConnect() {
     if (_jio_config) {
       return RSVP.resolve(_jio_config);
     }
@@ -238,10 +173,75 @@ $(document).on('mobileinit', function () {
     _jio_config_promise = jio_config.allDocs().
       then(postSomeConfIfNecessary).
       then(null, displayError, stopProgressPropagation);
-    // XXX we should never ignore errors!
     return _jio_config_promise;
+  }
 
-  };
+
+
+  var input_timer = null,
+    //
+    // Data passed around for page changes -- we cannot use URL parameters with appcache
+    // Waiting for better parameter support in JQM 1.5 (http://jquerymobile.com/roadmap/)
+    page_params = {};
+
+  if (!getSelectedStorage()) {
+    setSelectedStorage(default_storage_id);
+  }
+
+  $('.initHandler').removeClass('initHandler');
+
+  $.mobile.selectmenu.prototype.options.nativeMenu = false;
+  $.datepicker.setDefaults({dateFormat: 'yy-mm-dd'});
+
+  task_util.registerHandlebarsHelpers();
+
+  Logger.useDefaults();   // log to console
+
+  // DEBUG for development, WARN for production
+  Logger.setLevel(Logger.DEBUG);
+
+  /**
+   * Set up the translations for i18next.
+   * This might trigger a 404 for an unsupported locale
+   * before falling back, i.e. en-US -> en
+   * Also applies translations to the current page as soon
+   * as the data is ready.
+   * For the options, see http://i18next.com/pages/doc_init.html
+   */
+  $.i18n.init({
+    detectLngQS: 'lang',
+    fallbackLng: 'en',
+    ns: 'translation',
+    resGetPath: 'i18n/__lng__/__ns__.json',
+    preload: ['en', 'fr', 'zh']
+  }, applyTranslation);
+
+
+  /**
+   * Apply a language change upon selection from the menu.
+   * This will store the selected language in the 'i18next'
+   * session cookie.
+   */
+  $(document).on('change', '#translate', function () {
+    var curr_lang = $(this).val();
+    $.i18n.setLng(curr_lang, applyTranslation);
+  });
+
+
+  /**
+   * Attempt to make jqm dialogs transparent.
+   * XXX this does not work if the page has been changed before
+   * opening the dialog.
+   */
+  /*jslint unparam: true*/
+  $(document).on('pagebeforeshow', 'div[data-role="dialog"]', function (e, ui) {
+    ui.prevPage.addClass("ui-dialog-background ");
+  });
+
+  $(document).on('pagehide', 'div[data-role="dialog"]', function (e, ui) {
+    $(".ui-dialog-background ").removeClass("ui-dialog-background ");
+  });
+  /*jslint unparam: false*/
 
 
   /**
@@ -287,9 +287,9 @@ $(document).on('mobileinit', function () {
 
 
   /**
-   * Creates a storage description from to a configuration document.
+   * Creates a storage description from to a configuration object.
    */
-  var storageDescription = function (config) {
+  function storageDescription(config) {
     if (config.storage_type === 'local') {
       return {
         type: 'local',
@@ -312,14 +312,14 @@ $(document).on('mobileinit', function () {
     }
 
     alert('unsupported storage type: ' + config.storage_type);
-  };
+  }
 
 
   /**
    * If a storage is empty, inserts default/test data
    * with projects, states, and tasks.
    */
-  var populateInitialTasksIfNeeded = function (jio) {
+  function populateInitialTasksIfNeeded(jio) {
     return jio.allDocs().
       then(function (response) {
         if (response.data.total_rows) {
@@ -336,14 +336,13 @@ $(document).on('mobileinit', function () {
 
         Logger.info('The storage is empty. Populating with %i objects...', ins_promises.length);
         return RSVP.all(ins_promises);
-        // XXX handle failure
       });
-  };
+  }
+
 
 
   var _jio_tasks = null;
   var _jio_tasks_promise = null;
-
 
   /**
    * This function creates the global _jio_tasks instance bound to the
@@ -355,7 +354,7 @@ $(document).on('mobileinit', function () {
    *
    * @return {Promise} The promise < _jio_tasks, post_error >
    */
-  var jioConnect = function () {
+  function jioConnect() {
     if (_jio_tasks) {
       return RSVP.resolve(_jio_tasks);
     }
@@ -385,9 +384,8 @@ $(document).on('mobileinit', function () {
         return _jio_tasks;
       }).
       then(null, displayError, stopProgressPropagation);
-    // XXX we should never ignore errors!
     return _jio_tasks_promise;
-  };
+  }
 
 
   /**
@@ -395,7 +393,7 @@ $(document).on('mobileinit', function () {
    *
    * @param {Object} jio The storage to clear
    */
-  var deleteStorageContent = function (jio) {
+  function deleteStorageContent(jio) {
     return jio.allDocs().then(function (response) {
       var del_promises = response.data.rows.map(function (row) {
         Logger.debug('Removing: %s on storage %o', row.id, jio);
@@ -405,30 +403,7 @@ $(document).on('mobileinit', function () {
         Logger.debug('%i object(s) have been removed from %o', del_promises.length, jio);
       });
     });
-  };
-
-
-  /**
-   * Remove test data, must reload the page to create it again.
-   */
-  $(document).on('click', '#btn-reset-data', function () {
-    jioConfigConnect().then(function (jio_config) {
-      jioConnect().
-        then(function (jio) {
-          Logger.info('Clearing tasks storage.');
-          deleteStorageContent(jio);
-        }).
-        then(function () {
-          Logger.info('Clearing configuration storage.');
-          deleteStorageContent(jio_config);
-        // XXX user notification
-        }).
-        then(function () {
-          Logger.info('Set current storage to default.');
-          setSelectedStorage(default_storage_id);
-        });
-    });
-  });
+  }
 
 
   /**
@@ -439,61 +414,14 @@ $(document).on('mobileinit', function () {
    * @param {Object} options the argument to use with allDocs()
    * @return {Promise} A Promise which resolves to a list of 'doc' objects
    */
-  var docQuery = function (jio, options) {
+  function docQuery(jio, options) {
     return jio.allDocs(options).
       then(function (response) {
         return RSVP.resolve(response.data.rows.map(function (row) {
           return row.doc;
         }));
       });
-  };
-
-
-  /**
-   * Prepare the projects.html page before displaying.
-   * This queries the storage for a list of the projects and tasks,
-   * then provides them as parameters to Handlebars.
-   * Translation is applied after rendering the template.
-   */
-  $(document).on('pagebeforeshow', '#projects-page', function () {
-    Logger.debug('Loading Projects page');
-    jioConnect().then(function (jio) {
-      var options = {
-        include_docs: true,
-        query: '(type:"Project") OR (type:"Task")',
-        sort_on: [['project', 'ascending']]
-      }, tasks = {};
-
-      Logger.debug('Querying projects...');
-      docQuery(jio, options).
-        then(function (docs) {
-          var i = 0;
-
-          // Handlebars has very limited support for traversing data,
-          // so we have to group/count everything in advance.
-
-          for (i = 0; i < docs.length; i += 1) {
-            if (docs[i].type === 'Project') {
-              tasks[docs[i].project] = {tasks: [], task_count: 0};
-            }
-          }
-
-          for (i = 0; i < docs.length; i += 1) {
-            if (docs[i].type === 'Task') {
-              tasks[docs[i].project] = tasks[docs[i].project] || {tasks: [], task_count: 0};
-              tasks[docs[i].project].tasks.push(docs[i]);
-              tasks[docs[i].project].task_count += 1;
-            }
-          }
-
-          var template = Handlebars.compile($('#project-list-template').text());
-          $('#project-list-container')
-            .html(template({tasks: tasks}))
-            .trigger('create'); // notify jqm of the changes we made
-        });
-      applyTranslation();
-    });
-  });
+  }
 
 
   /**
@@ -504,13 +432,13 @@ $(document).on('mobileinit', function () {
    * @param {String} s The string to be parsed
    * @return {Object} a JIODate instance if possible, or null
    */
-  var parseJIODate = function (s) {
+  function parseJIODate(s) {
     try {
       return jiodate.JIODate(s);
     } catch (e) {
       return null;
     }
-  };
+  }
 
 
   /**
@@ -521,7 +449,7 @@ $(document).on('mobileinit', function () {
    * @param {Object} jio The storage instance
    * @param {String} sort_by name of the metadata property to sort on
    */
-  var updateTaskList = function (jio, sort_by) {
+  function updateTaskList(jio, sort_by) {
     var input_text = $('#search-tasks').val(),
       search_string = input_text ? '%' + input_text + '%' : '%',
       query = null,
@@ -589,7 +517,7 @@ $(document).on('mobileinit', function () {
       };
 
     Logger.debug('Querying tasks with: "%s" (%o)...', input_text, options.query);
-    docQuery(jio, options).
+    return docQuery(jio, options).
       then(function (tasks) {
         Logger.debug('%i tasks found', tasks.length);
         var template = Handlebars.compile($('#task-list-template').text());
@@ -598,7 +526,171 @@ $(document).on('mobileinit', function () {
           .trigger('create');
         applyTranslation();
       });
-  };
+  }
+
+
+
+  /**
+   * Update the settings form to edit project/state list.
+   */
+  function updateSettingsForm(jio) {
+    var project_options = {include_docs: true, sort_on: [['project', 'ascending']], query: '(type:"Project")'},
+      projects_promise = docQuery(jio, project_options),
+      state_options = {include_docs: true, sort_on: [['state', 'ascending']], query: '(type:"State")'},
+      states_promise = docQuery(jio, state_options);
+
+    return RSVP.all([projects_promise, states_promise]).
+      then(function (responses) {
+        var projects = responses[0],
+          states = responses[1];
+
+        var template = Handlebars.compile($('#settings-form-template').text());
+        $('#settings-form-container')
+          .html(template({projects: projects, states: states}))
+          .trigger('create');
+        applyTranslation();
+
+        // select the current language on the menu
+        task_util.jqmSetSelected('#translate', i18n.lng());
+      });
+  }
+
+
+  /**
+   * Retrieve all the storage metadata and configuration attachments.
+   *
+   * @param {Object} jio_config The configuration storage
+   * @return {Promise} A Promise which resolves to a list
+   * of objects {doc: {...}, config: {...}}
+   */
+  function storageConfigList(jio_config) {
+    return jio_config.allDocs({include_docs: true}).
+      then(function (alldocs) {
+        var attachments_promise = alldocs.data.rows.map(function (row) {
+          var prom = jio_config.
+            getAttachment({_id: row.id, _attachment: 'config'}).
+            then(function (response) {
+              return jIO.util.readBlobAsText(response.data);
+            }).
+            then(function (ev) {
+              return {
+                doc: row.doc,
+                config: JSON.parse(ev.target.result)
+              };
+            });
+          return prom;
+        });
+        return RSVP.all(attachments_promise);
+      });
+  }
+
+
+  /**
+   * Retrieve a single storage's configuration,
+   * or provide the default value for a configuration object.
+   *
+   * @param {Object} jio_config The configuration storage
+   * @param {String} id The id of the configuration to retrieve (may be null)
+   * @return {Promise} A Promise which resolves to the
+   * configuration object.
+   */
+  function storageConfig(jio_config, id) {
+    if (!id) {
+      return RSVP.resolve({
+        storage_type: 'local'
+      });
+    }
+
+    return jio_config.get({_id: id}).
+      then(function (response) {
+        return jio_config.
+          getAttachment({_id: response.id, _attachment: 'config'}).
+          then(function (response) {
+            return jIO.util.readBlobAsText(response.data);
+          }).
+          then(function (ev) {
+            return JSON.parse(ev.target.result);
+          });
+      });
+  }
+
+
+  $(document).on('pagebeforeshow', '#settings-page', function () {
+    jioConnect().then(function (jio) {
+      Logger.debug('Loading Settings page');
+      updateSettingsForm(jio);
+    }).fail(displayError);
+  });
+
+
+  /**
+   * Remove test data, must reload the page to create it again.
+   */
+  $(document).on('click', '#btn-reset-data', function () {
+    jioConfigConnect().then(function (jio_config) {
+      return jioConnect().
+        then(function (jio) {
+          Logger.info('Clearing tasks storage.');
+          deleteStorageContent(jio);
+        }).
+        then(function () {
+          Logger.info('Clearing configuration storage.');
+          deleteStorageContent(jio_config);
+        }).
+        then(function () {
+          Logger.info('Set current storage to default.');
+          setSelectedStorage(default_storage_id);
+          // XXX notify user with dialog?
+        });
+    }).fail(displayError);
+  });
+
+
+  /**
+   * Prepare the projects.html page before displaying.
+   * This queries the storage for a list of the projects and tasks,
+   * then provides them as parameters to Handlebars.
+   * Translation is applied after rendering the template.
+   */
+  $(document).on('pagebeforeshow', '#projects-page', function () {
+    Logger.debug('Loading Projects page');
+    jioConnect().then(function (jio) {
+      var options = {
+        include_docs: true,
+        query: '(type:"Project") OR (type:"Task")',
+        sort_on: [['project', 'ascending']]
+      }, tasks = {};
+
+      Logger.debug('Querying projects...');
+      return docQuery(jio, options).
+        then(function (docs) {
+          var i = 0;
+
+          // Handlebars has very limited support for traversing data,
+          // so we have to group/count everything in advance.
+
+          for (i = 0; i < docs.length; i += 1) {
+            if (docs[i].type === 'Project') {
+              tasks[docs[i].project] = {tasks: [], task_count: 0};
+            }
+          }
+
+          for (i = 0; i < docs.length; i += 1) {
+            if (docs[i].type === 'Task') {
+              tasks[docs[i].project] = tasks[docs[i].project] || {tasks: [], task_count: 0};
+              tasks[docs[i].project].tasks.push(docs[i]);
+              tasks[docs[i].project].task_count += 1;
+            }
+          }
+
+          var template = Handlebars.compile($('#project-list-template').text());
+          $('#project-list-container')
+            .html(template({tasks: tasks}))
+            .trigger('create'); // notify jqm of the changes we made
+          applyTranslation();
+        });
+    }).fail(displayError);
+  });
 
 
   /**
@@ -607,8 +699,8 @@ $(document).on('mobileinit', function () {
   $(document).on('change', '#task-sortby', function () {
     var sort_by = $(this).val();
     jioConnect().then(function (jio) {
-      updateTaskList(jio, sort_by);
-    });
+      return updateTaskList(jio, sort_by);
+    }).fail(displayError);
   });
 
 
@@ -620,8 +712,8 @@ $(document).on('mobileinit', function () {
     jioConnect().then(function (jio) {
       // attempt to fix cosmetic issue with a select menu in the header
       $('#task-sortby-button').addClass('ui-btn-left');
-      updateTaskList(jio);
-    });
+      return updateTaskList(jio);
+    }).fail(displayError);
   });
 
 
@@ -630,7 +722,7 @@ $(document).on('mobileinit', function () {
    * A timer is used to avoid querying for each character.
    */
   $(document).on('input', '#search-tasks', function () {
-    jioConnect().then(function (jio) {
+    return jioConnect().then(function (jio) {
       if (input_timer) {
         window.clearTimeout(input_timer);
         input_timer = null;
@@ -639,7 +731,7 @@ $(document).on('mobileinit', function () {
         updateTaskList(jio);
         input_timer = 0;
       }, 500);
-    });
+    }).fail(displayError);
   });
 
 
@@ -686,7 +778,7 @@ $(document).on('mobileinit', function () {
         });
       }
 
-      RSVP.all([task_promise, projects_promise, states_promise]).
+      return RSVP.all([task_promise, projects_promise, states_promise]).
         then(function (responses) {
           var task_resp = responses[0],
             projects = responses[1],
@@ -701,8 +793,7 @@ $(document).on('mobileinit', function () {
           // XXX if the project does not exist anymore, the first one is selected
           applyTranslation();
         });
-        // XXX handle failure (no task found)
-    });
+    }).fail(displayError);
   });
 
 
@@ -742,14 +833,13 @@ $(document).on('mobileinit', function () {
         update_prom = jio.post(metadata);
       }
 
-      update_prom.
+      return update_prom.
         then(function (response) {
           Logger.debug('Updated task %o:', response.id);
           Logger.debug('  status %s (%s)', response.status, response.statusText);
           parent.history.back();
         });
-
-    });
+    }).fail(displayError);
   });
 
 
@@ -760,106 +850,38 @@ $(document).on('mobileinit', function () {
     jioConnect().then(function (jio) {
       var id = $('#task-id').val();
 
-      jio.remove({_id: id}).
+      return jio.remove({_id: id}).
         then(function (response) {
           Logger.debug('Deleted task %o:', response.id);
           Logger.debug('  status %s', response.status);
           parent.history.back();
           // XXX explicit redirect
-        }).
-        fail(displayError);
-    });
-  });
-
-
-  /**
-   * Update the settings form to edit project/state list.
-   */
-  var updateSettingsForm = function (jio) {
-    var project_options = {include_docs: true, sort_on: [['project', 'ascending']], query: '(type:"Project")'},
-      projects_promise = docQuery(jio, project_options),
-      state_options = {include_docs: true, sort_on: [['state', 'ascending']], query: '(type:"State")'},
-      states_promise = docQuery(jio, state_options);
-
-    RSVP.all([projects_promise, states_promise]).
-      then(function (responses) {
-        var projects = responses[0],
-          states = responses[1];
-
-        var template = Handlebars.compile($('#settings-form-template').text());
-        $('#settings-form-container')
-          .html(template({projects: projects, states: states}))
-          .trigger('create');
-        applyTranslation();
-
-        // select the current language on the menu
-        task_util.jqmSetSelected('#translate', i18n.lng());
-      });
-      // XXX handle failure (no task found)
-  };
-
-  $(document).on('pagebeforeshow', '#settings-page', function () {
-    jioConnect().then(function (jio) {
-      Logger.debug('Loading Settings page');
-      updateSettingsForm(jio);
-    });
-  });
-
-
-  /**
-   * Retrieve all the storage metadata and configuration attachments.
-   *
-   * @param {Object} jio_config The configuration storage
-   * @return {Promise} A Promise which resolves to a list
-   * of objects {doc: {...}, config: {...}}
-   */
-  var storageConfigList = function (jio_config) {
-    return new RSVP.Promise(function (resolve) {
-      jio_config.allDocs({include_docs: true}).
-        then(function (alldocs) {
-          var attachments_promise = alldocs.data.rows.map(function (row) {
-            var prom = jio_config.
-              getAttachment({_id: row.id, _attachment: 'config'}).
-              then(function (response) {
-                return jIO.util.readBlobAsText(response.data);
-              }).
-              then(function (ev) {
-                return {
-                  doc: row.doc,
-                  config: JSON.parse(ev.target.result)
-                };
-              });
-            return prom;
-          });
-          resolve(RSVP.all(attachments_promise));
         });
-    });
-  };
+    }).fail(displayError);
+  });
 
 
   /**
    * Display the form to switch between storages
    */
   $(document).on('pagebeforeshow', '#storage-page', function () {
-    jioConfigConnect().
-      then(function (jio_config) {
-        Logger.debug('Loading Storage page');
-        storageConfigList(jio_config)
-          .then(function (storage_config_list) {
-            var template = Handlebars.compile($('#storage-form-template').text());
+    jioConfigConnect().then(function (jio_config) {
+      Logger.debug('Loading Storage page');
+      return storageConfigList(jio_config)
+        .then(function (storage_config_list) {
+          var template = Handlebars.compile($('#storage-form-template').text());
 
-            $('#storage-form-container')
-              .html(template({storage_config_list: storage_config_list}))
-              .trigger('create');
-            applyTranslation();
+          $('#storage-form-container')
+            .html(template({storage_config_list: storage_config_list}))
+            .trigger('create');
+          applyTranslation();
 
-            // initialize the radio button with the previously selected, or default, value
-            $('#storage-form input:radio[name=storage][value=' + getSelectedStorage() + ']').
-              prop('checked', true).
-              checkboxradio('refresh');
-            // XXX handle failure (no config found)
-          });
-      });
+          // initialize the radio button with the previously selected, or default, value
+          $('#storage-form input:radio[name=storage][value=' + getSelectedStorage() + ']').
+            prop('checked', true).
+            checkboxradio('refresh');
+        });
+    }).fail(displayError);
   });
 
 
@@ -888,39 +910,6 @@ $(document).on('mobileinit', function () {
 
 
   /**
-   * Retrieve a single storage's configuration,
-   * or provide the default value for a configuration object.
-   *
-   * @param {Object} jio_config The configuration storage
-   * @param {String} id The id of the configuration to retrieve (may be null)
-   * @return {Promise} A Promise which resolves to the
-   * configuration object.
-   */
-  var storageConfig = function (jio_config, id) {
-    return new RSVP.Promise(function (resolve) {
-      if (id) {
-        jio_config.get({_id: id}).
-          then(function (response) {
-            var promise = jio_config.
-              getAttachment({_id: response.id, _attachment: 'config'}).
-              then(function (response) {
-                return jIO.util.readBlobAsText(response.data);
-              }).
-              then(function (ev) {
-                return JSON.parse(ev.target.result);
-              });
-            resolve(promise);
-          });
-      } else {
-        resolve({
-          storage_type: 'local'
-        });
-      }
-    });
-  };
-
-
-  /**
    * Display the form to edit a single storage's details,
    * or to create a new storage.
    * Translation is applied after rendering the template.
@@ -931,7 +920,7 @@ $(document).on('mobileinit', function () {
       Logger.debug('Loading Storage Edit page:', id);
       page_params = {};
 
-      storageConfig(jio_config, id).
+      return storageConfig(jio_config, id).
         then(function (config) {
           var template = Handlebars.compile($('#storage-details-template').text());
           $('#storage-details-container')
@@ -939,8 +928,7 @@ $(document).on('mobileinit', function () {
             .trigger('create');
           applyTranslation();
         });
-
-    });
+    }).fail(displayError);
   });
 
 
@@ -987,7 +975,7 @@ $(document).on('mobileinit', function () {
         update_prom = jio_config.post(metadata);
       }
 
-      update_prom.
+      return update_prom.
         then(function (response) {
           var attachment = {
             _id: response.id,
@@ -1001,8 +989,7 @@ $(document).on('mobileinit', function () {
           Logger.debug('  status %s (%s)', response.status, response.statusText);
           $.mobile.navigate('storage.html');
         });
-
-    });
+    }).fail(displayError);
   });
 
 
@@ -1015,15 +1002,14 @@ $(document).on('mobileinit', function () {
     jioConfigConnect().then(function (jio_config) {
       var id = $('#storage-id').val();
 
-      jio_config.remove({_id: id}).
+      return jio_config.remove({_id: id}).
         then(function (response) {
           Logger.debug('Deleted storage %o:', response.id);
           Logger.debug('  status %s', response.status);
           setSelectedStorage(default_storage_id);
           $.mobile.navigate('storage.html');
-        }).
-        fail(displayError);
-    });
+        });
+    }).fail(displayError);
   });
 
 
@@ -1038,11 +1024,11 @@ $(document).on('mobileinit', function () {
           return jio.remove({_id: el.value});
         });
 
-      RSVP.all(del_promises).then(function () {
+      return RSVP.all(del_promises).then(function () {
         Logger.debug('%i state(s) have been removed', del_promises.length);
         updateSettingsForm(jio);
       });
-    });
+    }).fail(displayError);
   });
 
 
@@ -1068,14 +1054,13 @@ $(document).on('mobileinit', function () {
         'modified': new Date()
       };
 
-      jio.post(doc).
+      return jio.post(doc).
         then(function (response) {
           Logger.debug('Added state: %o', response.id);
           Logger.debug('  status %s (%s)', response.status, response.statusText);
           updateSettingsForm(jio);
         });
-      // XXX handle failure
-    });
+    }).fail(displayError);
   });
 
 
@@ -1090,11 +1075,11 @@ $(document).on('mobileinit', function () {
           return jio.remove({_id: el.value});
         });
 
-      RSVP.all(del_promises).then(function () {
+      return RSVP.all(del_promises).then(function () {
         Logger.debug('%i project(s) have been removed', del_promises.length);
         updateSettingsForm(jio);
       });
-    });
+    }).fail(displayError);
   });
 
 
@@ -1120,14 +1105,13 @@ $(document).on('mobileinit', function () {
         'modified': new Date()
       };
 
-      jio.post(doc).
+      return jio.post(doc).
         then(function (response) {
           Logger.debug('Added project: %o', response.id);
           Logger.debug('  status %s (%s)', response.status, response.statusText);
           updateSettingsForm(jio);
         });
-      // XXX handle failure
-    });
+    }).fail(displayError);
   });
 
 });
