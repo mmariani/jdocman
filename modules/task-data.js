@@ -30,7 +30,7 @@
         "start": "2013-05-19T22:00:00.000Z",
         "stop": "2013-11-01T23:00:00.000Z",
         "state": "Completed",
-        "description": "some description coming soon..."
+        "description": "some description coming soon"
         },
       { "type": "Task",
         "title": "HTML5 and CSS3 overview",
@@ -46,7 +46,7 @@
         "start": "2013-05-14T23:00:00.000Z",
         "stop": "2014-10-29T23:00:00.000Z",
         "state": "Confirmed",
-        "description": "some description..."
+        "description": "some description"
         },
       { "type": "Task",
         "title": "Vintage",

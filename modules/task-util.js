@@ -1,5 +1,5 @@
 /*jslint indent: 2 */
-/*global window, jQuery, Handlebars, i18n, moment */
+/*global window, jQuery, Handlebars, i18n, moment, document, Sanitize */
 
 (function ($, Handlebars, i18n, moment) {
   "use strict";
@@ -40,9 +40,53 @@
 
 
   util.registerHandlebarsHelpers = function () {
+
+    /**
+     * Clean up HTML before display for security reasons
+     * (see https://github.com/gbirke/Sanitize.js)
+     * Also, truncates the resulting string if it's too long.
+     * This may leave bad formatting in 'relaxed' mode,
+     * but we are using the strictest mode, which only
+     * preserves the text content.
+     *
+     * @param {String} html The insecure string to sanitize.
+     * @param {String} maxsize The length to trim the string at.
+     * @return {String} The safe (will not be escaped) string to render in HTML.
+     */
+    Handlebars.registerHelper('sanitize', function (html, maxsize) {
+      // The Sanitize module only works on DOM nodes, so we create one from the string...
+      var node = $('<div>' + html + '</div>'),
+        s = new Sanitize(),
+        clean_fragment = s.clean_node(node[0]),
+        // ...take the resulting fragment...
+        tmpdiv = document.createElement('div'),
+        text = '';
+
+      // ...and wrap the fragment around a node...
+      tmpdiv.appendChild(clean_fragment);
+      // ...only to access its innerHTML property.
+      // It would be simpler if Sanitize took a string.
+
+      text = tmpdiv.innerHTML;
+
+      if (maxsize && text.length > maxsize) {
+        // truncate string to word boundary
+        text = text.substr(0, maxsize - 1);
+        text = text.substr(0, text.lastIndexOf(' '));
+        text = text + '&hellip;';
+      }
+
+      return new Handlebars.SafeString(text);
+    });
+
+
     /**
      * Display date strings or objects as yyyy-mm-dd
      * (takes timezone into account)
+     *
+     * @param {String} date The date string (or Date object) to display.
+     * @return {String} The safe (will not be escaped) string to render in HTML.
+     * Escaped or not, it doesn't make a real difference here.
      */
     Handlebars.registerHelper('asYMD', function (date) {
       if (date) {

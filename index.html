@@ -81,7 +81,7 @@
             <li>
               <a href="#" data-jio-id="{{this._id}}" class="task-details-link">
                 {{this.title}}
-                <p>{{this.description}}</p>
+                <p>{{sanitize this.description 100}}</p>
                 <p>
                   <span class="state">{{t this.state}}</span>
                   {{t "tasks.from"}}
@@ -120,6 +120,7 @@
     <script src="modules/taskman.js"></script>
     <script src="lib/jqm/jquery.mobile-1.4.0.min.js"></script>
     <script src="lib/jquery.mobile.datepicker/jquery.mobile.datepicker.js"></script>
+    <script src="lib/sanitize/sanitize.js"></script>
 
   </body>
 </html>
