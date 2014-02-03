@@ -93,7 +93,7 @@ $(document).on('mobileinit', function () {
 
   /**
    * This function must be used as a then parameter if you don't want to manage
-   * errors. It changes the promise to the fulfilment channel with no fulfilment
+   * errors. It changes the promise to the fulfillment channel with no fulfillment
    * value.
    *
    *     doSomething().fail(ignoreError).then(...);
@@ -138,7 +138,7 @@ $(document).on('mobileinit', function () {
   /**
    * This function creates the global _jio_config instance bound to localStorage
    * and, if the storage is empty, inserts some hard coded configurations.
-   * The returned promise will have the _jio_config as fulfilment value or undefined,
+   * The returned promise will have _jio_config as fulfillment value or undefined,
    * and it will never be rejected.
    * This promise is not cancellable and sends no notifications.
    *
@@ -387,34 +387,51 @@ $(document).on('mobileinit', function () {
 
 
   var _jio_tasks = null;
+  var _jio_tasks_promise = null;
 
+
+  /**
+   * This function creates the global _jio_tasks instance bound to the
+   * main storage and, if the storage is empty, inserts some hard coded
+   * projects and tasks.
+   * The returned promise will have _jio_tasks as fulfillment value or undefined,
+   * and it will never be rejected.
+   * This promise is not cancellable and sends no notifications.
+   *
+   * @return {Promise} The promise < _jio_tasks, post_error >
+   */
   var jioConnect = function () {
-    return new RSVP.Promise(function (resolve) {
-      if (_jio_tasks) {
-        resolve(_jio_tasks);
-      } else {
-        jioConfigConnect().
-          then(function (jio_config) {
-            return jio_config.getAttachment({_id: getSelectedStorage(), _attachment: 'config'});
-          }).
-          then(function (response) {
-            return jIO.util.readBlobAsText(response.data);
-          }).
-          then(function (ev) {
-            return JSON.parse(ev.target.result);
-          }).
-          then(function (config) {
-            Logger.debug('Using storage: %o', config);
-            var storage_description = storageDescription(config);
-            storage_description.key_schema = key_schema;
-            _jio_tasks = jIO.createJIO(storage_description);
-            return populateInitialTasks(_jio_tasks);
-          }).
-          then(function () {
-            resolve(_jio_tasks);
-          });
-      }
-    });
+    if (_jio_tasks) {
+      return RSVP.resolve(_jio_tasks);
+    }
+    if (_jio_tasks_promise) {
+      // another call to jioConnect() has been made,
+      // but the promise has not resolved yet, so we return it again
+      return _jio_tasks_promise;
+    }
+    _jio_tasks_promise = jioConfigConnect().
+      then(function (jio_config) {
+        return jio_config.getAttachment({_id: getSelectedStorage(), _attachment: 'config'});
+      }).
+      then(function (response) {
+        return jIO.util.readBlobAsText(response.data);
+      }).
+      then(function (ev) {
+        return JSON.parse(ev.target.result);
+      }).
+      then(function (config) {
+        Logger.debug('Using storage: %o', config);
+        var storage_description = storageDescription(config);
+        storage_description.key_schema = key_schema;
+        _jio_tasks = jIO.createJIO(storage_description);
+        return populateInitialTasks(_jio_tasks);
+      }).
+      then(function () {
+        return _jio_tasks;
+      }).
+      then(null, ignoreError, stopProgressPropagation);
+    // XXX we should never ignore errors!
+    return _jio_tasks_promise;
   };
 
 
@@ -893,6 +910,7 @@ $(document).on('mobileinit', function () {
   $(document).on('change', 'input:radio[name=storage]', function () {
     setSelectedStorage($(this).val());
     _jio_tasks = null;
+    _jio_tasks_promise = null;
     Logger.debug('Switching storage to', getSelectedStorage());
   });
 
