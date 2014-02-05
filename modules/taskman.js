@@ -76,6 +76,19 @@ $(document).on('mobileinit', function () {
 
 
   /**
+   * Detect if the browser has native support for <input type="date">
+   *
+   * @return {Boolean} true if the browser has a datepicker, false otherwise.
+   */
+  function hasHTML5DatePicker() {
+    var el = document.createElement('input');
+    el.setAttribute('type', 'date');
+    //if type is text then and only then should you call the fallback
+    return el.type !== 'text';
+  }
+
+
+  /**
    * This function must be used as a then parameter if you don't want to manage
    * errors. It changes the promise to the fulfillment channel with no fulfillment
    * value.
@@ -612,7 +625,10 @@ $(document).on('mobileinit', function () {
   $('.initHandler').removeClass('initHandler');
 
   $.mobile.selectmenu.prototype.options.nativeMenu = false;
-  $.datepicker.setDefaults({dateFormat: 'yy-mm-dd'});
+
+  if (!hasHTML5DatePicker()) {
+    $.datepicker.setDefaults({dateFormat: 'yy-mm-dd'});
+  }
 
   task_util.registerHandlebarsHelpers();
 
@@ -834,7 +850,8 @@ $(document).on('mobileinit', function () {
         projects_promise = docQuery(jio, project_options),
         task_promise = null,
         state_options = {include_docs: true, sort_on: [['state', 'ascending']], query: '(type:"State")'},
-        states_promise = docQuery(jio, state_options);
+        states_promise = docQuery(jio, state_options),
+        dateinput_type = hasHTML5DatePicker() ? 'date' : 'text';
 
       if (page_params.task_id) {
         task_promise = jio.get({_id: page_params.task_id});
@@ -859,7 +876,7 @@ $(document).on('mobileinit', function () {
 
           var template = Handlebars.compile($('#task-details-template').text());
           $('#task-details-container')
-            .html(template({task: task_resp.data, projects: projects, states: states}))
+            .html(template({task: task_resp.data, projects: projects, states: states, dateinput_type: dateinput_type}))
             .trigger('create');
           task_util.jqmSetSelected('#task-project', task_resp.data.project);
           task_util.jqmSetSelected('#task-state', task_resp.data.state);
