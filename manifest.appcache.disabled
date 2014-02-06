@@ -11,21 +11,20 @@ CACHE MANIFEST
 # and the linked references.
 #
 
-# 2014-01-28:v2
+# 2014-02-02:v1
 
 CACHE:
 about.html
 data/tasks.json
-errordialog.html
 favicon.png
 i18n/en/translation.json
 i18n/fr/translation.json
 i18n/zh/translation.json
 index.html
 lib/handlebars/handlebars-v1.1.2.js
-lib/i18next/i18next.amd.withJQuery-1.7.1.js
-lib/i18next/i18next-1.7.1.min.js
 lib/i18next/i18next-1.7.1.js
+lib/i18next/i18next-1.7.1.min.js
+lib/i18next/i18next.amd.withJQuery-1.7.1.js
 lib/jio/complex_queries.js
 lib/jio/jiodate.js
 lib/jio/jio.js
@@ -36,21 +35,31 @@ lib/jio/storage/davstorage.js
 lib/jio/storage/erp5storage.js
 lib/jio/storage/gidstorage.js
 lib/jio/storage/localstorage.js
+lib/jio/storage/querystorage.js
 lib/jio/storage/replicatestorage.js
 lib/jqm/jquery.mobile-1.4.0.min.js
 lib/jqm/jquery.mobile-1.4.0.min.map
 lib/jqm/jquery.mobile.structure-1.4.0.min.css
-lib/jquery/jquery-1.10.2.js
-lib/js-logger/logger.js
-lib/moment/moment-2.5.0.js
+lib/jquery/jquery-2.1.0.js
+lib/jquery/jquery-2.1.0.min.js
+lib/jquery/jquery-2.1.0.min.map
 lib/jquery.mobile.datepicker/jquery.mobile.datepicker.css
 lib/jquery.mobile.datepicker/jquery.mobile.datepicker.js
 lib/jquery.mobile.datepicker/jquery.ui.datepicker.js
+lib/js-logger/logger.js
+lib/moment/moment-2.5.0.js
+lib/sanitize/basic.js
+lib/sanitize/relaxed.js
+lib/sanitize/restricted.js
+lib/sanitize/sanitize.js
 modules/collapsible-listview.css
+modules/patterns/pw_maze_white_@2X.png
+modules/patterns/pw_maze_white.png
+modules/patterns/tweed_@2X.png
+modules/patterns/tweed.png
+modules/task-data.js
 modules/taskman.css
 modules/taskman.js
-modules/task-util.js
-modules/task-data.js
 modules/themes/images/ajax-loader.gif
 modules/themes/images/icons-png/action-black.png
 modules/themes/images/icons-png/action-white.png
@@ -154,12 +163,8 @@ modules/themes/images/icons-png/video-black.png
 modules/themes/images/icons-png/video-white.png
 modules/themes/jquery.mobile.icons.min.css
 modules/themes/taskman-theme.css
-modules/patterns/pw_maze_white_@2X.png
-modules/patterns/pw_maze_white.png
-modules/patterns/tweed_@2X.png
-modules/patterns/tweed.png
 projects.html
 settings.html
-storage.html
 storage-details.html
+storage.html
 task-details.html

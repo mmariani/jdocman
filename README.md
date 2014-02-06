@@ -9,8 +9,8 @@ the module itself is quite short.
 
 It is recommended that you get familiar with the dependencies:
 
- * [jQuery](http://jquery.com) 1.10.x - you can use the more
-   efficient 2.x if you don't care about older browsers.
+ * [jQuery](http://jquery.com) 2.1.x - you can use the less
+   efficient 1.10.x if you care about older browsers.
 
  * [jQuery Mobile](http://jquerymobile.com/)
    is the framework that runs the application's code.
