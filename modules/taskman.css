@@ -35,6 +35,16 @@
 }
 
 
+ /*
+ * Fix for disappearing textarea issue
+ * (https://github.com/jquery/jquery-mobile/issues/6801)
+ */
+
+textarea {
+  position: relative !important;
+}
+
+
 /*
  * Small alignment issue with select menu in header
  */
