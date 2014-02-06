@@ -64,14 +64,6 @@ textarea {
 
 
 /*
- * fix blank square when both collapsible listview and counter are present
- */
-
-.ui-listview > .ui-li-has-count > .ui-btn, .ui-listview > .ui-li-static.ui-li-has-count, .ui-listview > .ui-li-divider.ui-li-has-count {
-  padding-right: 0;
-}
-
-/*
  * on top of theme
  */
 

@@ -9,7 +9,6 @@
     <link rel="stylesheet" href="modules/themes/jquery.mobile.icons.min.css">
     <link rel="stylesheet" href="lib/jqm/jquery.mobile.structure-1.4.0.min.css">
     <link rel="stylesheet" href="modules/taskman.css">
-    <link rel="stylesheet" href="modules/collapsible-listview.css">
     <link rel="stylesheet" href="lib/jquery.mobile.datepicker/jquery.mobile.datepicker.css">
   </head>
   <body class="initHandler">
@@ -60,9 +59,9 @@
 
       <script id="project-list-template" type="text/x-handlebars-template">
 
-        <ul data-role="listview" class="ui-listview-outer" data-inset="true">
+        <div data-role="collapsible-set">
           {{#each tasks}}
-          <li data-role="collapsible" data-iconpos="right" data-inset="false">
+          <div data-role="collapsible">
             <h2>{{@key}} <span class="ui-li-count">{{this.task_count}}</span></h2>
             {{#if this.task_count}}
             <ul data-role="listview" class="task-listview">
@@ -83,9 +82,9 @@
               {{/each}}
             </ul>
             {{/if}}
-          </li>
+          </div>
           {{/each}}
-        </ul>
+        </div>
       </script>
     </div><!-- /page -->
 
