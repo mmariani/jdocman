@@ -1357,5 +1357,10 @@ $(document).on('mobileinit', function () {
     preload: ['en', 'fr', 'zh']
   }, applyTranslation);
 
+  var log = log4javascript.getLogger("main");
+  var appender = new log4javascript.InPageAppender();
+  log.addAppender(appender);
+  Logger = log
+
 });
 
