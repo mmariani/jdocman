@@ -55,15 +55,6 @@ textarea {
 
 
 /*
- * Small alignment issue with delete icon in search bar
- */
-
-.ui-input-search .ui-input-clear:after {
-  margin-top: -18px;
-}
-
-
-/*
  * on top of theme
  */
 
