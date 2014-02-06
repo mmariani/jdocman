@@ -80,7 +80,8 @@ It is recommended that you get familiar with the dependencies:
  * [js-logger](https://github.com/jonnyreeves/js-logger)
    is a simple module that provides logging levels (DEBUG, INFO, WARNING..)
 
-   If you need more features, have a look at [Woodman](https://github.com/joshfire/woodman).
+   If you need more features, have a look at [Woodman](https://github.com/joshfire/woodman) or [log4javascript](http://log4javascript.org/), which
+   also provides an in-page console that can be useful to debug mobile browsers.
 
  * [Sanitize.js](https://github.com/gbirke/Sanitize.js)
    is an a HTML sanitizer, to help avoid HTML injections when displaying documents inserted

@@ -52,7 +52,6 @@ lib/sanitize/basic.js
 lib/sanitize/relaxed.js
 lib/sanitize/restricted.js
 lib/sanitize/sanitize.js
-modules/collapsible-listview.css
 modules/patterns/pw_maze_white_@2X.png
 modules/patterns/pw_maze_white.png
 modules/patterns/tweed_@2X.png
