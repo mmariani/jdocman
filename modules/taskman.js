@@ -160,8 +160,10 @@ $(document).on('mobileinit', function () {
   }
 
 
+
+
   /**
-   * Display an error's title and message, within a JQM dialog box,
+   * Display an error's title and message, within a JQM modal popup,
    * as received by jIO methods.
    * In case of exception, shows the stack trace.
    * This function can be used as a then parameter.
@@ -169,16 +171,41 @@ $(document).on('mobileinit', function () {
    *     doSomething().then(...).fail(displayError);
    */
   function displayError(error) {
-    var message = error.stack ? ('<pre>' + error.stack + ' </pre>') : error.message,
-      header = error.statusText || 'Application error';
-    // XXX there must be a better way to fill the content.
-    // XXX dialog is too small to display a proper stack trace
-    $(document).on('pagebeforeshow.errordialog', '#errordialog', function (ev) {
-      $(ev.target).find('.error-header').html(header);
-      $(ev.target).find('.error-message').html(message);
-      $(document).off('pagebeforeshow.errordialog');
+    var header = error.statusText || 'Application error',
+      message = error.stack ? ('<pre>' + error.stack + ' </pre>') : error.message,
+      popup_template = (
+        '<div data-role="popup" data-theme="a" id="errorPopup" data-dismissible="false" data-history="false" style="max-width:400px;">' +
+        '  <div role="main" class="ui-content">' +
+        '    <h3 class="ui-title">{{message}}</h3>' +
+        '    <p>{{sanitize details}}</p>' +
+        '    <a href="#errorPopup" class="ui-btn ui-corner-all ui-shadow ui-btn-inline data-rel="close">{{button_text}}</a>' +
+        '  </div>' +
+        '</div>'
+      ),
+      template = Handlebars.compile(popup_template);
+
+    var html = template({
+      header: 'Error',
+      message: header,
+      details: message,
+      button_text: 'Ok'
     });
-    $.mobile.navigate('errordialog.html');
+
+    var $container = $('#errorPopupContainer');
+
+    if ($container.length === 0) {
+      $container = $('<div id="errorPopupContainer">');
+      $(document.body).append($container);
+    }
+
+    $container.html(html).trigger('create');
+    $('#errorPopup').popup('open');
+    $('#errorPopup').bind({
+      popupafterclose: function () {
+        $('#errorPopup').remove();
+      }
+    });
+
   }
 
 
@@ -1329,22 +1356,6 @@ $(document).on('mobileinit', function () {
     resGetPath: 'i18n/__lng__/__ns__.json',
     preload: ['en', 'fr', 'zh']
   }, applyTranslation);
-
-
-  /**
-   * Attempt to make jqm dialogs transparent.
-   * XXX this does not work if the page has been changed before
-   * opening the dialog.
-   */
-  /*jslint unparam: true*/
-  $(document).on('pagebeforeshow', 'div[data-role="dialog"]', function (e, ui) {
-    ui.prevPage.addClass('ui-dialog-background ');
-  });
-
-  $(document).on('pagehide', 'div[data-role="dialog"]', function (e, ui) {
-    $('.ui-dialog-background ').removeClass('ui-dialog-background ');
-  });
-  /*jslint unparam: false*/
 
 });
 

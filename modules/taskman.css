@@ -85,24 +85,3 @@ html .ui-body-a .ui-bar-inherit, html body .ui-group-theme-a .ui-bar-inherit {
   background-color: gray !important;
 }
 
-
-/****/
-
-.ui-dialog-background {
-  opacity: 0.5;
-  display: block !important;
-  -webkit-transition: opacity 0.5s ease-in;
-}
-
-.ui-dialog-background.pop.in {
-  opacity: 1;
-  -webkit-transition: opacity 0.5s ease-in;
-}
-
-.ui-dialog {
-  min-height: 100% !important;
-  background: transparent !important;
-}
-
-
-
