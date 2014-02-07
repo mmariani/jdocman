@@ -6,88 +6,87 @@ $(document).on('mobileinit', function () {
 
 
   /**
-   * Remove accents and convert to lower case
+   * Creates a function to use for (case insensitive) accent folding.
    *
-   * @param {String} s the string to convert.
-   * @return {String} the converted string.
+   * @param {String} map an array of (regexp, string) to do the conversion.
+   * @return {Function} the folding function.
    */
-  function accentFoldLC(s) {
-    var map = [
-        [new RegExp('[àáâãäå]', 'gi'), 'a'],
-        [new RegExp('æ', 'gi'), 'ae'],
-        [new RegExp('ç', 'gi'), 'c'],
-        [new RegExp('[èéêë]', 'gi'), 'e'],
-        [new RegExp('[ìíîï]', 'gi'), 'i'],
-        [new RegExp('ñ', 'gi'), 'n'],
-        [new RegExp('[òóôõö]', 'gi'), 'o'],
-        [new RegExp('œ', 'gi'), 'oe'],
-        [new RegExp('[ùúûü]', 'gi'), 'u'],
-        [new RegExp('[ýÿ]', 'gi'), 'y']
-      ];
-
-    if (!s) {
-      return s;
-    }
-
-    map.forEach(function (o) {
-      var rep = function (match) {
-        if (match.toUpperCase() === match) {
-          return o[1].toUpperCase();
-        }
-        return o[1];
-      };
-      s = s.replace(o[0], rep);
-    });
-    return s.toLowerCase();
+  function AccentFolder(map) {
+    return function accentFoldLC(s) {
+      if (!s) {
+        return s;
+      }
+      map.forEach(function (o) {
+        var rep = function (match) {
+          if (match.toUpperCase() === match) {
+            return o[1].toUpperCase();
+          }
+          return o[1];
+        };
+        s = s.replace(o[0], rep);
+      });
+      return s.toLowerCase();
+    };
   }
 
 
-
-  /**
-   * Defines a schema of search keys for the task queries,
-   * as described in http://jio.readthedocs.org/en/latest/keys.html
-   * This schema implements filtering with partial dates, titles and descriptions
-   * regardless of the accents and letter case, and translated state values.
-   */
-  var key_schema = {
-    cast_lookup: {
-      dateType: jiodate.JIODate
-    },
-    match_lookup: {
-      translatedStateMatch: function (object_value, value) {
-        var translated_object_value = i18n.t(object_value);
-        return RSVP.resolve(accentFoldLC(translated_object_value) ===
-                            accentFoldLC(value));
+  var accentFoldLC = new AccentFolder([
+      [new RegExp('[àáâãäå]', 'gi'), 'a'],
+      [new RegExp('æ', 'gi'), 'ae'],
+      [new RegExp('ç', 'gi'), 'c'],
+      [new RegExp('[èéêë]', 'gi'), 'e'],
+      [new RegExp('[ìíîï]', 'gi'), 'i'],
+      [new RegExp('ñ', 'gi'), 'n'],
+      [new RegExp('[òóôõö]', 'gi'), 'o'],
+      [new RegExp('œ', 'gi'), 'oe'],
+      [new RegExp('[ùúûü]', 'gi'), 'u'],
+      [new RegExp('[ýÿ]', 'gi'), 'y']
+    ]),
+    //
+    // Define a schema of search keys for the task queries,
+    // as described in http://jio.readthedocs.org/en/latest/keys.html
+    // This schema implements filtering with partial dates, titles and descriptions
+    // regardless of the accents and letter case, and translated state values.
+    //
+    key_schema = {
+      cast_lookup: {
+        dateType: jiodate.JIODate
+      },
+      match_lookup: {
+        translatedStateMatch: function (object_value, value) {
+          var translated_object_value = i18n.t(object_value);
+          return RSVP.resolve(accentFoldLC(translated_object_value) ===
+                              accentFoldLC(value));
+        }
+      },
+      key_set: {
+        title: {
+          read_from: 'title',
+          cast_to: accentFoldLC
+        },
+        description: {
+          read_from: 'description',
+          cast_to: accentFoldLC
+        },
+        start: {
+          read_from: 'start',
+          cast_to: 'dateType'
+        },
+        stop: {
+          read_from: 'stop',
+          cast_to: 'dateType'
+        },
+        translated_state: {
+          read_from: 'state',
+          equal_match: 'translatedStateMatch'
+        }
       }
     },
-    key_set: {
-      title: {
-        read_from: 'title',
-        cast_to: accentFoldLC
-      },
-      description: {
-        read_from: 'description',
-        cast_to: accentFoldLC
-      },
-      start: {
-        read_from: 'start',
-        cast_to: 'dateType'
-      },
-      stop: {
-        read_from: 'stop',
-        cast_to: 'dateType'
-      },
-      translated_state: {
-        read_from: 'state',
-        equal_match: 'translatedStateMatch'
-      }
-    }
-  },
     //
     // Data passed around for page changes -- we cannot use URL parameters with appcache
     // Waiting for better parameter support in JQM 1.5 (http://jquerymobile.com/roadmap/)
     //
-    page_params = {},
+    page_parameter_box = {},
     default_storage_id = 'default_storage';
 
 
@@ -126,7 +125,6 @@ $(document).on('mobileinit', function () {
   function hasHTML5DatePicker() {
     var el = document.createElement('input');
     el.setAttribute('type', 'date');
-    //if type is text then and only then should you call the fallback
     return el.type !== 'text';
   }
 
@@ -135,8 +133,8 @@ $(document).on('mobileinit', function () {
    * Update a <select> element's selected option,
    * then activates the jquery mobile event to refresh UI
    */
-  function jqmSetSelected(el, value) {
-    var $select = $(el);
+  function jqmSetSelected(element, value) {
+    var $select = $(element);
 
     /*jslint unparam: true*/
     $select.children().each(function (i, op) {
@@ -158,8 +156,6 @@ $(document).on('mobileinit', function () {
   function getSearchString() {
     return $('#search-tasks').val().trim();
   }
-
-
 
 
   /**
@@ -210,7 +206,7 @@ $(document).on('mobileinit', function () {
 
 
   /**
-   * This function must be used as a then parameter if you don't want to
+   * This function must be used as a progress parameter if you don't want to
    * propagate notifications.
    *
    *     doSomething().progress(stopProgressPropagation).then(...);
@@ -364,42 +360,42 @@ $(document).on('mobileinit', function () {
           return RSVP.resolve();
         }
 
-        var objs = Array.prototype.concat(task_data.projects, task_data.states, task_data.tasks),
-          ins_promises = objs.map(function (obj) {
+        var obj_list = Array.prototype.concat(task_data.projects, task_data.states, task_data.tasks),
+          ins_promise_list = obj_list.map(function (obj) {
             obj.modified = new Date();
             Logger.debug('Inserting %s: %o', obj.type, obj);
             return jio.post(obj);
           });
 
-        Logger.info('The storage is empty. Populating with %i objects...', ins_promises.length);
-        return RSVP.all(ins_promises);
+        Logger.info('The storage is empty. Populating with %i objects...', ins_promise_list.length);
+        return RSVP.all(ins_promise_list);
       });
   }
 
 
-  var _jio_tasks = null;
-  var _jio_tasks_promise = null;
+  var _jio = null;
+  var _jio_promise = null;
 
   /**
-   * This function creates the global _jio_tasks instance bound to the
+   * This function creates the global _jio instance bound to the
    * main storage and, if the storage is empty, inserts some hard coded
    * projects and tasks.
-   * The returned promise will have _jio_tasks as fulfillment value or undefined,
+   * The returned promise will have _jio as fulfillment value or undefined,
    * and it will never be rejected.
    * This promise is not cancellable and sends no notifications.
    *
-   * @return {Promise} The promise < _jio_tasks, post_error >
+   * @return {Promise} The promise < _jio, post_error >
    */
   function jioConnect() {
-    if (_jio_tasks) {
-      return RSVP.resolve(_jio_tasks);
+    if (_jio) {
+      return RSVP.resolve(_jio);
     }
-    if (_jio_tasks_promise) {
+    if (_jio_promise) {
       // another call to jioConnect() has been made,
       // but the promise has not resolved yet, so we return it again
-      return _jio_tasks_promise;
+      return _jio_promise;
     }
-    _jio_tasks_promise = jioConfigConnect().
+    _jio_promise = jioConfigConnect().
       then(function (jio_config) {
         return jio_config.getAttachment({_id: getSelectedStorage(), _attachment: 'config'});
       }).
@@ -413,14 +409,14 @@ $(document).on('mobileinit', function () {
         Logger.debug('Using storage: %o', config);
         var storage_description = storageDescription(config);
         storage_description.key_schema = key_schema;
-        _jio_tasks = jIO.createJIO(storage_description);
-        return populateInitialTasksIfNeeded(_jio_tasks);
+        _jio = jIO.createJIO(storage_description);
+        return populateInitialTasksIfNeeded(_jio);
       }).
       then(function () {
-        return _jio_tasks;
+        return _jio;
       }).
       then(null, displayError, stopProgressPropagation);
-    return _jio_tasks_promise;
+    return _jio_promise;
   }
 
 
@@ -431,12 +427,12 @@ $(document).on('mobileinit', function () {
    */
   function deleteStorageContent(jio) {
     return jio.allDocs().then(function (response) {
-      var del_promises = response.data.rows.map(function (row) {
+      var del_promise_list = response.data.rows.map(function (row) {
         Logger.debug('Removing: %s on storage %o', row.id, jio);
         return jio.remove({_id: row.id});
       });
-      return RSVP.all(del_promises).then(function () {
-        Logger.debug('%i object(s) have been removed from %o', del_promises.length, jio);
+      return RSVP.all(del_promise_list).then(function () {
+        Logger.debug('%i object(s) have been removed from %o', del_promise_list.length, jio);
       });
     });
   }
@@ -600,19 +596,19 @@ $(document).on('mobileinit', function () {
    * Update the settings form to edit project/state list.
    */
   function updateSettingsForm(jio) {
-    var project_options = {include_docs: true, sort_on: [['project', 'ascending']], query: '(type:"Project")'},
-      projects_promise = docQuery(jio, project_options),
-      state_options = {include_docs: true, sort_on: [['state', 'ascending']], query: '(type:"State")'},
-      states_promise = docQuery(jio, state_options);
+    var project_opt = {include_docs: true, sort_on: [['project', 'ascending']], query: '(type:"Project")'},
+      project_promise = docQuery(jio, project_opt),
+      state_opt = {include_docs: true, sort_on: [['state', 'ascending']], query: '(type:"State")'},
+      state_promise = docQuery(jio, state_opt);
 
-    return RSVP.all([projects_promise, states_promise]).
-      then(function (responses) {
-        var projects = responses[0],
-          states = responses[1];
+    return RSVP.all([project_promise, state_promise]).
+      then(function (response_list) {
+        var project_list = response_list[0],
+          state_list = response_list[1];
 
         var template = Handlebars.compile($('#settings-form-template').text());
         $('#settings-form-container')
-          .html(template({projects: projects, states: states}))
+          .html(template({project_list: project_list, state_list: state_list}))
           .trigger('create');
         applyTranslation();
 
@@ -632,7 +628,7 @@ $(document).on('mobileinit', function () {
   function storageConfigList(jio_config) {
     return jio_config.allDocs({include_docs: true}).
       then(function (alldocs) {
-        var attachments_promise = alldocs.data.rows.map(function (row) {
+        var attachment_promise_list = alldocs.data.rows.map(function (row) {
           var prom = jio_config.
             getAttachment({_id: row.id, _attachment: 'config'}).
             then(function (response) {
@@ -646,7 +642,7 @@ $(document).on('mobileinit', function () {
             });
           return prom;
         });
-        return RSVP.all(attachments_promise);
+        return RSVP.all(attachment_promise_list);
       });
   }
 
@@ -790,15 +786,14 @@ $(document).on('mobileinit', function () {
    *                              *
    ********************************/
 
-
   /**
    * Apply a language change upon selection from the menu.
    * This will store the selected language in the 'i18next'
    * session cookie.
    */
   $(document).on('change', '#translate', function () {
-    var curr_lang = $(this).val();
-    $.i18n.setLng(curr_lang, applyTranslation);
+    var current_language = $(this).val();
+    $.i18n.setLng(current_language, applyTranslation);
   });
 
 
@@ -846,7 +841,7 @@ $(document).on('mobileinit', function () {
         include_docs: true,
         query: '(type:"Project") OR (type:"Task")',
         sort_on: [['project', 'ascending']]
-      }, tasks = {};
+      }, task_map = {};
 
       Logger.debug('Querying projects...');
       return docQuery(jio, options).
@@ -858,21 +853,21 @@ $(document).on('mobileinit', function () {
 
           for (i = 0; i < docs.length; i += 1) {
             if (docs[i].type === 'Project') {
-              tasks[docs[i].project] = {tasks: [], task_count: 0};
+              task_map[docs[i].project] = {tasks: [], task_count: 0};
             }
           }
 
           for (i = 0; i < docs.length; i += 1) {
             if (docs[i].type === 'Task') {
-              tasks[docs[i].project] = tasks[docs[i].project] || {tasks: [], task_count: 0};
-              tasks[docs[i].project].tasks.push(docs[i]);
-              tasks[docs[i].project].task_count += 1;
+              task_map[docs[i].project] = task_map[docs[i].project] || {tasks: [], task_count: 0};
+              task_map[docs[i].project].tasks.push(docs[i]);
+              task_map[docs[i].project].task_count += 1;
             }
           }
 
           var template = Handlebars.compile($('#project-list-template').text());
           $('#project-list-container')
-            .html(template({tasks: tasks}))
+            .html(template({task_map: task_map}))
             .trigger('create'); // notify jqm of the changes we made
           applyTranslation();
         });
@@ -945,7 +940,7 @@ $(document).on('mobileinit', function () {
    * in a closure variable.
    */
   $(document).on('click', '.task-details-link', function () {
-    page_params = {task_id: $(this).data('jio-id')};
+    page_parameter_box = {task_id: $(this).data('jio-id')};
     $.mobile.navigate('task-details.html');
   });
 
@@ -958,17 +953,17 @@ $(document).on('mobileinit', function () {
   $(document).on('pagebeforeshow', '#task-details-page', function () {
     jioConnect().then(function (jio) {
       Logger.debug('Loading Task Edit page');
-      var project_options = {include_docs: true, sort_on: [['project', 'ascending']], query: '(type:"Project")'},
-        projects_promise = docQuery(jio, project_options),
+      var project_opt = {include_docs: true, sort_on: [['project', 'ascending']], query: '(type:"Project")'},
+        project_promise = docQuery(jio, project_opt),
         task_promise = null,
-        state_options = {include_docs: true, sort_on: [['state', 'ascending']], query: '(type:"State")'},
-        states_promise = docQuery(jio, state_options),
+        state_opt = {include_docs: true, sort_on: [['state', 'ascending']], query: '(type:"State")'},
+        state_promise = docQuery(jio, state_opt),
         dateinput_type = hasHTML5DatePicker() ? 'date' : 'text';
 
-      if (page_params.task_id) {
-        task_promise = jio.get({_id: page_params.task_id});
-        Logger.debug('Retrieving task %s', page_params.task_id);
-        page_params = {};
+      if (page_parameter_box.task_id) {
+        task_promise = jio.get({_id: page_parameter_box.task_id});
+        Logger.debug('Retrieving task %s', page_parameter_box.task_id);
+        page_parameter_box = {};
       } else {
         task_promise = new RSVP.Promise(function (resolve) {
           resolve({
@@ -980,15 +975,20 @@ $(document).on('mobileinit', function () {
         });
       }
 
-      return RSVP.all([task_promise, projects_promise, states_promise]).
-        then(function (responses) {
-          var task_resp = responses[0],
-            projects = responses[1],
-            states = responses[2];
+      return RSVP.all([task_promise, project_promise, state_promise]).
+        then(function (response_list) {
+          var task_resp = response_list[0],
+            project_list = response_list[1],
+            state_list = response_list[2];
 
           var template = Handlebars.compile($('#task-details-template').text());
           $('#task-details-container')
-            .html(template({task: task_resp.data, projects: projects, states: states, dateinput_type: dateinput_type}))
+            .html(template({
+              task: task_resp.data,
+              project_list: project_list,
+              state_list: state_list,
+              dateinput_type: dateinput_type
+            }))
             .trigger('create');
           jqmSetSelected('#task-project', task_resp.data.project);
           jqmSetSelected('#task-state', task_resp.data.state);
@@ -1093,8 +1093,8 @@ $(document).on('mobileinit', function () {
    */
   $(document).on('change', 'input:radio[name=storage]', function () {
     setSelectedStorage($(this).val());
-    _jio_tasks = null;
-    _jio_tasks_promise = null;
+    _jio = null;
+    _jio_promise = null;
     Logger.debug('Switching storage to', getSelectedStorage());
   });
 
@@ -1106,7 +1106,7 @@ $(document).on('mobileinit', function () {
    * in a closure variable.
    */
   $(document).on('click', '#settings-edit-storage', function () {
-    page_params = {storage_id: $('#storage-form input:radio[name=storage]:checked').val()};
+    page_parameter_box = {storage_id: $('#storage-form input:radio[name=storage]:checked').val()};
     $.mobile.navigate('storage-details.html');
   });
 
@@ -1118,9 +1118,9 @@ $(document).on('mobileinit', function () {
    */
   $(document).on('pagebeforeshow', '#storage-details-page', function () {
     jioConfigConnect().then(function (jio_config) {
-      var id = page_params.storage_id;
+      var id = page_parameter_box.storage_id;
       Logger.debug('Loading Storage Edit page:', id);
-      page_params = {};
+      page_parameter_box = {};
 
       return storageConfig(jio_config, id).
         then(function (config) {
@@ -1221,12 +1221,12 @@ $(document).on('mobileinit', function () {
   $(document).on('click', '#settings-del-state', function () {
     jioConnect().then(function (jio) {
       var selected = $('input:checkbox:checked[name|=state]').get(),
-        del_promises = selected.map(function (el) {
+        del_promise_list = selected.map(function (el) {
           return jio.remove({_id: el.value});
         });
 
-      return RSVP.all(del_promises).then(function () {
-        Logger.debug('%i state(s) have been removed', del_promises.length);
+      return RSVP.all(del_promise_list).then(function () {
+        Logger.debug('%i state(s) have been removed', del_promise_list.length);
         updateSettingsForm(jio);
       });
     }).fail(displayError);
@@ -1271,12 +1271,12 @@ $(document).on('mobileinit', function () {
   $(document).on('click', '#settings-del-project', function () {
     jioConnect().then(function (jio) {
       var selected = $('input:checkbox:checked[name|=project]').get(),
-        del_promises = selected.map(function (el) {
+        del_promise_list = selected.map(function (el) {
           return jio.remove({_id: el.value});
         });
 
-      return RSVP.all(del_promises).then(function () {
-        Logger.debug('%i project(s) have been removed', del_promises.length);
+      return RSVP.all(del_promise_list).then(function () {
+        Logger.debug('%i project(s) have been removed', del_promise_list.length);
         updateSettingsForm(jio);
       });
     }).fail(displayError);

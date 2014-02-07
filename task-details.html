@@ -88,9 +88,9 @@
               Project:
             </label>
             <select name="project-select" id="task-project" data-role="select">
-              {{#projects}}
+              {{#project_list}}
               <option value="{{this.project}}">{{this.project}}</option>
-              {{/projects}}
+              {{/project_list}}
             </select>
           </div>
 
@@ -100,9 +100,9 @@
               State:
             </label>
             <select name="state-select" id="task-state" data-role="select">
-              {{#states}}
+              {{#state_list}}
               <option value="{{this.state}}">{{t this.state}}</option>
-              {{/states}}
+              {{/state_list}}
             </select>
           </div>
 

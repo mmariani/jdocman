@@ -60,7 +60,7 @@
       <script id="project-list-template" type="text/x-handlebars-template">
 
         <div data-role="collapsible-set">
-          {{#each tasks}}
+          {{#each task_map}}
           <div data-role="collapsible">
             <h2>{{@key}} <span class="ui-li-count">{{this.task_count}}</span></h2>
             {{#if this.task_count}}
