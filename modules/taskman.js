@@ -1,5 +1,5 @@
 /*jslint indent: 2, nomen: true, vars: true, browser: true */
-/*global alert, $, Logger, RSVP, dav_storage, Handlebars, jiodate, moment, i18n, jIO, task_data, Blob, complex_queries, Sanitize  */
+/*global $, Logger, RSVP, dav_storage, Handlebars, jiodate, moment, i18n, jIO, task_data, Blob, complex_queries, Sanitize  */
 
 $(document).on('mobileinit', function () {
   "use strict";
@@ -344,7 +344,7 @@ $(document).on('mobileinit', function () {
         )
       };
     }
-    alert('unsupported storage type: ' + config.storage_type);
+    window.alert('unsupported storage type: ' + config.storage_type);
   }
 
 
@@ -676,6 +676,26 @@ $(document).on('mobileinit', function () {
             return JSON.parse(ev.target.result);
           });
       });
+  }
+
+
+  /**
+   * If the browser supports the Application Cache, check
+   * if an update is available and propose a page reload to the user.
+   */
+  function checkCacheUpdate() {
+    var ac = window.applicationCache;
+    if (!ac) {
+      return;
+    }
+    ac.addEventListener('updateready', function () {
+      if (ac.status === ac.UPDATEREADY) {
+        ac.swapCache();
+        if (window.confirm('An update is available. Reload now?')) {
+          window.location.reload();
+        }
+      }
+    }, false);
   }
 
 
@@ -1359,6 +1379,8 @@ $(document).on('mobileinit', function () {
     resGetPath: 'i18n/__lng__/__ns__.json',
     preload: ['en', 'fr', 'zh']
   }, applyTranslation);
+
+  checkCacheUpdate();
 
 });
 
