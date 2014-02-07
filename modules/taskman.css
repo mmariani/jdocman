@@ -49,8 +49,10 @@ textarea {
  * Small alignment issue with select menu in header
  */
 
-#task-sortby-button {
-  margin-top: -0.5em;
+.ui-header .ui-select {
+  margin-top: 0;
+  margin-bottom: 0;
+  position: static;
 }
 
 
