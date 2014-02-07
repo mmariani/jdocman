@@ -62,7 +62,7 @@
         <div data-role="collapsible-set">
           {{#each task_map}}
           <div data-role="collapsible">
-            <h2>{{@key}} <span class="ui-li-count">{{this.task_count}}</span></h2>
+            <h2 class="ui-mini">{{@key}} <span class="ui-li-count">{{this.task_count}}</span></h2>
             {{#if this.task_count}}
             <ul data-role="listview" class="task-listview">
               {{#each this.tasks}}

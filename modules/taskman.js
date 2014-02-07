@@ -608,7 +608,10 @@ $(document).on('mobileinit', function () {
 
         var template = Handlebars.compile($('#settings-form-template').text());
         $('#settings-form-container')
-          .html(template({project_list: project_list, state_list: state_list}))
+          .html(template({
+            project_list: project_list,
+            state_list: state_list
+          }))
           .trigger('create');
         applyTranslation();
 
