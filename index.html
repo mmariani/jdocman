@@ -12,7 +12,13 @@
     <link rel="stylesheet" href="lib/jquery.mobile.datepicker/jquery.mobile.datepicker.css">
   </head>
   <body class="initHandler">
-    <div data-role="page" id="tasks-page">
+
+
+    <!--
+    Task List Page
+    -->
+
+    <div data-role="page" id="task-list-page">
 
       <div data-role="header">
         <select id="task-sortby" data-role="select" data-mini="true">
@@ -26,7 +32,7 @@
         <h2 data-i18n="header.tasks">
           Tasks
         </h2>
-        <a href="task-details.html" data-role="button" data-icon="plus"
+        <a href="#task-detail-page" data-role="button" data-icon="plus"
            class="ui-btn-right"
            data-mini="true"
            data-i18n="tasks.newtask">
@@ -49,20 +55,20 @@
         <div data-role="navbar" data-iconpos="left">
           <ul>
             <li>
-              <a href="index.html"
+              <a href="#task-list-page"
                  class="ui-btn-active"
                  data-i18n="navbar.tasks">
                 Tasks
               </a>
             </li>
             <li>
-              <a href="projects.html"
+              <a href="#project-list-page"
                  data-i18n="navbar.projects">
                 Projects
               </a>
             </li>
             <li>
-              <a href="settings.html" data-icon="gear"
+              <a href="#settings-page" data-icon="gear"
                  data-i18n="navbar.settings">
                 Settings
               </a>
@@ -77,7 +83,7 @@
           {{#if tasks}}
           {{#tasks}}
             <li>
-              <a href="#" data-jio-id="{{this._id}}" class="task-details-link">
+              <a href="#" data-jio-id="{{this._id}}" class="task-detail-link">
                 {{this.title}}
                 <p>{{sanitize this.description 100}}</p>
                 <p>
@@ -97,7 +103,575 @@
           {{/if}}
         </ul>
       </script>
+    </div><!-- /task-list-page -->
+
+
+    <!--
+    Project List Page
+    -->
+
+    <div data-role="page" id="project-list-page">
+
+      <div data-role="header">
+        <a href="#" data-role="button" data-rel="back"
+          data-icon="arrow-l" data-mini="true"
+          data-i18n="header.back">
+          Back
+        </a>
+        <h2 data-i18n="header.projects">
+          Projects
+        </h2>
+      </div><!-- /header -->
+
+      <div data-role="content">
+        <div id="project-list-container"></div>
+      </div><!-- /content -->
+
+      <div data-role="footer" data-position="fixed">
+
+        <div data-role="navbar" data-iconpos="left">
+          <ul>
+            <li>
+              <a href="#task-list-page"
+                 data-i18n="navbar.tasks">
+                Tasks
+              </a>
+            </li>
+            <li>
+              <a href="#project-list-page"
+                 class="ui-btn-active"
+                 data-i18n="navbar.projects">
+                Projects
+              </a>
+            </li>
+            <li>
+              <a href="#settings-page" data-icon="gear"
+                 data-i18n="navbar.settings">
+                Settings
+              </a>
+            </li>
+          </ul>
+        </div><!-- /navbar -->
+
+      </div><!-- /footer -->
+
+      <script id="project-list-template" type="text/x-handlebars-template">
+
+        <div data-role="collapsible-set">
+          {{#each task_map}}
+          <div data-role="collapsible">
+            <h2 class="ui-mini">{{@key}} <span class="ui-li-count">{{this.task_count}}</span></h2>
+            {{#if this.task_count}}
+            <ul data-role="listview" class="task-listview">
+              {{#each this.tasks}}
+              <li>
+                <a href="#" data-jio-id="{{_id}}" class="task-detail-link">
+                  {{title}}
+                  <p>{{sanitize description 100}}</p>
+                  <p>
+                    <span class="state">{{t state}}</span>
+                    {{t "tasks.from"}}
+                    <span class="from-date">{{asYMD start}}</span>
+                    {{t "tasks.to"}}
+                    <span class="to-date">{{asYMD stop}}</span>
+                  </p>
+                </a>
+              </li>
+              {{/each}}
+            </ul>
+            {{/if}}
+          </div>
+          {{/each}}
+        </div>
+      </script>
+    </div><!-- /project-list-page -->
+
+
+    <!--
+    Task Detail Page
+    -->
+
+
+    <div data-role="page" id="task-detail-page">
+
+      <div data-role="header">
+        <a href="#" data-role="button" data-rel="back"
+          data-icon="arrow-l" data-mini="true"
+          data-i18n="header.back">
+          Back
+        </a>
+        <h2 data-i18n="header.details">
+          Details
+        </h2>
+      </div><!-- /header -->
+
+      <div data-role="content">
+        <div id="task-detail-container"></div>
+      </div><!-- /content -->
+
+      <div data-role="footer" data-position="fixed">
+
+        <div data-role="navbar" data-iconpos="left">
+          <ul>
+            <li>
+              <a href="#task-list-page"
+                 class="ui-btn-active"
+                 data-i18n="navbar.tasks">
+                Tasks
+              </a>
+            </li>
+            <li>
+              <a href="#project-list-page"
+                 data-i18n="navbar.projects">
+                Projects
+              </a>
+            </li>
+            <li>
+              <a href="#settings-page" data-icon="gear"
+                 data-i18n="navbar.settings">
+                Settings
+              </a>
+            </li>
+          </ul>
+        </div><!-- /navbar -->
+
+      </div><!-- /footer -->
+
+      <script id="task-detail-template" type="text/x-handlebars-template">
+        <form>
+          <input type="hidden" id="task-id" value="{{task._id}}" />
+
+          <div data-role="fieldcontain">
+            <label for="task-title" data-i18n="details.title">
+              Title:
+            </label>
+            <input type="text" name="title" id="task-title" value="{{task.title}}" />
+          </div>
+
+          <div data-role="fieldcontain">
+            <label for="task-start" data-i18n="details.start">
+              Begin date:
+            </label>
+            <input type="{{dateinput_type}}" name="start" id="task-start" data-role="date" value="{{asYMD task.start}}" />
+          </div>
+
+          <div data-role="fieldcontain">
+            <label for="task-stop" data-i18n="details.stop">
+              End date:
+            </label>
+            <input type="{{dateinput_type}}" name="stop" id="task-stop" data-role="date" value="{{asYMD task.stop}}" />
+          </div>
+
+          <div data-role="fieldcontain">
+            <label for="task-project" class="select"
+                  data-i18n="details.project">
+              Project:
+            </label>
+            <select name="project-select" id="task-project" data-role="select">
+              {{#project_list}}
+              <option value="{{this.project}}">{{this.project}}</option>
+              {{/project_list}}
+            </select>
+          </div>
+
+          <div data-role="fieldcontain">
+            <label for="task-state" class="select"
+                  data-i18n="details.state">
+              State:
+            </label>
+            <select name="state-select" id="task-state" data-role="select">
+              {{#state_list}}
+              <option value="{{this.state}}">{{t this.state}}</option>
+              {{/state_list}}
+            </select>
+          </div>
+
+          <div data-role="fieldcontain">
+            <label for="task-description" data-i18n="details.description">
+                Description:
+            </label>
+            <textarea name="description" id="task-description">{{task.description}}</textarea>
+          </div>
+
+          <div data-role="fieldcontain">
+            {{#if task._id}}
+            <a href="#" data-role="button"
+              id="task-delete"
+              data-icon="delete"
+              data-inline="true"
+              data-i18n="details.delete">
+              Delete
+            </a>
+            {{else}}
+            <a href="#" data-role="button"
+              data-rel="back"
+              data-icon="cancel"
+              data-inline="true"
+              data-i18n="details.cancel">
+              Cancel
+            </a>
+            {{/if}}
+            <a href="#" data-role="button"
+              id="task-save"
+              data-icon="check"
+              data-inline="true"
+              data-i18n="details.save">
+              Save
+            </a>
+          </div>
+
+        </form>
+      </script>
+    </div><!-- /task-detail-page -->
+
+
+    <!--
+    Settings Page
+    -->
+
+
+    <div data-role="page" id="settings-page">
+      <div data-role="header">
+        <a href="#" data-role="button" data-rel="back"
+          data-icon="arrow-l" data-mini="true"
+          data-i18n="header.back">
+          Back
+        </a>
+        <h2 data-i18n="header.settings">
+          Settings
+        </h2>
+        <a href="#about-dialog"
+           data-role="button"
+           data-mini="true"
+           data-icon="info"
+           data-i18n="navbar.about">
+          About
+        </a>
+      </div><!-- /header -->
+
+      <div data-role="content">
+        <a href="#storage-list-page" data-role="button">Configure Storage</a>
+        <select name="translate" id="translate" data-mini="true">
+          <option value="en" data-i18n="settings.translate.en">English</option>
+          <option value="fr" data-i18n="settings.translate.fr">Français</option>
+          <option value="zh" data-i18n="settings.translate.zh">中文 (Chinese)</option>
+        </select>
+        <form>
+          <div id="settings-form-container"></div>
+        </form>
+      </div><!-- /content -->
+
+      <div data-role="footer" data-position="fixed">
+
+        <div data-role="navbar" data-iconpos="left">
+          <ul>
+            <li>
+              <a href="#task-list-page"
+                 data-i18n="navbar.tasks">
+                Tasks
+              </a>
+            </li>
+            <li>
+              <a href="#project-list-page"
+                 data-i18n="navbar.projects">
+                Projects
+              </a>
+            </li>
+            <li>
+              <a href="#settings-page" data-icon="gear"
+                 class="ui-btn-active"
+                 data-i18n="navbar.settings">
+                Settings
+              </a>
+            </li>
+          </ul>
+        </div><!-- /navbar -->
+
+      </div><!-- /footer -->
+
+      <script id="settings-form-template" type="text/x-handlebars-template">
+        <fieldset data-role="controlgroup" data-mini="true">
+          <legend data-i18n="settings.states">States:</legend>
+          {{#state_list}}
+          <label data-i18n="{{this.state}}"><input type="checkbox" name="state-{{this._id}}" value="{{this._id}}" />{{t this.state}}</label>
+          {{/state_list}}
+        </fieldset>
+        <fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+          <a href="#" id="settings-del-state" data-role="button" data-icon="delete" data-inline="true">Delete selected</a>
+          <a href="#" id="settings-add-state" data-role="button" data-icon="plus" data-inline="true">New State</a>
+        </fieldset>
+
+        <fieldset data-role="controlgroup" data-mini="true">
+          <legend data-i18n="settings.projects">Projects:</legend>
+          {{#project_list}}
+          <label><input type="checkbox" name="project-{{this._id}}" value="{{this._id}}" />{{this.project}}</label>
+          {{/project_list}}
+        </fieldset>
+        <fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+          <a href="#" id="settings-del-project" data-role="button" data-icon="delete" data-inline="true">Delete selected</a>
+          <a href="#" id="settings-add-project" data-role="button" data-icon="plus" data-inline="true">New Project</a>
+        </fieldset>
+      </script>
+    </div><!-- /settings-page -->
+
+
+    <!--
+    Storage List Page
+    -->
+
+
+    <div data-role="page" id="storage-list-page">
+      <div data-role="header">
+        <a href="#" data-role="button" data-rel="back"
+          data-icon="arrow-l" data-mini="true"
+          data-i18n="header.back">
+          Back
+        </a>
+        <h2 data-i18n="header.storage">
+          Storages
+        </h2>
+      </div><!-- /header -->
+
+      <div data-role="content">
+        <form id="storage-form">
+          <div id="storage-form-container"></div>
+        </form>
+      </div><!-- /content -->
+
+      <div data-role="footer" data-position="fixed">
+
+        <div data-role="navbar" data-iconpos="left">
+          <ul>
+            <li>
+              <a href="#task-list-page"
+                 data-i18n="navbar.tasks">
+                Tasks
+              </a>
+            </li>
+            <li>
+              <a href="#project-list-page"
+                 data-i18n="navbar.projects">
+                Projects
+              </a>
+            </li>
+            <li>
+              <a href="#settings-list-page" data-icon="gear"
+                 class="ui-btn-active"
+                 data-i18n="navbar.settings">
+                Settings
+              </a>
+            </li>
+          </ul>
+        </div><!-- /navbar -->
+
+      </div><!-- /footer -->
+
+      <script id="storage-form-template" type="text/x-handlebars-template">
+        <table data-role="table" id="storage-table" data-mode="columntoggle" class="ui-responsive table-stripe" data-column-btn-text="Columns..">
+          <thead>
+            <tr>
+              <th>Storage</th>
+              <th data-priority="1">Type</th>
+              <th data-priority="2">URL</th>
+              <th data-priority="3">Username</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#storage_config_list}}
+            <tr>
+              <th><label>{{this.config.application_name}}<input type="radio" name="storage" value="{{this.doc._id}}" /></label></th>
+              <th>{{this.config.storage_type}}</th>
+              <th>{{this.config.url}}</th>
+              <th>{{this.config.username}}</th>
+            </tr>
+            {{/storage_config_list}}
+          </tbody>
+        </table>
+
+        <fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+          <a href="#storage-detail-page" id="settings-edit-storage" data-role="button" data-icon="edit" data-inline="true">Edit</a>
+          <a href="#storage-detail-page" id="settings-add-storage" data-role="button" data-icon="plus" data-inline="true">New Storage</a>
+        </fieldset>
+      </script>
+    </div><!-- /storage-list-page -->
+
+
+    <!--
+    Storage Detail Page
+    -->
+
+
+    <div data-role="page" id="storage-detail-page">
+      <div data-role="header">
+        <a href="#" data-role="button" data-rel="back"
+          data-icon="arrow-l" data-mini="true"
+          data-i18n="header.back">
+          Back
+        </a>
+        <h2>
+          Modify Storage
+        </h2>
+      </div><!-- /header -->
+
+      <div data-role="content">
+        <div id="storage-detail-container"></div>
+      </div><!-- /content -->
+
+      <div data-role="footer" data-position="fixed">
+
+        <div data-role="navbar" data-iconpos="left">
+          <ul>
+            <li>
+              <a href="#task-list-page"
+                 data-i18n="navbar.tasks">
+                Tasks
+              </a>
+            </li>
+            <li>
+              <a href="#project-list-page"
+                 data-i18n="navbar.projects">
+                Projects
+              </a>
+            </li>
+            <li>
+              <a href="#settings-page" data-icon="gear"
+                 class="ui-btn-active"
+                 data-i18n="navbar.settings">
+                Settings
+              </a>
+            </li>
+          </ul>
+        </div><!-- /navbar -->
+
+      </div><!-- /footer -->
+
+      <script id="storage-detail-template" type="text/x-handlebars-template">
+        <form>
+          <input type="hidden" id="storage-id" value="{{id}}" />
+
+          <div data-role="fieldcontain">
+            <label for="storage-application_name" data-i18n="i18n.todo">
+              Name:
+            </label>
+            <input type="text" name="application_name" id="storage-application_name" value="{{config.application_name}}" />
+          </div>
+
+          <div data-role="fieldcontain">
+            <label for="storage-storage_type" data-i18n="i18n.todo">
+              Type:
+            </label>
+            <input type="text" name="storage_type" id="storage-storage_type" value="{{config.storage_type}}" />
+          </div>
+
+          <div data-role="fieldcontain">
+            <label for="storage-url" data-i18n="i18n.todo">
+              URL:
+            </label>
+            <input type="text" name="url" id="storage-url" value="{{config.url}}" />
+          </div>
+
+          <div data-role="fieldcontain">
+            <label for="storage-auth_type" data-i18n="i18n.todo">
+              Auth Type:
+            </label>
+            <input type="text" name="auth_type" id="storage-auth_type" value="{{config.auth_type}}" />
+          </div>
+
+          <div data-role="fieldcontain">
+            <label for="storage-realm" data-i18n="i18n.todo">
+              Realm:
+            </label>
+            <input type="text" name="realm" id="storage-realm" value="{{config.realm}}" />
+          </div>
+
+          <div data-role="fieldcontain">
+            <label for="storage-username" data-i18n="i18n.todo">
+              Username:
+            </label>
+            <input type="text" name="username" id="storage-username" value="{{config.username}}" />
+          </div>
+
+          <div data-role="fieldcontain">
+            <label for="storage-password" data-i18n="i18n.todo">
+              Password:
+            </label>
+            <input type="text" name="password" id="storage-password" value="{{config.password}}" />
+          </div>
+
+          <div data-role="fieldcontain">
+
+            {{#if id}}
+            {{#ifCond id '!==' default_storage_id}}
+            <a href="#" data-role="button"
+              id="storage-delete"
+              data-icon="delete"
+              data-inline="true"
+              data-i18n="details.delete">
+              Delete
+            </a>
+            {{/ifCond}}
+            {{/if}}
+
+            <a href="#storage-list-page" data-role="button"
+              data-icon="cancel"
+              data-inline="true"
+              data-i18n="details.cancel">
+              Cancel
+            </a>
+
+            <a href="#" data-role="button"
+              id="storage-save"
+              data-icon="check"
+              data-inline="true"
+              data-i18n="details.save">
+              Save
+            </a>
+          </div>
+
+        </form>
+      </script>
+    </div><!-- /storage-detail-page -->
+
+
+    <!--
+    About Dialog
+    -->
+
+    <div data-role="dialog" id="about-dialog">
+      <div data-role="header">
+        <h2 data-i18n="header.task_manager">
+          Task Manager
+        </h2>
+      </div><!-- /header -->
+
+      <div data-role="content">
+        <p>
+          This mobile web app is written with <a data-rel="external" href="http://jquerymobile.com/">jQuery Mobile</a> and <a data-rel="external" href="http://jio.readthedocs.org/en/latest/">jIO</a>.
+        </p>
+
+        <p>
+          It is designed to run on laptop, tablets, smartphone and all devices with a web browser regardless of the OS.
+        </p>
+
+        <p>
+          No server-side component is needed. No Python, PHP, Java, Node.js, nothing.
+        </p>
+
+        <p>
+          All data is stored in the browser by default, but with jIO
+          it can be automatically replicated on an existing server (S3, WebDAV, XWiki, ERP5...)
+        </p>
+
+        <!--
+        <p>
+          <a href="#" data-role="button" id="btn-reset-data">
+            Reset data
+          </a>
+        </p>
+        -->
+      </div><!-- /content -->
     </div><!-- /page -->
+
 
     <script src="lib/jquery/jquery-2.1.0.min.js"></script>
     <script src="lib/jquery.mobile.datepicker/jquery.ui.datepicker.js"></script>

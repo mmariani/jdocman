@@ -852,12 +852,12 @@ $(document).on('mobileinit', function () {
 
 
   /**
-   * Prepare the projects.html page before displaying.
+   * Prepare the #project-list-page before displaying.
    * This queries the storage for a list of the projects and tasks,
    * then provides them as parameters to Handlebars.
    * Translation is applied after rendering the template.
    */
-  $(document).on('pagebeforeshow', '#projects-page', function () {
+  $(document).on('pagebeforeshow', '#project-list-page', function () {
     Logger.debug('Loading Projects page');
     jioConnect().then(function (jio) {
       var options = {
@@ -912,8 +912,8 @@ $(document).on('mobileinit', function () {
   /**
    * Initial rendering of the 'task list' page.
    */
-  $(document).on('pagebeforeshow', '#tasks-page', function () {
-    Logger.debug('Loading Tasks page');
+  $(document).on('pagebeforeshow', '#task-list-page', function () {
+    Logger.debug('Loading Task List Page');
     jioConnect().then(function (jio) {
       // attempt to fix cosmetic issue with a select menu in the header
       $('#task-sortby-button').addClass('ui-btn-left');
@@ -962,9 +962,9 @@ $(document).on('mobileinit', function () {
    * parameter (does not work with the appcache) we store it
    * in a closure variable.
    */
-  $(document).on('click', '.task-details-link', function () {
+  $(document).on('click', '.task-detail-link', function () {
     page_parameter_box = {task_id: $(this).data('jio-id')};
-    $.mobile.navigate('task-details.html');
+    $.mobile.navigate('#task-detail-page');
   });
 
 
@@ -973,7 +973,7 @@ $(document).on('mobileinit', function () {
    * or to create a new task.
    * Translation is applied after rendering the template.
    */
-  $(document).on('pagebeforeshow', '#task-details-page', function () {
+  $(document).on('pagebeforeshow', '#task-detail-page', function () {
     jioConnect().then(function (jio) {
       Logger.debug('Loading Task Edit page');
       var project_opt = {include_docs: true, sort_on: [['project', 'ascending']], query: '(type:"Project")'},
@@ -1004,8 +1004,8 @@ $(document).on('mobileinit', function () {
             project_list = response_list[1],
             state_list = response_list[2];
 
-          var template = Handlebars.compile($('#task-details-template').text());
-          $('#task-details-container')
+          var template = Handlebars.compile($('#task-detail-template').text());
+          $('#task-detail-container')
             .html(template({
               task: task_resp.data,
               project_list: project_list,
@@ -1089,7 +1089,7 @@ $(document).on('mobileinit', function () {
   /**
    * Display the form to switch between storages
    */
-  $(document).on('pagebeforeshow', '#storage-page', function () {
+  $(document).on('pagebeforeshow', '#storage-list-page', function () {
     jioConfigConnect().then(function (jio_config) {
       Logger.debug('Loading Storage page');
       return storageConfigList(jio_config)
@@ -1130,7 +1130,7 @@ $(document).on('mobileinit', function () {
    */
   $(document).on('click', '#settings-edit-storage', function () {
     page_parameter_box = {storage_id: $('#storage-form input:radio[name=storage]:checked').val()};
-    $.mobile.navigate('storage-details.html');
+    $.mobile.navigate('#storage-detail-page');
   });
 
 
@@ -1139,7 +1139,7 @@ $(document).on('mobileinit', function () {
    * or to create a new storage.
    * Translation is applied after rendering the template.
    */
-  $(document).on('pagebeforeshow', '#storage-details-page', function () {
+  $(document).on('pagebeforeshow', '#storage-detail-page', function () {
     jioConfigConnect().then(function (jio_config) {
       var id = page_parameter_box.storage_id;
       Logger.debug('Loading Storage Edit page:', id);
@@ -1147,8 +1147,8 @@ $(document).on('mobileinit', function () {
 
       return storageConfig(jio_config, id).
         then(function (config) {
-          var template = Handlebars.compile($('#storage-details-template').text());
-          $('#storage-details-container')
+          var template = Handlebars.compile($('#storage-detail-template').text());
+          $('#storage-detail-container')
             .html(template({id: id, config: config, default_storage_id: default_storage_id}))
             .trigger('create');
           applyTranslation();
@@ -1161,7 +1161,7 @@ $(document).on('mobileinit', function () {
    * Apply changes to the edited storage configuration,
    * or create a new one.
    */
-  $(document).one('click', '#storage-save', function () {
+  $(document).on('click', '#storage-save', function () {
     jioConfigConnect().then(function (jio_config) {
       var id = $('#storage-id').val(),
         application_name = $('#storage-application_name').val(),
@@ -1212,7 +1212,7 @@ $(document).on('mobileinit', function () {
         then(function (response) {
           Logger.debug('Updated storage %s', response.id);
           Logger.debug('  status %s (%s)', response.status, response.statusText);
-          $.mobile.navigate('storage.html');
+          $.mobile.navigate('#storage-list-page');
         });
     }).fail(displayError);
   });
@@ -1232,7 +1232,7 @@ $(document).on('mobileinit', function () {
           Logger.debug('Deleted storage %o:', response.id);
           Logger.debug('  status %s', response.status);
           setSelectedStorage(default_storage_id);
-          $.mobile.navigate('storage.html');
+          $.mobile.navigate('#storage-list-page');
         });
     }).fail(displayError);
   });
