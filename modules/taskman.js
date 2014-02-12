@@ -699,6 +699,28 @@ $(document).on('mobileinit', function () {
   }
 
 
+  /**
+   * Parse a fragment identifier with parameters.
+   *
+   * @param {String} hash The fragment string, like '#foo?bar=baz
+   * @return {Object} A mapping of the parsed parameters, like {bar: 'baz'}
+   */
+  function parseHashParams(hash) {
+    var pos = hash.indexOf('?'),
+      s = pos > -1 ? hash.substr(pos + 1) : '',
+      p = s ? s.split(/\&/) : [],
+      l = 0,
+      key_value,
+      params = {};
+    for (l = 0; l < p.length; l += 1) {
+      key_value = p[l].split(/\=/);
+      params[key_value[0]] = decodeURIComponent(key_value[1] || '') || true;
+    }
+    return params;
+  }
+
+
+
 
   /***********************************
    *                                 *
@@ -958,13 +980,23 @@ $(document).on('mobileinit', function () {
   /**
    * Redirects to the details page for a task, when a task is
    * clicked in the list.
-   * Since we cannot pass the task id argument as a query
-   * parameter (does not work with the appcache) we store it
-   * in a closure variable.
+   * Since we cannot use query parameters (they would not work
+   * with the appcache) we temporarily change the url of
+   * the target page. It will be restored during the pageshow event.
    */
   $(document).on('click', '.task-detail-link', function () {
-    page_parameter_box = {task_id: $(this).data('jio-id')};
+    $('#task-detail-page').jqmData('url', this.hash);
     $.mobile.navigate('#task-detail-page');
+  });
+
+
+  /**
+   * Restore the url of the page we're showing.
+   * This hack is needed to support hash parameters.
+   */
+  $(document).on('pageshow', function () {
+    var $page = $.mobile.activePage;
+    $page.jqmData('url', '#' + $page[0].getAttribute('id'));
   });
 
 
@@ -974,6 +1006,7 @@ $(document).on('mobileinit', function () {
    * Translation is applied after rendering the template.
    */
   $(document).on('pagebeforeshow', '#task-detail-page', function () {
+    var task_id = parseHashParams(window.location.hash).task_id;
     jioConnect().then(function (jio) {
       Logger.debug('Loading Task Edit page');
       var project_opt = {include_docs: true, sort_on: [['project', 'ascending']], query: '(type:"Project")'},
@@ -983,10 +1016,9 @@ $(document).on('mobileinit', function () {
         state_promise = docQuery(jio, state_opt),
         dateinput_type = hasHTML5DatePicker() ? 'date' : 'text';
 
-      if (page_parameter_box.task_id) {
-        task_promise = jio.get({_id: page_parameter_box.task_id});
-        Logger.debug('Retrieving task %s', page_parameter_box.task_id);
-        page_parameter_box = {};
+      if (task_id) {
+        task_promise = jio.get({_id: task_id});
+        Logger.debug('Retrieving task %s', task_id);
       } else {
         task_promise = new RSVP.Promise(function (resolve) {
           resolve({
