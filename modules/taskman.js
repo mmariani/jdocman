@@ -699,6 +699,31 @@ $(document).on('mobileinit', function () {
   }
 
 
+  /**
+   * If the current page has a .footer-container element,
+   * update it and set the current tab.
+   */
+  function updateFooter() {
+    var $page = $.mobile.activePage,
+      page_id = $page[0].getAttribute('id'),
+      $footer_container = $page.find('.footer-container');
+
+    if ($footer_container.length === 0) {
+      return;
+    }
+
+    var template = Handlebars.compile($('#footer-template').text());
+    $footer_container.
+      html(template({page_id: page_id})).
+      trigger('create');
+
+    // activate the tab related to the current page (if any)
+    $footer_container.find('a[href=#' + page_id + ']').addClass('ui-btn-active');
+
+    applyTranslation();
+  }
+
+
 
   /***********************************
    *                                 *
@@ -817,6 +842,11 @@ $(document).on('mobileinit', function () {
   $(document).on('change', '#translate', function () {
     var current_language = $(this).val();
     $.i18n.setLng(current_language, applyTranslation);
+  });
+
+
+  $(document).on('pageshow', function () {
+    updateFooter();
   });
 
 
@@ -1354,6 +1384,7 @@ $(document).on('mobileinit', function () {
   $('.initHandler').removeClass('initHandler');
 
   $.mobile.selectmenu.prototype.options.nativeMenu = false;
+  $.mobile.defaultPageTransition = 'none';
 
   if (!hasHTML5DatePicker()) {
     $.datepicker.setDefaults({dateFormat: 'yy-mm-dd'});
