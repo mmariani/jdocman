@@ -160,7 +160,7 @@
       <div class="footer-container"></div>
 
       <script id="task-detail-template" type="text/x-handlebars-template">
-        <form>
+        <form action="javascript:void(0);">
           <input type="hidden" id="task-id" value="{{task._id}}" />
 
           <div data-role="fieldcontain">
@@ -241,7 +241,6 @@
               Save
             </a>
           </div>
-
         </form>
       </script>
     </div><!-- /task-detail-page -->
@@ -278,35 +277,36 @@
           <option value="fr" data-i18n="settings.translate.fr">Français</option>
           <option value="zh" data-i18n="settings.translate.zh">中文 (Chinese)</option>
         </select>
-        <form>
-          <div id="settings-form-container"></div>
-        </form>
+
+        <div id="settings-form-container"></div>
       </div><!-- /content -->
 
       <div class="footer-container"></div>
 
       <script id="settings-form-template" type="text/x-handlebars-template">
-        <fieldset data-role="controlgroup" data-mini="true">
-          <legend data-i18n="settings.states">States:</legend>
-          {{#state_list}}
-          <label data-i18n="{{this.state}}"><input type="checkbox" name="state-{{this._id}}" value="{{this._id}}" />{{t this.state}}</label>
-          {{/state_list}}
-        </fieldset>
-        <fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
-          <a href="#" id="settings-del-state" data-role="button" data-icon="delete" data-inline="true">Delete selected</a>
-          <a href="#" id="settings-add-state" data-role="button" data-icon="plus" data-inline="true">New State</a>
-        </fieldset>
+        <form action="javascript:void(0);">
+          <fieldset data-role="controlgroup" data-mini="true">
+            <legend data-i18n="settings.states">States:</legend>
+            {{#state_list}}
+            <label data-i18n="{{this.state}}"><input type="checkbox" name="state-{{this._id}}" value="{{this._id}}" />{{t this.state}}</label>
+            {{/state_list}}
+          </fieldset>
+          <fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+            <a href="#" id="settings-del-state" data-role="button" data-icon="delete" data-inline="true">Delete selected</a>
+            <a href="#" id="settings-add-state" data-role="button" data-icon="plus" data-inline="true">New State</a>
+          </fieldset>
 
-        <fieldset data-role="controlgroup" data-mini="true">
-          <legend data-i18n="settings.projects">Projects:</legend>
-          {{#project_list}}
-          <label><input type="checkbox" name="project-{{this._id}}" value="{{this._id}}" />{{this.project}}</label>
-          {{/project_list}}
-        </fieldset>
-        <fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
-          <a href="#" id="settings-del-project" data-role="button" data-icon="delete" data-inline="true">Delete selected</a>
-          <a href="#" id="settings-add-project" data-role="button" data-icon="plus" data-inline="true">New Project</a>
-        </fieldset>
+          <fieldset data-role="controlgroup" data-mini="true">
+            <legend data-i18n="settings.projects">Projects:</legend>
+            {{#project_list}}
+            <label><input type="checkbox" name="project-{{this._id}}" value="{{this._id}}" />{{this.project}}</label>
+            {{/project_list}}
+          </fieldset>
+          <fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+            <a href="#" id="settings-del-project" data-role="button" data-icon="delete" data-inline="true">Delete selected</a>
+            <a href="#" id="settings-add-project" data-role="button" data-icon="plus" data-inline="true">New Project</a>
+          </fieldset>
+        </form>
       </script>
     </div><!-- /settings-page -->
 
@@ -329,7 +329,7 @@
       </div><!-- /header -->
 
       <div data-role="content">
-        <form id="storage-form">
+        <form id="storage-form" action="javascript:void(0);">
           <div id="storage-form-container"></div>
         </form>
       </div><!-- /content -->
@@ -390,7 +390,7 @@
       <div class="footer-container"></div>
 
       <script id="storage-detail-template" type="text/x-handlebars-template">
-        <form>
+        <form action="javascript:void(0);">
           <input type="hidden" id="storage-id" value="{{id}}" />
 
           <div data-role="fieldcontain">

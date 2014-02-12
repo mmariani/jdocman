@@ -1020,7 +1020,10 @@ $(document).on('mobileinit', function () {
 
   /**
    * Restore the url of the page we're showing.
-   * This hack is needed to support hash parameters.
+   * This hack is needed to support hash parameters until JQM v1.5.
+   * For more information, see
+   * https://github.com/jquery/jquery-mobile/issues/2859
+   * https://github.com/jquery/jquery-mobile/issues/6965
    */
   $(document).on('pageshow', function () {
     var $page = $.mobile.activePage;
