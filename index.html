@@ -83,7 +83,7 @@
           {{#if tasks}}
           {{#tasks}}
             <li>
-              <a href="#" data-jio-id="{{this._id}}" class="task-detail-link">
+              <a href="#task-detail-page?id={{this._id}}" data-jio-id="{{this._id}}" class="task-detail-link">
                 {{this.title}}
                 <p>{{sanitize this.description 100}}</p>
                 <p>

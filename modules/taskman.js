@@ -803,6 +803,167 @@ $(document).on('mobileinit', function () {
 
 
 
+  /**************************
+   *                        *
+   * Handle hash parameters *
+   *                        *
+   **************************/
+
+
+
+  // helper
+  var testForString = function (search_string, full_string, nowrap) {
+    var s = nowrap ? "" : " ";
+    return (s + full_string + s).indexOf(s + search_string + s) > -1;
+  };
+
+  // get Active page = last page in DOM
+  var getPage = function (url) {
+    var i, kid, kids = document.body.children;
+
+    // reverse, because in JQM last page is the active page!
+    for (i = kids.length - 1; i >= 0; i -= 1) {
+      kid = kids[i];
+
+      if (testForString("ui-page", kid.className)) {
+        if (url === undefined || kid.getAttribute("data-url") === url) {
+          return kid;
+        }
+      }
+    }
+    return undefined;
+  };
+
+
+  var parseHashParams = function (hash) {
+    var pos = hash.indexOf('?'),
+      s = pos > -1 ? hash.substr(pos + 1) : '',
+      url = pos > -1 ? hash.substr(0, pos) : hash,
+      p = s ? s.split(/\&/) : [],
+      l = p.length,
+      key_value,
+      params = {};
+    while (l--) {
+      key_value = p[l].split(/\=/);
+      params[key_value[0]] = decodeURIComponent(key_value[1] || '') || true;
+    }
+    return {
+      url: url,
+      params: params
+    };
+  };
+
+
+
+  // This parses a link.
+  var parseLink = function (url) {
+    var hash, clean_hash, decode, root;
+
+    hash = $.mobile.path.parseUrl(url.replace($.mobile.dialogHashKey, "")).hash.replace("#", "");
+    decode = /^[^\/]*%[^\/]*$/.test(hash);
+
+    // decode (allowing URI encoded identifiers)
+    if (decode) {
+      clean_hash = window.decodeURIComponent(hash);
+    } else {
+      clean_hash = hash;
+    }
+
+    if (clean_hash === "") {
+      root = getPage().getAttribute("data-url");
+      console.log(root);
+      return {
+        "data_url": root,
+        // for JSBIN
+        "no_hash": true
+      };
+    }
+
+
+    // check for mode
+    var hp = parseHashParams(clean_hash);
+
+    console.log('url: ', hp.url);
+    console.log('params: ', hp.params);
+
+    return {
+      "data_url": hp.url,
+    };
+  };
+
+  // This parses the pagebeforechange event and data.
+  // 3 "modes":
+  // a) Stop me, JQM goes > let JQM transition to generated page
+  // b) Stop me, stop JQM > we are already on the correct page
+  // c) I go, JQM stops > generate page because it's not in DOM
+  var parsePage = function (e, data) {
+    var page, base, config, raw_url, handle, clean_url, parsed_url, first, link, spec;
+
+    spec = data || {"options": {}};
+    link = spec.options.link || [{}];
+    raw_url = link[0].href || spec.toPage || window.location.href;
+
+    if (typeof raw_url === "string") {
+      config = parseLink(raw_url);
+
+      if (e) {
+        page = getPage(raw_url.split("#").pop());
+        base = page ? page.getAttribute("data-external-page") : null;
+        first = $.mobile.firstPage[0].getAttribute("data-url") === config.data_url;
+
+        // stop us, JQM go
+        if (first || (page && base) || raw_url === $.mobile.getDocumentUrl() || spec.options.role === "popup") {
+          return;
+        }
+
+        // stop us and stop JQM
+        if ((getPage(config.data_url) && base !== null)) {
+          e.preventDefault();
+          return;
+        }
+
+        // stop JQM, we go
+        handle = true;
+        e.preventDefault();
+
+      } else {
+        // overwrite JQM history to enable deeplinking
+        if (window.location.hash !== "") {
+
+          clean_url = window.location.href.split("#")[0];
+          parsed_url = $.mobile.path.parseUrl(clean_url);
+
+          // Remove initialDist, otherwise closing popups will trigger
+          // double backward transition.
+          delete $.mobile.navigate.history.initialDst;
+
+          // Correctly set index as first page in JQM history
+          $.mobile.navigate.history.stack[0].hash = "";
+          $.mobile.navigate.history.stack[0].url = clean_url;
+          $.mobile.path.documentUrl = parsed_url;
+          $.mobile.path.documentBase = parsed_url;
+        }
+      }
+    }
+
+    var stopTheBin = config && config.no_hash;
+
+    // fetch pageIndex and trigger loading of page with view
+    if ((e === undefined || handle) && stopTheBin === undefined) {
+      var encoded = window.encodeURIComponent(config.data_url.split("?")[0]);
+      console.log('changepage:', encoded);
+      $.mobile.changePage("#" + encoded);
+    }
+  };
+
+  $(document).on("pagebeforechange", function (e, data) {
+    parsePage(e, data);
+  });
+
+
+
+
+
   /********************************
    *                              *
    * UI event handlers start here *
