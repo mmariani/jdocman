@@ -1015,7 +1015,7 @@ $(document).on('mobileinit', function () {
    */
   $(document).on('click', '.task-detail-link', function () {
     $('#task-detail-page').jqmData('url', this.hash);
-    $.mobile.navigate('#task-detail-page');
+    $.mobile.changePage('#task-detail-page');
   });
 
 
@@ -1191,7 +1191,7 @@ $(document).on('mobileinit', function () {
    */
   $(document).on('click', '#settings-edit-storage', function () {
     page_parameter_box = {storage_id: $('#storage-form input:radio[name=storage]:checked').val()};
-    $.mobile.navigate('#storage-detail-page');
+    $.mobile.changePage('#storage-detail-page');
   });
 
 
@@ -1273,7 +1273,7 @@ $(document).on('mobileinit', function () {
         then(function (response) {
           Logger.debug('Updated storage %s', response.id);
           Logger.debug('  status %s (%s)', response.status, response.statusText);
-          $.mobile.navigate('#storage-list-page');
+          $.mobile.changePage('#storage-list-page');
         });
     }).fail(displayError);
   });
@@ -1293,7 +1293,7 @@ $(document).on('mobileinit', function () {
           Logger.debug('Deleted storage %o:', response.id);
           Logger.debug('  status %s', response.status);
           setSelectedStorage(default_storage_id);
-          $.mobile.navigate('#storage-list-page');
+          $.mobile.changePage('#storage-list-page');
         });
     }).fail(displayError);
   });
