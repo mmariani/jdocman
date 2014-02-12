@@ -50,33 +50,7 @@
 
       </div><!-- /content -->
 
-      <div data-role="footer" data-position="fixed">
-
-        <div data-role="navbar" data-iconpos="left">
-          <ul>
-            <li>
-              <a href="#task-list-page"
-                 class="ui-btn-active"
-                 data-i18n="navbar.tasks">
-                Tasks
-              </a>
-            </li>
-            <li>
-              <a href="#project-list-page"
-                 data-i18n="navbar.projects">
-                Projects
-              </a>
-            </li>
-            <li>
-              <a href="#settings-page" data-icon="gear"
-                 data-i18n="navbar.settings">
-                Settings
-              </a>
-            </li>
-          </ul>
-        </div><!-- /navbar -->
-
-      </div><!-- /footer -->
+      <div class="footer-container"></div>
 
       <script id="task-list-template" type="text/x-handlebars-template">
         <ul data-role="listview" data-inset="true" class="task-listview">
@@ -127,33 +101,7 @@
         <div id="project-list-container"></div>
       </div><!-- /content -->
 
-      <div data-role="footer" data-position="fixed">
-
-        <div data-role="navbar" data-iconpos="left">
-          <ul>
-            <li>
-              <a href="#task-list-page"
-                 data-i18n="navbar.tasks">
-                Tasks
-              </a>
-            </li>
-            <li>
-              <a href="#project-list-page"
-                 class="ui-btn-active"
-                 data-i18n="navbar.projects">
-                Projects
-              </a>
-            </li>
-            <li>
-              <a href="#settings-page" data-icon="gear"
-                 data-i18n="navbar.settings">
-                Settings
-              </a>
-            </li>
-          </ul>
-        </div><!-- /navbar -->
-
-      </div><!-- /footer -->
+      <div class="footer-container"></div>
 
       <script id="project-list-template" type="text/x-handlebars-template">
 
@@ -209,33 +157,7 @@
         <div id="task-detail-container"></div>
       </div><!-- /content -->
 
-      <div data-role="footer" data-position="fixed">
-
-        <div data-role="navbar" data-iconpos="left">
-          <ul>
-            <li>
-              <a href="#task-list-page"
-                 class="ui-btn-active"
-                 data-i18n="navbar.tasks">
-                Tasks
-              </a>
-            </li>
-            <li>
-              <a href="#project-list-page"
-                 data-i18n="navbar.projects">
-                Projects
-              </a>
-            </li>
-            <li>
-              <a href="#settings-page" data-icon="gear"
-                 data-i18n="navbar.settings">
-                Settings
-              </a>
-            </li>
-          </ul>
-        </div><!-- /navbar -->
-
-      </div><!-- /footer -->
+      <div class="footer-container"></div>
 
       <script id="task-detail-template" type="text/x-handlebars-template">
         <form>
@@ -361,33 +283,7 @@
         </form>
       </div><!-- /content -->
 
-      <div data-role="footer" data-position="fixed">
-
-        <div data-role="navbar" data-iconpos="left">
-          <ul>
-            <li>
-              <a href="#task-list-page"
-                 data-i18n="navbar.tasks">
-                Tasks
-              </a>
-            </li>
-            <li>
-              <a href="#project-list-page"
-                 data-i18n="navbar.projects">
-                Projects
-              </a>
-            </li>
-            <li>
-              <a href="#settings-page" data-icon="gear"
-                 class="ui-btn-active"
-                 data-i18n="navbar.settings">
-                Settings
-              </a>
-            </li>
-          </ul>
-        </div><!-- /navbar -->
-
-      </div><!-- /footer -->
+      <div class="footer-container"></div>
 
       <script id="settings-form-template" type="text/x-handlebars-template">
         <fieldset data-role="controlgroup" data-mini="true">
@@ -438,33 +334,7 @@
         </form>
       </div><!-- /content -->
 
-      <div data-role="footer" data-position="fixed">
-
-        <div data-role="navbar" data-iconpos="left">
-          <ul>
-            <li>
-              <a href="#task-list-page"
-                 data-i18n="navbar.tasks">
-                Tasks
-              </a>
-            </li>
-            <li>
-              <a href="#project-list-page"
-                 data-i18n="navbar.projects">
-                Projects
-              </a>
-            </li>
-            <li>
-              <a href="#settings-list-page" data-icon="gear"
-                 class="ui-btn-active"
-                 data-i18n="navbar.settings">
-                Settings
-              </a>
-            </li>
-          </ul>
-        </div><!-- /navbar -->
-
-      </div><!-- /footer -->
+      <div class="footer-container"></div>
 
       <script id="storage-form-template" type="text/x-handlebars-template">
         <table data-role="table" id="storage-table" data-mode="columntoggle" class="ui-responsive table-stripe" data-column-btn-text="Columns..">
@@ -517,33 +387,7 @@
         <div id="storage-detail-container"></div>
       </div><!-- /content -->
 
-      <div data-role="footer" data-position="fixed">
-
-        <div data-role="navbar" data-iconpos="left">
-          <ul>
-            <li>
-              <a href="#task-list-page"
-                 data-i18n="navbar.tasks">
-                Tasks
-              </a>
-            </li>
-            <li>
-              <a href="#project-list-page"
-                 data-i18n="navbar.projects">
-                Projects
-              </a>
-            </li>
-            <li>
-              <a href="#settings-page" data-icon="gear"
-                 class="ui-btn-active"
-                 data-i18n="navbar.settings">
-                Settings
-              </a>
-            </li>
-          </ul>
-        </div><!-- /navbar -->
-
-      </div><!-- /footer -->
+      <div class="footer-container"></div>
 
       <script id="storage-detail-template" type="text/x-handlebars-template">
         <form>
@@ -672,6 +516,37 @@
       </div><!-- /content -->
     </div><!-- /page -->
 
+
+    <!--
+    Generic templates
+    -->
+
+    <script id="footer-template" type="text/x-handlebars-template">
+      <div data-role="footer" data-position="fixed">
+        <div data-role="navbar" data-iconpos="left">
+          <ul>
+            <li>
+              <a href="#task-list-page"
+                data-i18n="navbar.tasks">
+                Tasks
+              </a>
+            </li>
+            <li>
+              <a href="#project-list-page"
+                data-i18n="navbar.projects">
+                Projects
+              </a>
+            </li>
+            <li>
+              <a href="#settings-page" data-icon="gear"
+                data-i18n="navbar.settings">
+                Settings
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </script><!-- /footer-template -->
 
     <script src="lib/jquery/jquery-2.1.0.min.js"></script>
     <script src="lib/jquery.mobile.datepicker/jquery.ui.datepicker.js"></script>
