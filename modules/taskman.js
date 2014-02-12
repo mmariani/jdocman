@@ -809,32 +809,6 @@ $(document).on('mobileinit', function () {
    *                        *
    **************************/
 
-
-
-  // helper
-  var testForString = function (search_string, full_string, nowrap) {
-    var s = nowrap ? "" : " ";
-    return (s + full_string + s).indexOf(s + search_string + s) > -1;
-  };
-
-  // get Active page = last page in DOM
-  var getPage = function (url) {
-    var i, kid, kids = document.body.children;
-
-    // reverse, because in JQM last page is the active page!
-    for (i = kids.length - 1; i >= 0; i -= 1) {
-      kid = kids[i];
-
-      if (testForString("ui-page", kid.className)) {
-        if (url === undefined || kid.getAttribute("data-url") === url) {
-          return kid;
-        }
-      }
-    }
-    return undefined;
-  };
-
-
   var parseHashParams = function (hash) {
     var pos = hash.indexOf('?'),
       s = pos > -1 ? hash.substr(pos + 1) : '',
@@ -853,14 +827,12 @@ $(document).on('mobileinit', function () {
     };
   };
 
-
-
   // This parses a link.
-  var parseLink = function (url) {
-    var hash, clean_hash, decode, root;
+  var parseLink = parseLink = function (url) {
+    var i, hash, path, clean_hash, decode, root;
 
     hash = $.mobile.path.parseUrl(url.replace($.mobile.dialogHashKey, "")).hash.replace("#", "");
-    decode = /^[^\/]*%[^\/]*$/.test(hash);
+    decode = /^[^\/]*%2[^\/]*$/.test(hash);
 
     // decode (allowing URI encoded identifiers)
     if (decode) {
@@ -870,24 +842,17 @@ $(document).on('mobileinit', function () {
     }
 
     if (clean_hash === "") {
-      root = getPage().getAttribute("data-url");
-      console.log(root);
+      root = document.querySelector("div.ui-page-active").getAttribute("data-url");
       return {
-        "data_url": root,
-        // for JSBIN
-        "no_hash": true
+        "data_url": root
       };
     }
 
-
     // check for mode
-    var hp = parseHashParams(clean_hash);
-
-    console.log('url: ', hp.url);
-    console.log('params: ', hp.params);
+    path = clean_hash.split("/");
 
     return {
-      "data_url": hp.url,
+      "data_url": clean_hash
     };
   };
 
@@ -897,17 +862,20 @@ $(document).on('mobileinit', function () {
   // b) Stop me, stop JQM > we are already on the correct page
   // c) I go, JQM stops > generate page because it's not in DOM
   var parsePage = function (e, data) {
-    var page, base, config, raw_url, handle, clean_url, parsed_url, first, link, spec;
+    var page, base, config, raw_url, handle, clean_url, parsed_url, first, link, spec, encoded;
 
     spec = data || {"options": {}};
     link = spec.options.link || [{}];
     raw_url = link[0].href || spec.toPage || window.location.href;
 
     if (typeof raw_url === "string") {
+      if (data && data.options.reverse) {
+        raw_url = window.decodeURIComponent(raw_url);
+      }
       config = parseLink(raw_url);
 
       if (e) {
-        page = document.getElementById(raw_url.split("#").pop());
+        page = document.querySelector("div[data-url='" + window.encodeURIComponent(config.data_url) + "']");
         base = page ? page.getAttribute("data-external-page") : null;
         first = $.mobile.firstPage[0].getAttribute("data-url") === config.data_url;
 
@@ -917,7 +885,7 @@ $(document).on('mobileinit', function () {
         }
 
         // stop us and stop JQM
-        if ((getPage(config.data_url) && base !== null)) {
+        if (page && base !== null) {
           e.preventDefault();
           return;
         }
@@ -946,18 +914,30 @@ $(document).on('mobileinit', function () {
       }
     }
 
-    var stopTheBin = config && config.no_hash;
-
     // fetch pageIndex and trigger loading of page with view
-    if ((e === undefined || handle) && stopTheBin === undefined) {
-      var encoded = window.encodeURIComponent(config.data_url.split("?")[0]);
-      console.log('changepage:', encoded);
+    if (e === undefined || handle) {
+      encoded = window.encodeURIComponent(config.data_url.split("?")[0]);
+      page = document.querySelector("div[data-url='" + config.data_url.split("/")[0] + "']");
+
+      // update the data-url of existing page to include id, so it can be found
+      if (page) {
+        page.setAttribute("data-url", encoded);
+      }
       $.mobile.changePage("#" + encoded);
     }
   };
 
   $(document).on("pagebeforechange", function (e, data) {
     parsePage(e, data);
+  })
+
+  $(document).on("pagebeforehide", function (e, data) {
+    var page = document.querySelector("div.ui-page-active");
+
+    // since we manipulated data-url, we now need to set it back
+    if (page.id !== page.getAttribute("data-url")) {
+      page.setAttribute("data-url", page.id);
+    }
   });
 
 
@@ -1125,7 +1105,6 @@ $(document).on('mobileinit', function () {
    */
   $(document).on('click', '.task-detail-link', function () {
     page_parameter_box = {task_id: $(this).data('jio-id')};
-    $.mobile.navigate('#task-detail-page');
   });
 
 
@@ -1291,7 +1270,7 @@ $(document).on('mobileinit', function () {
    */
   $(document).on('click', '#settings-edit-storage', function () {
     page_parameter_box = {storage_id: $('#storage-form input:radio[name=storage]:checked').val()};
-    $.mobile.navigate('#storage-detail-page');
+    $.mobile.changePage('#storage-detail-page');
   });
 
 
@@ -1373,7 +1352,7 @@ $(document).on('mobileinit', function () {
         then(function (response) {
           Logger.debug('Updated storage %s', response.id);
           Logger.debug('  status %s (%s)', response.status, response.statusText);
-          $.mobile.navigate('#storage-list-page');
+          $.mobile.changePage('#storage-list-page');
         });
     }).fail(displayError);
   });
@@ -1393,7 +1372,7 @@ $(document).on('mobileinit', function () {
           Logger.debug('Deleted storage %o:', response.id);
           Logger.debug('  status %s', response.status);
           setSelectedStorage(default_storage_id);
-          $.mobile.navigate('#storage-list-page');
+          $.mobile.changePage('#storage-list-page');
         });
     }).fail(displayError);
   });
