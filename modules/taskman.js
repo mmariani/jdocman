@@ -86,7 +86,6 @@ $(document).on('mobileinit', function () {
     // Data passed around for page changes -- we cannot use URL parameters with appcache
     // Waiting for better parameter support in JQM 1.5 (http://jquerymobile.com/roadmap/)
     //
-    page_parameter_box = {},
     default_storage_id = 'default_storage';
 
 
@@ -1190,7 +1189,8 @@ $(document).on('mobileinit', function () {
    * in a closure variable.
    */
   $(document).on('click', '#settings-edit-storage', function () {
-    page_parameter_box = {storage_id: $('#storage-form input:radio[name=storage]:checked').val()};
+    var storage_id = $('#storage-form input:radio[name=storage]:checked').val();
+    $('#storage-detail-page').jqmData('url', '#storage-detail-page?storage_id=' + storage_id);
     $.mobile.changePage('#storage-detail-page');
   });
 
@@ -1201,16 +1201,19 @@ $(document).on('mobileinit', function () {
    * Translation is applied after rendering the template.
    */
   $(document).on('pagebeforeshow', '#storage-detail-page', function () {
+    var storage_id = parseHashParams(window.location.hash).storage_id;
     jioConfigConnect().then(function (jio_config) {
-      var id = page_parameter_box.storage_id;
-      Logger.debug('Loading Storage Edit page:', id);
-      page_parameter_box = {};
+      Logger.debug('Loading Storage Edit page:', storage_id);
 
-      return storageConfig(jio_config, id).
+      return storageConfig(jio_config, storage_id).
         then(function (config) {
           var template = Handlebars.compile($('#storage-detail-template').text());
           $('#storage-detail-container').
-            html(template({id: id, config: config, default_storage_id: default_storage_id})).
+            html(template({
+              id: storage_id,
+              config: config,
+              default_storage_id: default_storage_id
+            })).
             trigger('create');
           applyTranslation();
         });
