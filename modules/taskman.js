@@ -874,6 +874,7 @@ $(document).on('mobileinit', function () {
       console.log(root);
       return {
         "data_url": root,
+        "params": {},
         // for JSBIN
         "no_hash": true
       };
@@ -888,6 +889,7 @@ $(document).on('mobileinit', function () {
 
     return {
       "data_url": hp.url,
+      "params": hp.params
     };
   };
 
@@ -952,6 +954,7 @@ $(document).on('mobileinit', function () {
     if ((e === undefined || handle) && stopTheBin === undefined) {
       var encoded = window.encodeURIComponent(config.data_url.split("?")[0]);
       console.log('changepage:', encoded);
+      // XXX we have config.params here
       $.mobile.changePage("#" + encoded);
     }
   };
@@ -1113,19 +1116,6 @@ $(document).on('mobileinit', function () {
         _input_timer = 0;
       }, 500);
     }).fail(displayError);
-  });
-
-
-  /**
-   * Redirects to the details page for a task, when a task is
-   * clicked in the list.
-   * Since we cannot pass the task id argument as a query
-   * parameter (does not work with the appcache) we store it
-   * in a closure variable.
-   */
-  $(document).on('click', '.task-detail-link', function () {
-    page_parameter_box = {task_id: $(this).data('jio-id')};
-    $.mobile.navigate('#task-detail-page');
   });
 
 
