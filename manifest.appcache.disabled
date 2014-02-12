@@ -17,7 +17,6 @@ NETWORK:
 *
 
 CACHE:
-about.html
 data/tasks.json
 favicon.png
 i18n/en/translation.json
@@ -165,8 +164,3 @@ modules/themes/images/icons-png/video-black.png
 modules/themes/images/icons-png/video-white.png
 modules/themes/jquery.mobile.icons.min.css
 modules/themes/taskman-theme.css
-projects.html
-settings.html
-storage-details.html
-storage.html
-task-details.html
