@@ -584,9 +584,9 @@ $(document).on('mobileinit', function () {
       then(function (tasks) {
         Logger.debug('%i tasks found', tasks.length);
         var template = Handlebars.compile($('#task-list-template').text());
-        $('#task-list-container')
-          .html(template({tasks: tasks}))
-          .trigger('create');
+        $('#task-list-container').
+          html(template({tasks: tasks})).
+          trigger('create');
         applyTranslation();
       });
   }
@@ -607,12 +607,12 @@ $(document).on('mobileinit', function () {
           state_list = response_list[1];
 
         var template = Handlebars.compile($('#settings-form-template').text());
-        $('#settings-form-container')
-          .html(template({
+        $('#settings-form-container').
+          html(template({
             project_list: project_list,
             state_list: state_list
-          }))
-          .trigger('create');
+          })).
+          trigger('create');
         applyTranslation();
 
         // select the current language on the menu
@@ -940,9 +940,9 @@ $(document).on('mobileinit', function () {
           }
 
           var template = Handlebars.compile($('#project-list-template').text());
-          $('#project-list-container')
-            .html(template({task_map: task_map}))
-            .trigger('create'); // notify jqm of the changes we made
+          $('#project-list-container').
+            html(template({task_map: task_map})).
+            trigger('create'); // notify jqm of the changes we made
           applyTranslation();
         });
     }).fail(displayError);
@@ -1066,14 +1066,14 @@ $(document).on('mobileinit', function () {
             state_list = response_list[2];
 
           var template = Handlebars.compile($('#task-detail-template').text());
-          $('#task-detail-container')
-            .html(template({
+          $('#task-detail-container').
+            html(template({
               task: task_resp.data,
               project_list: project_list,
               state_list: state_list,
               dateinput_type: dateinput_type
-            }))
-            .trigger('create');
+            })).
+            trigger('create');
           jqmSetSelected('#task-project', task_resp.data.project);
           jqmSetSelected('#task-state', task_resp.data.state);
           // XXX if the project does not exist anymore, the first one is selected
@@ -1153,13 +1153,13 @@ $(document).on('mobileinit', function () {
   $(document).on('pagebeforeshow', '#storage-list-page', function () {
     jioConfigConnect().then(function (jio_config) {
       Logger.debug('Loading Storage page');
-      return storageConfigList(jio_config)
-        .then(function (storage_config_list) {
+      return storageConfigList(jio_config).
+        then(function (storage_config_list) {
           var template = Handlebars.compile($('#storage-form-template').text());
 
-          $('#storage-form-container')
-            .html(template({storage_config_list: storage_config_list}))
-            .trigger('create');
+          $('#storage-form-container').
+            html(template({storage_config_list: storage_config_list})).
+            trigger('create');
           applyTranslation();
 
           // initialize the radio button with the previously selected, or default, value
@@ -1209,9 +1209,9 @@ $(document).on('mobileinit', function () {
       return storageConfig(jio_config, id).
         then(function (config) {
           var template = Handlebars.compile($('#storage-detail-template').text());
-          $('#storage-detail-container')
-            .html(template({id: id, config: config, default_storage_id: default_storage_id}))
-            .trigger('create');
+          $('#storage-detail-container').
+            html(template({id: id, config: config, default_storage_id: default_storage_id})).
+            trigger('create');
           applyTranslation();
         });
     }).fail(displayError);
