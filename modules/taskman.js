@@ -907,7 +907,7 @@ $(document).on('mobileinit', function () {
       config = parseLink(raw_url);
 
       if (e) {
-        page = getPage(raw_url.split("#").pop());
+        page = document.getElementById(raw_url.split("#").pop());
         base = page ? page.getAttribute("data-external-page") : null;
         first = $.mobile.firstPage[0].getAttribute("data-url") === config.data_url;
 
