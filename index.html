@@ -18,7 +18,7 @@
     Task List Page
     -->
 
-    <div data-role="page" id="task-list-page">
+    <div data-role="page" id="task-list-page" data-url="task-list-page">
 
       <div data-role="header">
         <select id="task-sortby" data-role="select" data-mini="true">
@@ -83,7 +83,7 @@
           {{#if tasks}}
           {{#tasks}}
             <li>
-              <a href="#task-detail-page?id={{this._id}}" data-jio-id="{{this._id}}" class="task-detail-link">
+              <a href="#task-detail-page/{{this._id}}" data-jio-id="{{this._id}}" class="task-detail-link">
                 {{this.title}}
                 <p>{{sanitize this.description 100}}</p>
                 <p>
@@ -110,7 +110,7 @@
     Project List Page
     -->
 
-    <div data-role="page" id="project-list-page" data-external-page="true">
+    <div data-role="page" id="project-list-page" data-url="project-list-page" data-external-page="true">
 
       <div data-role="header">
         <a href="#" data-role="button" data-rel="back"
@@ -192,7 +192,7 @@
     -->
 
 
-    <div data-role="page" id="task-detail-page" data-external-page="true">
+    <div data-role="page" id="task-detail-page" data-url="task-detail-page" data-external-page="true">
 
       <div data-role="header">
         <a href="#" data-role="button" data-rel="back"
@@ -330,7 +330,7 @@
     -->
 
 
-    <div data-role="page" id="settings-page" data-external-page="true">
+    <div data-role="page" id="settings-page" data-url="settings-page" data-external-page="true">
       <div data-role="header">
         <a href="#" data-role="button" data-rel="back"
           data-icon="arrow-l" data-mini="true"
@@ -420,7 +420,7 @@
     -->
 
 
-    <div data-role="page" id="storage-list-page" data-external-page="true">
+    <div data-role="page" id="storage-list-page" data-url="storage-list-page" data-external-page="true">
       <div data-role="header">
         <a href="#" data-role="button" data-rel="back"
           data-icon="arrow-l" data-mini="true"
@@ -501,7 +501,7 @@
     -->
 
 
-    <div data-role="page" id="storage-detail-page" data-external-page="true">
+    <div data-role="page" id="storage-detail-page" data-url="storage-detail-page" data-external-page="true">
       <div data-role="header">
         <a href="#" data-role="button" data-rel="back"
           data-icon="arrow-l" data-mini="true"
