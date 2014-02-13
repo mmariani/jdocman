@@ -456,6 +456,70 @@ $(document).on('mobileinit', function () {
 
 
   /**
+   * Check if a project already exists.
+   *
+   * @param {Object} jio the storage instance to use
+   * @param {String} project name of the project to look up
+   * @return {Promise} A promise that resolved to true
+   * if the project exists, false otherwise.
+   */
+  function checkProjectExists(jio, project) {
+    return jio.allDocs({
+      query:  {
+        type: 'complex',
+        operator: 'AND',
+        query_list: [
+          {
+            type: 'simple',
+            key: 'type',
+            value: 'Project'
+          }, {
+            type: 'simple',
+            key: 'project',
+            operator: '=',
+            value: project
+          }
+        ]
+      }
+    }).then(function (response) {
+      return RSVP.resolve(response.data.total_rows >= 1);
+    });
+  }
+
+
+  /**
+   * Check if a state already exists.
+   *
+   * @param {Object} jio the storage instance to use
+   * @param {String} state name of the state to look up
+   * @return {Promise} A promise that resolved to true
+   * if the state exists, false otherwise.
+   */
+  function checkStateExists(jio, state) {
+    return jio.allDocs({
+      query:  {
+        type: 'complex',
+        operator: 'AND',
+        query_list: [
+          {
+            type: 'simple',
+            key: 'type',
+            value: 'State'
+          }, {
+            type: 'simple',
+            key: 'state',
+            operator: '=',
+            value: state
+          }
+        ]
+      }
+    }).then(function (response) {
+      return RSVP.resolve(response.data.total_rows >= 1);
+    });
+  }
+
+
+  /**
    * Attempt to parse a string to a (possibly partial) date.
    * The returned object can be directly fed to a query if
    * the right key_schema has been provided.
@@ -1324,12 +1388,11 @@ $(document).on('mobileinit', function () {
 
 
   /**
-   * Create a new state. XXX Does not check for duplicates.
+   * Create a new state. Its name must be unique.
    */
   $(document).on('click', '#settings-add-state', function () {
     jioConnect().then(function (jio) {
-      var state = window.prompt('State name?') || '',
-        doc = null;
+      var state = window.prompt('State name?') || '';
 
       state = state.trim();
 
@@ -1339,17 +1402,27 @@ $(document).on('mobileinit', function () {
 
       state = state.charAt(0).toUpperCase() + state.slice(1);
 
-      doc = {
-        'type': 'State',
-        'state': state,
-        'modified': new Date()
-      };
+      return checkStateExists(jio, state).
+        then(function (state_exists) {
+          var doc = {
+            'type': 'State',
+            'state': state,
+            'modified': new Date()
+          };
 
-      return jio.post(doc).
-        then(function (response) {
-          Logger.debug('Added state: %o', response.id);
-          Logger.debug('  status %s (%s)', response.status, response.statusText);
-          updateSettingsForm(jio);
+          if (state_exists) {
+            return RSVP.reject({
+              statusText: 'Cannot add state',
+              message: 'State "' + state + '" already exists'
+            });
+          }
+
+          return jio.post(doc).
+            then(function (response) {
+              Logger.debug('Added state: %o', response.id);
+              Logger.debug('  status %s (%s)', response.status, response.statusText);
+              updateSettingsForm(jio);
+            });
         });
     }).fail(displayError);
   });
@@ -1374,12 +1447,11 @@ $(document).on('mobileinit', function () {
 
 
   /**
-   * Create a new project. XXX Does not check for duplicates.
+   * Create a new project. Its name must be unique.
    */
   $(document).on('click', '#settings-add-project', function () {
     jioConnect().then(function (jio) {
-      var project = window.prompt('Project name?') || '',
-        doc = null;
+      var project = window.prompt('Project name?') || '';
 
       project = project.trim();
 
@@ -1389,17 +1461,27 @@ $(document).on('mobileinit', function () {
 
       project = project.charAt(0).toUpperCase() + project.slice(1);
 
-      doc = {
-        'type': 'Project',
-        'project': project,
-        'modified': new Date()
-      };
+      return checkProjectExists(jio, project).
+        then(function (project_exists) {
+          var doc = {
+            'type': 'Project',
+            'project': project,
+            'modified': new Date()
+          };
 
-      return jio.post(doc).
-        then(function (response) {
-          Logger.debug('Added project: %o', response.id);
-          Logger.debug('  status %s (%s)', response.status, response.statusText);
-          updateSettingsForm(jio);
+          if (project_exists) {
+            return RSVP.reject({
+              statusText: 'Cannot add project',
+              message: 'Project "' + project + '" already exists'
+            });
+          }
+
+          return jio.post(doc).
+            then(function (response) {
+              Logger.debug('Added project: %o', response.id);
+              Logger.debug('  status %s (%s)', response.status, response.statusText);
+              updateSettingsForm(jio);
+            });
         });
     }).fail(displayError);
   });
