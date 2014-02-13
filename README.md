@@ -34,7 +34,6 @@ It is recommended that you get familiar with the dependencies:
  * [RenderJS](https://github.com/nexedi/renderjs)
    is the widget engine on which OfficeJS is based.
 
-
  * [Handlebars](http://handlebarsjs.com/)
    is a templating language for javascript.
    Very similar to mustache.js, it is extended by helper functions, to keep clean separation
@@ -72,6 +71,7 @@ It is recommended that you get familiar with the dependencies:
    - [Cleaning Up JavaScript Callbacks With Promises](http://www.youtube.com/watch?v=HWGfPx9yxEA)
    - [Callbacks are imperative, promises are functional: Node’s biggest missed opportunity]
      (https://blog.jcoglan.com/2013/03/30/callbacks-are-imperative-promises-are-functional-nodes-biggest-missed-opportunity/)
+   - [Five Patterns to Help You Tame Asynchronous JavaScript](http://tech.pro/blog/1402/five-patterns-to-help-you-tame-asynchronous-javascript)
 
    Also, recent versions of Firefox and Chrome have a native Promise implementation similar to RSVP:
 
@@ -89,7 +89,7 @@ It is recommended that you get familiar with the dependencies:
    is an a HTML sanitizer, to help avoid HTML injections when displaying documents inserted
    by other users. It is used with bootstrap_wysiwyg and similar editors.
 
- * [jQuery UI Datepicker] is used when the browser has no support for the HTML &lt;input type="date"&gt; element.
+ * [jQuery UI Datepicker](https://github.com/arschmitz/jquery-mobile-datepicker-wrapper/) is used when the browser has no support for the HTML5 &lt;input type="date"&gt; element.
 
  * The [Appcache Manifest](ttp://en.wikipedia.org/wiki/AppCache) is necessary to make it sure the application can work in offline mode.
    Unfortunately, this is a little tricky to use correctly.

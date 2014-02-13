@@ -1,0 +1,8 @@
+
+taskman-editor.png - http://www.iconarchive.com/show/snowish-icons-by-saki/Apps-gedit-icon.html
+taskman-spreadsheet.png - http://www.iconarchive.com/show/snowish-icons-by-saki/Mimetypes-gnome-mime-application-vnd-lotus-1-2-3-icon.html
+License: GNU General Public License
+
+taskman-svg.png - http://www.iconarchive.com/show/oxygen-icons-by-oxygen-icons.org/Mimetypes-image-svg-plus-xml-icon.html
+License: GNU Lesser General Public License
+
