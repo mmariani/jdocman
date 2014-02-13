@@ -288,7 +288,7 @@
           <fieldset data-role="controlgroup" data-mini="true">
             <legend data-i18n="settings.states">States:</legend>
             {{#state_list}}
-            <label data-i18n="{{this.state}}"><input type="checkbox" name="state-{{this._id}}" value="{{this._id}}" />{{t this.state}}</label>
+            <label data-i18n="{{this.state}}"><input type="radio" name="state-radio" data-jio-state="{{this.state}}" data-jio-id="{{this._id}}" />{{t this.state}}</label>
             {{/state_list}}
           </fieldset>
           <fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
@@ -299,7 +299,7 @@
           <fieldset data-role="controlgroup" data-mini="true">
             <legend data-i18n="settings.projects">Projects:</legend>
             {{#project_list}}
-            <label><input type="checkbox" name="project-{{this._id}}" value="{{this._id}}" />{{this.project}}</label>
+            <label data-i18n="{{this.project}}"><input type="radio" name="project-radio" data-jio-project="{{this.project}}" data-jio-id="{{this._id}}" />{{this.project}}</label>
             {{/project_list}}
           </fieldset>
           <fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">

@@ -488,6 +488,70 @@ $(document).on('mobileinit', function () {
 
 
   /**
+   * Count the tasks with a given state.
+   *
+   * @param {Object} jio the storage instance to use
+   * @param {String} state name of the state to look up
+   * @return {Promise} A promise that resolved to the
+   * number of tasks with that state.
+   */
+  function countStateTasks(jio, state) {
+    return jio.allDocs({
+      query:  {
+        type: 'complex',
+        operator: 'AND',
+        query_list: [
+          {
+            type: 'simple',
+            key: 'type',
+            value: 'Task'
+          }, {
+            type: 'simple',
+            key: 'state',
+            operator: '=',
+            value: state
+          }
+        ]
+      }
+    }).then(function (response) {
+      return RSVP.resolve(response.data.total_rows);
+    });
+  }
+
+
+  /**
+   * Count the tasks within a project.
+   *
+   * @param {Object} jio the storage instance to use
+   * @param {String} project name of the project to look up
+   * @return {Promise} A promise that resolved to the
+   * number of tasks in the project.
+   */
+  function countProjectTasks(jio, project) {
+    return jio.allDocs({
+      query:  {
+        type: 'complex',
+        operator: 'AND',
+        query_list: [
+          {
+            type: 'simple',
+            key: 'type',
+            value: 'Task'
+          }, {
+            type: 'simple',
+            key: 'project',
+            operator: '=',
+            value: project
+          }
+        ]
+      }
+    }).then(function (response) {
+      return RSVP.resolve(response.data.total_rows);
+    });
+  }
+
+
+  /**
    * Check if a state already exists.
    *
    * @param {Object} jio the storage instance to use
@@ -1370,19 +1434,28 @@ $(document).on('mobileinit', function () {
 
 
   /**
-   * Delete a state.
+   * Delete a state. It must have no tasks.
    */
   $(document).on('click', '#settings-del-state', function () {
     jioConnect().then(function (jio) {
-      var selected = $('input:checkbox:checked[name|=state]').get(),
-        del_promise_list = selected.map(function (el) {
-          return jio.remove({_id: el.value});
+      var $selected = $('input:radio:checked[name=state-radio]'),
+        state = $selected.data('jio-state'),
+        state_id = $selected.data('jio-id');
+
+      return countStateTasks(jio, state).
+        then(function (task_count) {
+          if (task_count) {
+            return RSVP.reject({
+              statusText: 'Cannot remove state',
+              message: task_count + ' tasks are in state "' + state + '"'
+            });
+          }
+          return jio.remove({_id: state_id});
+        }).then(function () {
+          Logger.debug('State %s has been removed', state);
+          updateSettingsForm(jio);
         });
 
-      return RSVP.all(del_promise_list).then(function () {
-        Logger.debug('%i state(s) have been removed', del_promise_list.length);
-        updateSettingsForm(jio);
-      });
     }).fail(displayError);
   });
 
@@ -1429,19 +1502,28 @@ $(document).on('mobileinit', function () {
 
 
   /**
-   * Delete a project. XXX even if it contains tasks
+   * Delete a project. It must have no tasks.
    */
   $(document).on('click', '#settings-del-project', function () {
     jioConnect().then(function (jio) {
-      var selected = $('input:checkbox:checked[name|=project]').get(),
-        del_promise_list = selected.map(function (el) {
-          return jio.remove({_id: el.value});
+      var $selected = $('input:radio:checked[name=project-radio]'),
+        project = $selected.data('jio-project'),
+        project_id = $selected.data('jio-id');
+
+      return countProjectTasks(jio, project).
+        then(function (task_count) {
+          if (task_count) {
+            return RSVP.reject({
+              statusText: 'Cannot remove project "' + project + '"',
+              message: 'The project contains ' + task_count + ' tasks.'
+            });
+          }
+          return jio.remove({_id: project_id});
+        }).then(function () {
+          Logger.debug('Project %s has been removed', project);
+          updateSettingsForm(jio);
         });
 
-      return RSVP.all(del_promise_list).then(function () {
-        Logger.debug('%i project(s) have been removed', del_promise_list.length);
-        updateSettingsForm(jio);
-      });
     }).fail(displayError);
   });
 
