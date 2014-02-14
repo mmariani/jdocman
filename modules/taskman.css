@@ -56,6 +56,28 @@ textarea {
 }
 
 
+ /*
+  * For the renderJS gadgets, like text editor etc.
+  */
+
+#task-description iframe {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  overflow-y: hidden;
+  border: 0;
+}
+
+#task-description iframe.fullscreen {
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  height: 100%;
+  z-index: 100;
+}
+
+
 /*
  * on top of theme
  */

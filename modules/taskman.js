@@ -4,6 +4,8 @@
 $(document).on('mobileinit', function () {
   "use strict";
 
+  var USE_FULLSCREEN_WIDGET = false;
+
 
   /**
    * Creates a function to use for (case insensitive) accent folding.
@@ -853,16 +855,24 @@ $(document).on('mobileinit', function () {
    */
   function updateFooter() {
     var $page = $.mobile.activePage,
-      page_id = $page[0].getAttribute('id'),
+      page_id = $page.attr('id'),
       $footer_container = $page.find('.footer-container');
 
     if ($footer_container.length === 0) {
       return;
     }
 
-    var template = Handlebars.compile($('#footer-template').text());
+    var template = Handlebars.compile($('#footer-template').text()),
+      // We can't inspect the page to see if there's an iframe, since
+      // the form is generated with a template and is not on the DOM yet.
+      // Therefore we hardcode the id of the page and directly check it.
+      toggle_fullscreen = USE_FULLSCREEN_WIDGET && ($.mobile.activePage.attr('id') === 'task-detail-page');
+
     $footer_container.
-      html(template({page_id: page_id})).
+      html(template({
+        page_id: page_id,
+        toggle_fullscreen: toggle_fullscreen
+      })).
       trigger('create');
 
     // activate the tab related to the current page (if any)
@@ -1155,7 +1165,7 @@ $(document).on('mobileinit', function () {
    */
   $(document).on('pageshow', function () {
     var $page = $.mobile.activePage;
-    $page.jqmData('url', '#' + $page[0].getAttribute('id'));
+    $page.jqmData('url', '#' + $page.attr('id'));
   });
 
 
@@ -1210,6 +1220,14 @@ $(document).on('mobileinit', function () {
           applyTranslation();
         });
     }).fail(displayError);
+  });
+
+
+  /**
+   * Fullscreen toggle for complex widgets
+   */
+  $(document).on('click', '.fullscreen-toggle a', function () {
+    $('#task-description iframe').toggleClass('fullscreen');
   });
 
 
