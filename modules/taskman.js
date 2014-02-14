@@ -1337,7 +1337,7 @@ $(document).on('mobileinit', function () {
    * parameter (does not work with the appcache) we store it
    * in a closure variable.
    */
-  $(document).on('click', '#settings-edit-storage', function () {
+  $(document).on('click', '#storage-edit', function () {
     var storage_id = $('#storage-form input:radio[name=storage]:checked').val();
     $('#storage-detail-page').jqmData('url', '#storage-detail-page?storage_id=' + storage_id);
     $.mobile.changePage('#storage-detail-page');
@@ -1447,6 +1447,45 @@ $(document).on('mobileinit', function () {
           setSelectedStorage(default_storage_id);
           $.mobile.changePage('#storage-list-page');
         });
+    }).fail(displayError);
+  });
+
+
+  $(document).on('pagebeforeshow', '#storage-export-page', function () {
+    jioConnect().then(function (jio) {
+      return jio.allDocs({include_docs: true});
+    }).then(function (response) {
+      var $textarea = $('#storage-export-json'),
+        json = JSON.stringify(response.data, null, 2);
+
+      $textarea.
+        // Set the height overriding the value set by JQM
+        attr('rows', 6).
+        css('height', 'inherit').
+        val(json);
+
+      var URL = window.webkitURL || window.URL,
+        $link = $('<a data-role="button">'),
+        blob = null;
+
+      try {
+        // http://caniuse.com/#search=blob
+        blob = new Blob([json], {type: 'application/json'});
+        $link.
+          attr('href', URL.createObjectURL(blob)).
+          attr('download', 'storage.json');
+      } catch (e) {
+        // fallback, with size limits
+        $link.attr('href', 'data:text/octet-stream;base64,' + window.btoa(json));
+      }
+
+      $link.text('Download');
+
+      $('#storage-export-link-container').
+        empty().
+        append($link).
+        trigger('create');
+
     }).fail(displayError);
   });
 

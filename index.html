@@ -190,6 +190,7 @@
               Project:
             </label>
             <select name="project-select" id="task-project" data-role="select">
+              <option value="">--</option>
               {{#project_list}}
               <option value="{{this.project}}">{{this.project}}</option>
               {{/project_list}}
@@ -202,6 +203,7 @@
               State:
             </label>
             <select name="state-select" id="task-state" data-role="select">
+              <option value="">--</option>
               {{#state_list}}
               <option value="{{this.state}}">{{t this.state}}</option>
               {{/state_list}}
@@ -227,7 +229,6 @@
             {{else}}
             <a href="#" data-role="button"
               data-rel="back"
-              data-icon="cancel"
               data-inline="true"
               data-i18n="details.cancel">
               Cancel
@@ -359,11 +360,38 @@
         </table>
 
         <fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
-          <a href="#storage-detail-page" id="settings-edit-storage" data-role="button" data-icon="edit" data-inline="true">Edit</a>
-          <a href="#storage-detail-page" id="settings-add-storage" data-role="button" data-icon="plus" data-inline="true">New Storage</a>
+          <a href="#storage-detail-page" id="storage-edit" data-role="button" data-icon="edit">Edit</a>
+          <a href="#storage-detail-page" data-role="button" data-icon="plus">New Storage</a>
+          <a href="#storage-export-page" data-role="button">Export</a>
         </fieldset>
       </script>
     </div><!-- /storage-list-page -->
+
+
+    <!--
+    Storage Export Page
+    -->
+
+
+    <div data-role="page" id="storage-export-page">
+      <div data-role="header">
+        <a href="#" data-role="button" data-rel="back"
+          data-icon="arrow-l" data-mini="true"
+          data-i18n="header.back">
+          Back
+        </a>
+        <h2>
+          Export Storage
+        </h2>
+      </div><!-- /header -->
+
+      <div data-role="content">
+        <textarea id="storage-export-json"></textarea>
+        <div id="storage-export-link-container" />
+      </div><!-- /content -->
+
+      <div class="footer-container"></div>
+    </div>
 
 
     <!--
@@ -457,7 +485,6 @@
             {{/if}}
 
             <a href="#storage-list-page" data-role="button"
-              data-icon="cancel"
               data-inline="true"
               data-i18n="details.cancel">
               Cancel
