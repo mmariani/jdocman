@@ -227,7 +227,7 @@
               Delete
             </a>
             {{else}}
-            <a href="#" data-role="button"
+            <a href="#task-list-page" data-role="button"
               data-rel="back"
               data-inline="true"
               data-i18n="details.cancel">
@@ -386,8 +386,7 @@
       </div><!-- /header -->
 
       <div data-role="content">
-        <textarea id="storage-export-json"></textarea>
-        <div id="storage-export-link-container" />
+        <div id="storage-export-json-container"></div>
       </div><!-- /content -->
 
       <div class="footer-container"></div>
@@ -485,6 +484,7 @@
             {{/if}}
 
             <a href="#storage-list-page" data-role="button"
+              data-rel="back"
               data-inline="true"
               data-i18n="details.cancel">
               Cancel

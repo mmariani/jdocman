@@ -6,6 +6,11 @@ $(document).on('mobileinit', function () {
 
   var USE_FULLSCREEN_WIDGET = false;
 
+  Logger.useDefaults();   // log to console
+
+  // DEBUG for development, WARN for production
+  Logger.setLevel(Logger.DEBUG);
+
 
   /**
    * Creates a function to use for (case insensitive) accent folding.
@@ -1004,6 +1009,16 @@ $(document).on('mobileinit', function () {
 
 
   $(document).on('pageshow', function () {
+    var $page = $.mobile.activePage;
+
+    // Restore the url of the page we're showing.
+    // This hack is needed to support hash parameters until JQM v1.5.
+    // For more information, see
+    // https://github.com/jquery/jquery-mobile/issues/2859
+    // https://github.com/jquery/jquery-mobile/issues/6965
+    $page.jqmData('url', '#' + $page.attr('id'));
+
+    // Update the navigation footer
     updateFooter();
   });
 
@@ -1153,19 +1168,6 @@ $(document).on('mobileinit', function () {
   $(document).on('click', '.task-detail-link', function () {
     $('#task-detail-page').jqmData('url', this.hash);
     $.mobile.changePage('#task-detail-page');
-  });
-
-
-  /**
-   * Restore the url of the page we're showing.
-   * This hack is needed to support hash parameters until JQM v1.5.
-   * For more information, see
-   * https://github.com/jquery/jquery-mobile/issues/2859
-   * https://github.com/jquery/jquery-mobile/issues/6965
-   */
-  $(document).on('pageshow', function () {
-    var $page = $.mobile.activePage;
-    $page.jqmData('url', '#' + $page.attr('id'));
   });
 
 
@@ -1452,11 +1454,17 @@ $(document).on('mobileinit', function () {
 
 
   $(document).on('pagebeforeshow', '#storage-export-page', function () {
+    var $export_container = $('#storage-export-json-container').empty();
+
     jioConnect().then(function (jio) {
       return jio.allDocs({include_docs: true});
     }).then(function (response) {
-      var $textarea = $('#storage-export-json'),
+      var $textarea = $('<textarea id="#storage-export-json">'),
         json = JSON.stringify(response.data, null, 2);
+
+      $export_container.
+        append('<h3>Storage data</h3>').
+        append($textarea);
 
       $textarea.
         // Set the height overriding the value set by JQM
@@ -1481,12 +1489,15 @@ $(document).on('mobileinit', function () {
 
       $link.text('Download');
 
-      $('#storage-export-link-container').
-        empty().
+      $export_container.
         append($link).
         trigger('create');
 
-    }).fail(displayError);
+    }).fail(function (e) {
+      $export_container.
+        append('<h3>Could not export storage</h3>');
+      displayError(e);
+    });
   });
 
 
@@ -1647,11 +1658,6 @@ $(document).on('mobileinit', function () {
   if (!hasHTML5DatePicker()) {
     $.datepicker.setDefaults({dateFormat: 'yy-mm-dd'});
   }
-
-  Logger.useDefaults();   // log to console
-
-  // DEBUG for development, WARN for production
-  Logger.setLevel(Logger.DEBUG);
 
   /**
    * Set up the translations for i18next.
