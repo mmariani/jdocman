@@ -39,9 +39,9 @@ lib/jio/storage/gidstorage.js
 lib/jio/storage/localstorage.js
 lib/jio/storage/querystorage.js
 lib/jio/storage/replicatestorage.js
-lib/jqm/jquery.mobile-1.4.0.min.js
-lib/jqm/jquery.mobile-1.4.0.min.map
-lib/jqm/jquery.mobile.structure-1.4.0.min.css
+lib/jqm/jquery.mobile-1.4.1.min.js
+lib/jqm/jquery.mobile-1.4.1.min.map
+lib/jqm/jquery.mobile.structure-1.4.1.min.css
 lib/jquery/jquery-2.1.0.js
 lib/jquery/jquery-2.1.0.min.js
 lib/jquery/jquery-2.1.0.min.map
