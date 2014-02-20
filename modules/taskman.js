@@ -105,12 +105,12 @@ $(document).on('mobileinit', function () {
 
 
   function getSelectedStorage() {
-    return localStorage.getItem('set_selected_storage');
+    return localStorage.getItem('jio_selected_storage');
   }
 
 
   function setSelectedStorage(val) {
-    return localStorage.setItem('set_selected_storage', val);
+    return localStorage.setItem('jio_selected_storage', val);
   }
 
 
