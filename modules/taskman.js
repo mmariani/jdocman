@@ -89,10 +89,6 @@ $(document).on('mobileinit', function () {
         }
       }
     },
-    //
-    // Data passed around for page changes -- we cannot use URL parameters with appcache
-    // Waiting for better parameter support in JQM 1.5 (http://jquerymobile.com/roadmap/)
-    //
     default_storage_id = 'default_storage';
 
 
