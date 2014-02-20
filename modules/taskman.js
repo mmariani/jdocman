@@ -171,16 +171,7 @@ $(document).on('mobileinit', function () {
   function displayError(error) {
     var header = error.statusText || 'Application error',
       message = error.stack ? ('<pre>' + error.stack + ' </pre>') : error.message,
-      popup_template = (
-        '<div data-role="popup" data-theme="a" id="errorPopup" data-dismissible="false" data-history="false" style="max-width:400px;">' +
-        '  <div role="main" class="ui-content">' +
-        '    <h3 class="ui-title">{{message}}</h3>' +
-        '    <p>{{sanitize details}}</p>' +
-        '    <a href="#errorPopup" class="ui-btn ui-corner-all ui-shadow ui-btn-inline data-rel="close">{{button_text}}</a>' +
-        '  </div>' +
-        '</div>'
-      ),
-      template = Handlebars.compile(popup_template);
+      template = Handlebars.compile($('#error-popup-template').text());
 
     var html = template({
       header: 'Error',
@@ -1224,7 +1215,7 @@ $(document).on('mobileinit', function () {
   /**
    * Fullscreen toggle for complex widgets
    */
-  $(document).on('click', '.fullscreen-toggle a', function () {
+  $(document).on('click', '.fullscreen-toggle', function () {
     $('#task-description iframe').toggleClass('fullscreen');
   });
 

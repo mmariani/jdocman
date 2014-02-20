@@ -4,6 +4,7 @@
     <title>Task Manager</title>
     <link rel="shortcut icon" href="favicon.png" type="image/png"/>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="modules/themes/taskman-theme.css">
     <link rel="stylesheet" href="modules/themes/jquery.mobile.icons.min.css">
@@ -18,9 +19,9 @@
     Task List Page
     -->
 
-    <div data-role="page" id="task-list-page">
+    <section data-role="page" id="task-list-page">
 
-      <div data-role="header">
+      <header data-role="header">
         <select id="task-sortby" data-role="select" data-mini="true">
           <option value="" data-i18n="tasks.sortby.#">Sort by</option>
           <option value="title" data-i18n="tasks.sortby.title">Title</option>
@@ -38,7 +39,7 @@
            data-i18n="tasks.newtask">
           New Task
         </a>
-      </div><!-- /header -->
+      </header>
 
       <div data-role="content">
         <input type="text" data-type="search" name="search" id="search-tasks"
@@ -77,16 +78,16 @@
           {{/if}}
         </ul>
       </script>
-    </div><!-- /task-list-page -->
+    </section><!-- /task-list-page -->
 
 
     <!--
     Project List Page
     -->
 
-    <div data-role="page" id="project-list-page">
+    <section data-role="page" id="project-list-page">
 
-      <div data-role="header">
+      <header data-role="header">
         <a href="#" data-role="button" data-rel="back"
           data-icon="arrow-l" data-mini="true"
           data-i18n="header.back">
@@ -95,7 +96,7 @@
         <h2 data-i18n="header.projects">
           Projects
         </h2>
-      </div><!-- /header -->
+      </header>
 
       <div data-role="content">
         <div id="project-list-container"></div>
@@ -132,17 +133,16 @@
           {{/each}}
         </div>
       </script>
-    </div><!-- /project-list-page -->
+    </section><!-- /project-list-page -->
 
 
     <!--
     Task Detail Page
     -->
 
+    <section data-role="page" id="task-detail-page">
 
-    <div data-role="page" id="task-detail-page">
-
-      <div data-role="header">
+      <header data-role="header">
         <a href="#" data-role="button" data-rel="back"
           data-icon="arrow-l" data-mini="true"
           data-i18n="header.back">
@@ -151,7 +151,7 @@
         <h2 data-i18n="header.details">
           Details
         </h2>
-      </div><!-- /header -->
+      </header>
 
       <div data-role="content">
         <div id="task-detail-container"></div>
@@ -244,16 +244,15 @@
           </div>
         </form>
       </script>
-    </div><!-- /task-detail-page -->
+    </section><!-- /task-detail-page -->
 
 
     <!--
     Settings Page
     -->
 
-
-    <div data-role="page" id="settings-page">
-      <div data-role="header">
+    <section data-role="page" id="settings-page">
+      <header data-role="header">
         <a href="#" data-role="button" data-rel="back"
           data-icon="arrow-l" data-mini="true"
           data-i18n="header.back">
@@ -269,7 +268,7 @@
            data-i18n="navbar.about">
           About
         </a>
-      </div><!-- /header -->
+      </header>
 
       <div data-role="content">
         <a href="#storage-list-page" data-role="button">Configure Storage</a>
@@ -309,16 +308,15 @@
           </fieldset>
         </form>
       </script>
-    </div><!-- /settings-page -->
+    </section><!-- /settings-page -->
 
 
     <!--
     Storage List Page
     -->
 
-
-    <div data-role="page" id="storage-list-page">
-      <div data-role="header">
+    <section data-role="page" id="storage-list-page">
+      <header data-role="header">
         <a href="#" data-role="button" data-rel="back"
           data-icon="arrow-l" data-mini="true"
           data-i18n="header.back">
@@ -327,7 +325,7 @@
         <h2 data-i18n="header.storage">
           Storages
         </h2>
-      </div><!-- /header -->
+      </header>
 
       <div data-role="content">
         <form id="storage-form" action="javascript:void(0);">
@@ -365,16 +363,15 @@
           <a href="#storage-export-page" data-role="button">Export</a>
         </fieldset>
       </script>
-    </div><!-- /storage-list-page -->
+    </section><!-- /storage-list-page -->
 
 
     <!--
     Storage Export Page
     -->
 
-
-    <div data-role="page" id="storage-export-page">
-      <div data-role="header">
+    <section data-role="page" id="storage-export-page">
+      <header data-role="header">
         <a href="#" data-role="button" data-rel="back"
           data-icon="arrow-l" data-mini="true"
           data-i18n="header.back">
@@ -383,23 +380,22 @@
         <h2>
           Export Storage
         </h2>
-      </div><!-- /header -->
+      </header>
 
       <div data-role="content">
         <div id="storage-export-json-container"></div>
       </div><!-- /content -->
 
       <div class="footer-container"></div>
-    </div>
+    </section><!-- /storage-export-page -->
 
 
     <!--
     Storage Detail Page
     -->
 
-
-    <div data-role="page" id="storage-detail-page">
-      <div data-role="header">
+    <section data-role="page" id="storage-detail-page">
+      <header data-role="header">
         <a href="#" data-role="button" data-rel="back"
           data-icon="arrow-l" data-mini="true"
           data-i18n="header.back">
@@ -408,7 +404,7 @@
         <h2>
           Modify Storage
         </h2>
-      </div><!-- /header -->
+      </header>
 
       <div data-role="content">
         <div id="storage-detail-container"></div>
@@ -501,19 +497,19 @@
 
         </form>
       </script>
-    </div><!-- /storage-detail-page -->
+    </section><!-- /storage-detail-page -->
 
 
     <!--
     About Dialog
     -->
 
-    <div data-role="dialog" id="about-dialog">
-      <div data-role="header">
+    <section data-role="dialog" id="about-dialog">
+      <header data-role="header">
         <h2 data-i18n="header.task_manager">
           Task Manager
         </h2>
-      </div><!-- /header -->
+      </header>
 
       <div data-role="content">
         <p>
@@ -541,7 +537,7 @@
         </p>
         -->
       </div><!-- /content -->
-    </div><!-- /page -->
+    </section><!-- /about-dialog -->
 
 
     <!--
@@ -549,7 +545,7 @@
     -->
 
     <script id="footer-template" type="text/x-handlebars-template">
-      <div data-role="footer" data-position="fixed">
+      <footer data-role="footer" data-position="fixed">
         <div data-role="navbar" data-iconpos="left">
           <ul>
             <li>
@@ -570,15 +566,24 @@
                 Settings
               </a>
             </li>
-            {{#if toggle_fullscreen}}
-            <li class="fullscreen-toggle">
-              <a href="#" data-icon="arrows-alt">Fullscreen</a>
-            </li>
-            {{/if}}
           </ul>
         </div>
-      </div>
+        {{#if toggle_fullscreen}}
+        <a href="#" data-icon="arrows-alt" class="fullscreen-toggle">Fullscreen</a>
+        {{/if}}
+      </footer>
     </script><!-- /footer-template -->
+
+    <script id="error-popup-template" type="text/x-handlebars-template">
+      <div data-role="popup" data-theme="a" id="errorPopup" data-dismissible="false" data-history="false" style="max-width:400px;">
+        <div role="main" class="ui-content">
+          <h3 class="ui-title">{{message}}</h3>
+          <p>{{sanitize details}}</p>
+          <a href="#errorPopup" class="ui-btn ui-corner-all ui-shadow ui-btn-inline" data-rel="close">{{button_text}}</a>
+        </div>
+      </div>
+    </script><!-- /error-popup-template -->
+
 
     <script src="lib/jquery/jquery-2.1.0.min.js"></script>
     <script src="lib/jquery.mobile.datepicker/jquery.ui.datepicker.js"></script>
