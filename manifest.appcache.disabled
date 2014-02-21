@@ -58,9 +58,9 @@ modules/patterns/pw_maze_white_@2X.png
 modules/patterns/pw_maze_white.png
 modules/patterns/tweed_@2X.png
 modules/patterns/tweed.png
-modules/task-data.js
 modules/taskman.css
 modules/taskman.js
+modules/test_data.json
 modules/themes/images/ajax-loader.gif
 modules/themes/images/icons-png/action-black.png
 modules/themes/images/icons-png/action-white.png

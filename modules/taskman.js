@@ -1,5 +1,5 @@
 /*jslint indent: 2, nomen: true, vars: true, browser: true */
-/*global $, Logger, RSVP, dav_storage, Handlebars, jiodate, moment, i18n, jIO, task_data, Blob, complex_queries, Sanitize  */
+/*global $, Logger, RSVP, dav_storage, Handlebars, jiodate, moment, i18n, jIO, Blob, complex_queries, Sanitize  */
 
 $(document).on('mobileinit', function () {
   "use strict";
@@ -342,8 +342,31 @@ $(document).on('mobileinit', function () {
 
 
   /**
-   * If a storage is empty, inserts default/test data
+   * Unconditionally insert default/test data
    * with projects, states, and tasks.
+   */
+  function populateInitialTasks(jio) {
+    return jIO.util.ajax({
+      // XXX if 404, display the URL in dialog
+      type: 'GET',
+      url: 'modules/test_data.json'
+    }).
+      then(function (ev) {
+        var test_data = JSON.parse(ev.target.responseText),
+          obj_list = Array.prototype.concat(test_data.projects, test_data.states, test_data.tasks),
+          ins_promise_list = obj_list.map(function (obj) {
+            obj.modified = new Date();
+            Logger.debug('Inserting %s: %o', obj.type, obj);
+            return jio.post(obj);
+          });
+        Logger.info('The storage is empty. Populating with %i objects...', ins_promise_list.length);
+        return RSVP.all(ins_promise_list);
+      });
+  }
+
+
+  /**
+   * If a storage is empty, inserts default/test data
    */
   function populateInitialTasksIfNeeded(jio) {
     return jio.allDocs().
@@ -353,15 +376,7 @@ $(document).on('mobileinit', function () {
           return RSVP.resolve();
         }
 
-        var obj_list = Array.prototype.concat(task_data.projects, task_data.states, task_data.tasks),
-          ins_promise_list = obj_list.map(function (obj) {
-            obj.modified = new Date();
-            Logger.debug('Inserting %s: %o', obj.type, obj);
-            return jio.post(obj);
-          });
-
-        Logger.info('The storage is empty. Populating with %i objects...', ins_promise_list.length);
-        return RSVP.all(ins_promise_list);
+        return populateInitialTasks(jio);
       });
   }
 
