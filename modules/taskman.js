@@ -160,6 +160,32 @@ $(document).on('mobileinit', function () {
   }
 
 
+  function displayFeedback(header, message) {
+    var template = Handlebars.compile($('#feedback-popup-template').text()),
+      $container = $('#feedbackPopupContainer'),
+      html = template({
+        message: header,
+        details: message,
+        button_text: 'Ok'
+      });
+
+    if ($container.length === 0) {
+      $container = $('<div id="feedbackPopupContainer">');
+      $(document.body).append($container);
+    }
+
+    $container.html(html).trigger('create');
+    $('#feedbackPopup').popup('open');
+    $('#feedbackPopup').bind({
+      popupafterclose: function () {
+        $('#feedbackPopup').remove();
+      }
+    });
+  }
+
+
+
+
   /**
    * Display an error's title and message, within a JQM modal popup,
    * as received by jIO methods.
@@ -170,31 +196,9 @@ $(document).on('mobileinit', function () {
    */
   function displayError(error) {
     var header = error.statusText || 'Application error',
-      message = error.stack ? ('<pre>' + error.stack + ' </pre>') : error.message,
-      template = Handlebars.compile($('#error-popup-template').text());
+      message = error.stack ? ('<pre>' + error.stack + ' </pre>') : error.message;
 
-    var html = template({
-      header: 'Error',
-      message: header,
-      details: message,
-      button_text: 'Ok'
-    });
-
-    var $container = $('#errorPopupContainer');
-
-    if ($container.length === 0) {
-      $container = $('<div id="errorPopupContainer">');
-      $(document.body).append($container);
-    }
-
-    $container.html(html).trigger('create');
-    $('#errorPopup').popup('open');
-    $('#errorPopup').bind({
-      popupafterclose: function () {
-        $('#errorPopup').remove();
-      }
-    });
-
+    displayFeedback(header, message);
   }
 
 
@@ -250,7 +254,7 @@ $(document).on('mobileinit', function () {
       }
       Logger.debug('No configuration found, populating initial storage');
 
-      var post_promise = null,
+      var post_promise_list = null,
         // first of the list is the default storage
         default_config_list = [
           {
@@ -280,7 +284,7 @@ $(document).on('mobileinit', function () {
           }
         ];
 
-      post_promise = default_config_list.map(function (config, i) {
+      post_promise_list = default_config_list.map(function (config, i) {
         var metadata = {
           modified: new Date(),
           type: 'Storage Configuration'
@@ -298,7 +302,7 @@ $(document).on('mobileinit', function () {
         });
       });
 
-      return RSVP.all(post_promise).
+      return RSVP.all(post_promise_list).
         then(function () {
           Logger.info('Configuration created.');
           _jio_config = jio_config;
@@ -349,7 +353,7 @@ $(document).on('mobileinit', function () {
     return jIO.util.ajax({
       // XXX if 404, display the URL in dialog
       type: 'GET',
-      url: 'modules/test_data.json'
+      url: 'data/test_data.json'
     }).
       then(function (ev) {
         var test_data = JSON.parse(ev.target.responseText),
@@ -1455,13 +1459,16 @@ $(document).on('mobileinit', function () {
   });
 
 
+  /**
+   * Export the content of the current storage for backup purposes.
+   */
   $(document).on('pagebeforeshow', '#storage-export-page', function () {
     var $export_container = $('#storage-export-json-container').empty();
 
     jioConnect().then(function (jio) {
       return jio.allDocs({include_docs: true});
     }).then(function (response) {
-      var $textarea = $('<textarea id="#storage-export-json">'),
+      var $textarea = $('<textarea id="storage-export-json">'),
         json = JSON.stringify(response.data, null, 2);
 
       $export_container.
@@ -1500,6 +1507,85 @@ $(document).on('mobileinit', function () {
         append('<h3>Could not export storage</h3>');
       displayError(e);
     });
+  });
+
+
+  /**
+   * Import a previously exported content into the current storage.
+   */
+  $(document).on('pagebeforeshow', '#storage-import-page', function () {
+    var $import_container = $('#storage-import-json-container').empty();
+
+    var $textarea = $('<textarea id="storage-import-json">');
+
+    $import_container.
+      append($textarea).
+      trigger('create');
+  });
+
+
+  /**
+   * Import a previously exported content into the current storage.
+   */
+  $(document).on('change', '#storage-import-upload', function () {
+    var $input = $(this),
+      file = $input[0].files[0];
+
+    return jIO.util.readBlobAsText(file).
+      then(function (ev) {
+        var content = ev.target.result;
+        JSON.parse(content);
+        $('#storage-import-json').val(content);
+      }).fail(function (e) {
+        $input.val('');
+        displayError({
+          statusText: 'File upload error - ' + file.name,
+          message: 'Cannot parse JSON data: ' + e.message
+        });
+      });
+  });
+
+
+  $(document).on('click', '#storage-import', function () {
+    var object_count = 0;
+
+    jioConnect().then(function (jio) {
+      var text = $('#storage-import-json').val(),
+        data = null,
+        ins_promise_list = null;
+
+      if (!text.trim()) {
+        displayError({
+          statusText: 'Storage import error',
+          message: 'Empty input'
+        });
+      }
+
+      try {
+        data = JSON.parse(text);
+      } catch (e) {
+        displayError({
+          statusText: 'Storage import error',
+          message: 'Cannot parse JSON data: ' + e.message
+        });
+        return;
+      }
+
+      // XXX should clear the storage first?
+
+      ins_promise_list = data.rows.map(function (obj) {
+        return jio.put(obj.doc).
+          then(function () {
+            object_count += 1;
+          });
+        // XXX post or put & overwrite?
+        // XXX collect and display list of errors?
+      });
+
+      return RSVP.all(ins_promise_list);
+    }).then(function () {
+      displayFeedback('Storage import', object_count + ' objects have been imported.');
+    }).fail(displayError);
   });
 
 

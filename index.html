@@ -361,6 +361,7 @@
           <a href="#storage-detail-page" id="storage-edit" data-role="button" data-icon="edit">Edit</a>
           <a href="#storage-detail-page" data-role="button" data-icon="plus">New Storage</a>
           <a href="#storage-export-page" data-role="button">Export</a>
+          <a href="#storage-import-page" data-role="button">Import</a>
         </fieldset>
       </script>
     </section><!-- /storage-list-page -->
@@ -388,6 +389,42 @@
 
       <div class="footer-container"></div>
     </section><!-- /storage-export-page -->
+
+
+    <!--
+    Storage Import Page
+    -->
+
+    <section data-role="page" id="storage-import-page">
+      <header data-role="header">
+        <a href="#" data-role="button" data-rel="back"
+          data-icon="arrow-l" data-mini="true"
+          data-i18n="header.back">
+          Back
+        </a>
+        <h2>
+          Import Storage
+        </h2>
+      </header>
+
+      <div data-role="content">
+        <label>
+          Select the file to import:
+        </label>
+        <input type="file" data-clear-btn="false" id="storage-import-upload" value="">
+        </p>
+          or paste its content here:
+        </p>
+        <div id="storage-import-json-container"></div>
+        <a href="#" data-role="button"
+          id="storage-import"
+          data-inline="true">
+          Import
+        </a>
+      </div><!-- /content -->
+
+      <div class="footer-container"></div>
+    </section><!-- /storage-import-page -->
 
 
     <!--
@@ -574,15 +611,15 @@
       </footer>
     </script><!-- /footer-template -->
 
-    <script id="error-popup-template" type="text/x-handlebars-template">
-      <div data-role="popup" data-theme="a" id="errorPopup" data-dismissible="false" data-history="false" style="max-width:400px;">
+    <script id="feedback-popup-template" type="text/x-handlebars-template">
+      <div data-role="popup" data-theme="a" id="feedbackPopup" data-dismissible="false" data-history="false" style="max-width:400px;">
         <div role="main" class="ui-content">
           <h3 class="ui-title">{{message}}</h3>
           <p>{{sanitize details}}</p>
-          <a href="#errorPopup" class="ui-btn ui-corner-all ui-shadow ui-btn-inline" data-rel="close">{{button_text}}</a>
+          <a href="#feedbackPopup" class="ui-btn ui-corner-all ui-shadow ui-btn-inline" data-rel="close">{{button_text}}</a>
         </div>
       </div>
-    </script><!-- /error-popup-template -->
+    </script><!-- /feedback-popup-template -->
 
 
     <script src="lib/jquery/jquery-2.1.0.min.js"></script>

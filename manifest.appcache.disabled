@@ -17,7 +17,7 @@ NETWORK:
 *
 
 CACHE:
-data/tasks.json
+data/test_data.json
 favicon.png
 i18n/en/translation.json
 i18n/fr/translation.json
@@ -60,7 +60,6 @@ modules/patterns/tweed_@2X.png
 modules/patterns/tweed.png
 modules/taskman.css
 modules/taskman.js
-modules/test_data.json
 modules/themes/images/ajax-loader.gif
 modules/themes/images/icons-png/action-black.png
 modules/themes/images/icons-png/action-white.png
