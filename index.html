@@ -106,6 +106,7 @@
 
       <script id="project-list-template" type="text/x-handlebars-template">
 
+        {{#if project_count}}
         <div data-role="collapsible-set">
           {{#each task_map}}
           <div data-role="collapsible">
@@ -132,6 +133,10 @@
           </div>
           {{/each}}
         </div>
+        {{else}}
+        <p>There are no projects yet.</p>
+        {{/if}}
+
       </script>
     </section><!-- /project-list-page -->
 

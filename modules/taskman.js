@@ -4,7 +4,17 @@
 $(document).on('mobileinit', function () {
   "use strict";
 
-  var USE_FULLSCREEN_WIDGET = false;
+  var USE_FULLSCREEN_WIDGET = false,
+    template = {
+      // precompile for speed
+      'feedback-popup': Handlebars.compile($('#feedback-popup-template').text()),
+      'task-list': Handlebars.compile($('#task-list-template').text()),
+      'settings-form': Handlebars.compile($('#settings-form-template').text()),
+      'footer': Handlebars.compile($('#footer-template').text()),
+      'project-list': Handlebars.compile($('#project-list-template').text()),
+      'task-detail': Handlebars.compile($('#task-detail-template').text()),
+      'storage-config': Handlebars.compile($('#storage-config-template').text())
+    };
 
   Logger.useDefaults();   // log to console
 
@@ -104,6 +114,8 @@ $(document).on('mobileinit', function () {
     return localStorage.getItem('jio_selected_storage');
   }
 
+  var _jio = null;
+  var _jio_promise = null;
 
   function setSelectedStorage(val) {
     Logger.debug('Switching storage to', getSelectedStorage());
@@ -164,9 +176,8 @@ $(document).on('mobileinit', function () {
 
 
   function displayFeedback(header, message) {
-    var template = Handlebars.compile($('#feedback-popup-template').text()),
-      $container = $('#feedbackPopupContainer'),
-      html = template({
+    var $container = $('#feedbackPopupContainer'),
+      html = template['feedback-popup']({
         message: header,
         details: message,
         button_text: 'Ok'
@@ -357,9 +368,6 @@ $(document).on('mobileinit', function () {
     window.alert('unsupported storage type: ' + config.storage_type);
   }
 
-
-  var _jio = null;
-  var _jio_promise = null;
 
   /**
    * This function creates the global _jio instance bound to the
@@ -696,9 +704,8 @@ $(document).on('mobileinit', function () {
     return docQuery(jio, options).
       then(function (tasks) {
         Logger.debug('%i tasks found', tasks.length);
-        var template = Handlebars.compile($('#task-list-template').text());
         $('#task-list-container').
-          html(template({tasks: tasks})).
+          html(template['task-list']({tasks: tasks})).
           trigger('create');
         applyTranslation();
       });
@@ -769,11 +776,10 @@ $(document).on('mobileinit', function () {
       }).
       always(function (response_list) {
         var project_list = response_list ? response_list[0] : null,
-          state_list = response_list ? response_list[1] : null,
-          template = Handlebars.compile($('#settings-form-template').text());
+          state_list = response_list ? response_list[1] : null;
 
         $('#settings-form-container').
-          html(template({
+          html(template['settings-form']({
             connection_ok: project_list !== null && state_list !== null,
             error_message: error_message,
             storage_list: _storage_list,
@@ -882,14 +888,13 @@ $(document).on('mobileinit', function () {
       return;
     }
 
-    var template = Handlebars.compile($('#footer-template').text()),
-      // We can't inspect the page to see if there's an iframe, since
-      // the form is generated with a template and is not on the DOM yet.
-      // Therefore we hardcode the id of the page and directly check it.
-      toggle_fullscreen = USE_FULLSCREEN_WIDGET && ($.mobile.activePage.attr('id') === 'task-detail-page');
+    // We can't inspect the page to see if there's an iframe, since
+    // the form is generated with a template and is not on the DOM yet.
+    // Therefore we hardcode the id of the page and directly check it.
+    var toggle_fullscreen = USE_FULLSCREEN_WIDGET && ($.mobile.activePage.attr('id') === 'task-detail-page');
 
     $footer_container.
-      html(template({
+      html(template.footer({
         page_id: page_id,
         toggle_fullscreen: toggle_fullscreen
       })).
@@ -1080,9 +1085,11 @@ $(document).on('mobileinit', function () {
             }
           }
 
-          var template = Handlebars.compile($('#project-list-template').text());
           $('#project-list-container').
-            html(template({task_map: task_map})).
+            html(template['project-list']({
+              project_count: docs.length,
+              task_map: task_map
+            })).
             trigger('create'); // notify jqm of the changes we made
           applyTranslation();
         });
@@ -1196,9 +1203,8 @@ $(document).on('mobileinit', function () {
             project_list = response_list[1],
             state_list = response_list[2];
 
-          var template = Handlebars.compile($('#task-detail-template').text());
           $('#task-detail-container').
-            html(template({
+            html(template['task-detail']({
               task: task_resp.data,
               project_list: project_list,
               state_list: state_list,
@@ -1311,9 +1317,8 @@ $(document).on('mobileinit', function () {
 
       return storageConfig(jio_config, storage_id).
         then(function (config) {
-          var template = Handlebars.compile($('#storage-config-template').text());
           $('#storage-config-container').
-            html(template({
+            html(template['storage-config']({
               id: storage_id,
               config: config,
               default_storage_id: default_storage_id
