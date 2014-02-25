@@ -1465,9 +1465,15 @@ $(document).on('mobileinit', function () {
 
   /**
    * Import a previously exported content into the current storage.
-  $(document).on('pagebeforeshow', '#storage-import-page', function () {
-  });
    */
+  $(document).on('pagebeforeshow', '#storage-import-page', function () {
+    var $textarea = $('#storage-import-json');
+    $textarea.
+      // Set the height overriding the value set by JQM
+      attr('rows', 6).
+      css('height', 'inherit').
+      val('');
+  });
 
 
   /**
@@ -1500,7 +1506,6 @@ $(document).on('mobileinit', function () {
       }).
       then(function (object_count) {
         displayFeedback('Storage cleanup', object_count + ' objects have been removed.');
-        return updateSettingsForm();
       }).
       fail(displayError);
   });
