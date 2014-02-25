@@ -264,9 +264,9 @@ $(document).on('mobileinit', function () {
     }
 
     var jio_config = jIO.createJIO({
-      'type': 'local',
-      'username': 'Admin',
-      'application_name': 'Taskman-config'
+      type: 'local',
+      username: 'Admin',
+      application_name: 'Taskman-config'
     });
 
     // either load configuration from local storage, or create it
@@ -1465,14 +1465,24 @@ $(document).on('mobileinit', function () {
 
   /**
    * Import a previously exported content into the current storage.
-   */
   $(document).on('pagebeforeshow', '#storage-import-page', function () {
-    var $import_container = $('#storage-import-json-container').empty(),
-      $textarea = $('<textarea id="storage-import-json">');
+  });
+   */
 
-    $import_container.
-      append($textarea).
-      trigger('create');
+
+  /**
+   * Insert test data into textarea
+   */
+  $(document).on('click', '#storage-import-test', function () {
+    var $textarea = $('#storage-import-json');
+    jIO.util.ajax({
+      // XXX if 404, display the URL in dialog
+      type: 'GET',
+      url: 'data/test_data.json'
+    }).then(function (ev) {
+      $textarea.val(ev.target.responseText);
+      displayFeedback('Storage import', 'Test data has been loaded. Click Import to insert it into the storage.');
+    });
   });
 
 
@@ -1606,9 +1616,9 @@ $(document).on('mobileinit', function () {
       return checkStateExists(jio, state).
         then(function (state_exists) {
           var doc = {
-            'type': 'State',
-            'state': state,
-            'modified': new Date()
+            type: 'State',
+            state: state,
+            modified: new Date()
           };
 
           if (state_exists) {
@@ -1675,9 +1685,9 @@ $(document).on('mobileinit', function () {
       return checkProjectExists(jio, project).
         then(function (project_exists) {
           var doc = {
-            'type': 'Project',
-            'project': project,
-            'modified': new Date()
+            type: 'Project',
+            project: project,
+            modified: new Date()
           };
 
           if (project_exists) {
