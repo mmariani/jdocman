@@ -271,13 +271,6 @@
       </header>
 
       <div data-role="content">
-        <a href="#storage-list-page" data-role="button">Configure Storage</a>
-        <select name="translate" id="translate" data-mini="true">
-          <option value="en" data-i18n="settings.translate.en">English</option>
-          <option value="fr" data-i18n="settings.translate.fr">Français</option>
-          <option value="zh" data-i18n="settings.translate.zh">中文 (Chinese)</option>
-        </select>
-
         <div id="settings-form-container"></div>
       </div><!-- /content -->
 
@@ -285,6 +278,41 @@
 
       <script id="settings-form-template" type="text/x-handlebars-template">
         <form action="javascript:void(0);">
+          <label>
+            Language:
+            <select name="translate" id="translate" data-mini="true" data-inline="true">
+              <option value="en" data-i18n="settings.translate.en">English</option>
+              <option value="fr" data-i18n="settings.translate.fr">Français</option>
+              <option value="zh" data-i18n="settings.translate.zh">中文 (Chinese)</option>
+            </select>
+          </label>
+
+          <label for="storage-select" data-inline="true">
+            Storage:
+            <select id="storage-select" data-role="select" data-mini="true" data-inline="true">
+              {{#storage_list}}
+              <option value="{{this.doc._id}}">{{this.config.application_name}} ({{this.config.storage_type}})</option>
+              {{/storage_list}}
+            </select>
+          </label>
+          <fieldset data-role="controlgroup" data-mini="true" data-type="horizontal" data-inline="true">
+            <a href="#storage-config-page" id="storage-config" data-role="button">Configure</a>
+            <a href="#storage-export-page" data-role="button">Export</a>
+            <a href="#storage-import-page" data-role="button">Import</a>
+            <a href="#" id="storage-clear" data-role="button">Clear</a>
+            <a href="#storage-config-page" data-role="button" data-icon="plus">New Storage</a>
+          </fieldset>
+
+          {{#if error_message}}
+            <h3>Cannot connect to the storage</h3>
+            <p>
+              {{#if error_message}}
+              {{error_message}}
+              {{else}}
+              Please check the configuration
+              {{/if}}
+              </p>
+          {{else}}
           <fieldset data-role="controlgroup" data-mini="true">
             <legend data-i18n="settings.states">States:</legend>
             {{#state_list}}
@@ -292,7 +320,9 @@
             {{/state_list}}
           </fieldset>
           <fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
-            <a href="#" id="settings-del-state" data-role="button" data-icon="delete" data-inline="true">Delete selected</a>
+            {{#if state_list}}
+            <a href="#" id="settings-del-state" data-role="button" data-icon="delete" data-inline="true">Delete</a>
+            {{/if}}
             <a href="#" id="settings-add-state" data-role="button" data-icon="plus" data-inline="true">New State</a>
           </fieldset>
 
@@ -303,68 +333,16 @@
             {{/project_list}}
           </fieldset>
           <fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
-            <a href="#" id="settings-del-project" data-role="button" data-icon="delete" data-inline="true">Delete selected</a>
+            {{#if project_list}}
+            <a href="#" id="settings-del-project" data-role="button" data-icon="delete" data-inline="true">Delete</a>
+            {{/if}}
             <a href="#" id="settings-add-project" data-role="button" data-icon="plus" data-inline="true">New Project</a>
           </fieldset>
+          {{/if}}
+
         </form>
       </script>
     </section><!-- /settings-page -->
-
-
-    <!--
-    Storage List Page
-    -->
-
-    <section data-role="page" id="storage-list-page">
-      <header data-role="header">
-        <a href="#" data-role="button" data-rel="back"
-          data-icon="arrow-l" data-mini="true"
-          data-i18n="header.back">
-          Back
-        </a>
-        <h2 data-i18n="header.storage">
-          Storages
-        </h2>
-      </header>
-
-      <div data-role="content">
-        <form id="storage-form" action="javascript:void(0);">
-          <div id="storage-form-container"></div>
-        </form>
-      </div><!-- /content -->
-
-      <div class="footer-container"></div>
-
-      <script id="storage-form-template" type="text/x-handlebars-template">
-        <table data-role="table" id="storage-table" data-mode="columntoggle" class="ui-responsive table-stripe" data-column-btn-text="Columns..">
-          <thead>
-            <tr>
-              <th>Storage</th>
-              <th data-priority="1">Type</th>
-              <th data-priority="2">URL</th>
-              <th data-priority="3">Username</th>
-            </tr>
-          </thead>
-          <tbody>
-            {{#storage_config_list}}
-            <tr>
-              <th><label>{{this.config.application_name}}<input type="radio" name="storage" value="{{this.doc._id}}" /></label></th>
-              <th>{{this.config.storage_type}}</th>
-              <th>{{this.config.url}}</th>
-              <th>{{this.config.username}}</th>
-            </tr>
-            {{/storage_config_list}}
-          </tbody>
-        </table>
-
-        <fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
-          <a href="#storage-detail-page" id="storage-edit" data-role="button" data-icon="edit">Edit</a>
-          <a href="#storage-detail-page" data-role="button" data-icon="plus">New Storage</a>
-          <a href="#storage-export-page" data-role="button">Export</a>
-          <a href="#storage-import-page" data-role="button">Import</a>
-        </fieldset>
-      </script>
-    </section><!-- /storage-list-page -->
 
 
     <!--
@@ -431,7 +409,7 @@
     Storage Detail Page
     -->
 
-    <section data-role="page" id="storage-detail-page">
+    <section data-role="page" id="storage-config-page">
       <header data-role="header">
         <a href="#" data-role="button" data-rel="back"
           data-icon="arrow-l" data-mini="true"
@@ -444,12 +422,12 @@
       </header>
 
       <div data-role="content">
-        <div id="storage-detail-container"></div>
+        <div id="storage-config-container"></div>
       </div><!-- /content -->
 
       <div class="footer-container"></div>
 
-      <script id="storage-detail-template" type="text/x-handlebars-template">
+      <script id="storage-config-template" type="text/x-handlebars-template">
         <form action="javascript:void(0);">
           <input type="hidden" id="storage-id" value="{{id}}" />
 
@@ -516,7 +494,7 @@
             {{/ifCond}}
             {{/if}}
 
-            <a href="#storage-list-page" data-role="button"
+            <a href="#storage-config-page" data-role="button"
               data-rel="back"
               data-inline="true"
               data-i18n="details.cancel">
@@ -534,7 +512,7 @@
 
         </form>
       </script>
-    </section><!-- /storage-detail-page -->
+    </section><!-- /storage-config-page -->
 
 
     <!--
@@ -566,13 +544,6 @@
           it can be automatically replicated on an existing server (S3, WebDAV, XWiki, ERP5...)
         </p>
 
-        <!--
-        <p>
-          <a href="#" data-role="button" id="btn-reset-data">
-            Reset data
-          </a>
-        </p>
-        -->
       </div><!-- /content -->
     </section><!-- /about-dialog -->
 

@@ -1,97 +1,184 @@
 {
-  "view": "normal",
-  "projects": [
+  "total_rows": 13,
+  "rows": [
     {
-      "type": "Project",
-      "project": "Default Project",
-      "project_i18n": "settings.content.default"
+      "id": "1d7a2f5e-e925-0aeb-25fd-15fee3ae9788",
+      "key": "1d7a2f5e-e925-0aeb-25fd-15fee3ae9788",
+      "doc": {
+        "type": "Project",
+        "project": "Default Project",
+        "project_i18n": "settings.content.default",
+        "modified": "2014-02-25T08:48:39.338Z",
+        "_id": "1d7a2f5e-e925-0aeb-25fd-15fee3ae9788"
+      },
+      "value": {}
     },
     {
-      "type": "Project",
-      "project": "Events"
+      "id": "1ec89764-a178-20b0-ad43-c4811d6fbbca",
+      "key": "1ec89764-a178-20b0-ad43-c4811d6fbbca",
+      "doc": {
+        "type": "State",
+        "state": "Confirmed",
+        "modified": "2014-02-25T08:48:39.369Z",
+        "_id": "1ec89764-a178-20b0-ad43-c4811d6fbbca"
+      },
+      "value": {}
     },
     {
-      "type": "Project",
-      "project": "Market Garden"
-    }
-  ],
-  "states": [
-    {
-      "type": "State",
-      "state": "Started"
+      "id": "42ade216-f340-3af1-2eef-ec7522e2f209",
+      "key": "42ade216-f340-3af1-2eef-ec7522e2f209",
+      "doc": {
+        "type": "Task",
+        "title": "Other staffs",
+        "project": "Default Project",
+        "start": "2013-05-14T23:00:00.000Z",
+        "stop": "2014-10-29T23:00:00.000Z",
+        "state": "Confirmed",
+        "description": "some description",
+        "modified": "2014-02-25T08:48:39.411Z",
+        "_id": "42ade216-f340-3af1-2eef-ec7522e2f209"
+      },
+      "value": {}
     },
     {
-      "type": "State",
-      "state": "Confirmed"
+      "id": "55c77352-2a7b-9178-873e-f55fe1910faa",
+      "key": "55c77352-2a7b-9178-873e-f55fe1910faa",
+      "doc": {
+        "type": "State",
+        "state": "Started",
+        "modified": "2014-02-25T08:48:39.353Z",
+        "_id": "55c77352-2a7b-9178-873e-f55fe1910faa"
+      },
+      "value": {}
     },
     {
-      "type": "State",
-      "state": "Completed"
-    }
-  ],
-  "tasks": [
-    {
-      "type": "Task",
-      "title": "Jquery mobile in action",
-      "project": "Default Project",
-      "start": "2013-05-19T22:00:00.000Z",
-      "stop": "2013-11-01T23:00:00.000Z",
-      "state": "Completed",
-      "description": "some description coming soon"
+      "id": "5cc3a3df-3122-3995-7fb6-8a54ee5eb85a",
+      "key": "5cc3a3df-3122-3995-7fb6-8a54ee5eb85a",
+      "doc": {
+        "type": "Task",
+        "title": "Winter Olympics",
+        "project": "Events",
+        "start": "2014-02-07",
+        "stop": "2014-02-23",
+        "state": "Confirmed",
+        "description": "2014 Winter Olympics held in Sochi, Russia.",
+        "modified": "2014-02-25T08:48:39.445Z",
+        "_id": "5cc3a3df-3122-3995-7fb6-8a54ee5eb85a"
+      },
+      "value": {}
     },
     {
-      "type": "Task",
-      "title": "HTML5 and CSS3 overview",
-      "project": "Default Project",
-      "start": "2013-01-14T23:00:00.000Z",
-      "stop": "2014-10-29T23:00:00.000Z",
-      "state": "Started",
-      "description": "task manager app with JQM"
+      "id": "651b27bb-549b-3635-fb72-335058ab7ae1",
+      "key": "651b27bb-549b-3635-fb72-335058ab7ae1",
+      "doc": {
+        "type": "Project",
+        "project": "Events",
+        "modified": "2014-02-25T08:48:39.343Z",
+        "_id": "651b27bb-549b-3635-fb72-335058ab7ae1"
+      },
+      "value": {}
     },
     {
-      "type": "Task",
-      "title": "Other staffs",
-      "project": "Default Project",
-      "start": "2013-05-14T23:00:00.000Z",
-      "stop": "2014-10-29T23:00:00.000Z",
-      "state": "Confirmed",
-      "description": "some description"
+      "id": "75c4c002-c16f-65e9-b54e-f0f852ff46d5",
+      "key": "75c4c002-c16f-65e9-b54e-f0f852ff46d5",
+      "doc": {
+        "type": "Project",
+        "project": "Market Garden",
+        "modified": "2014-02-25T08:48:39.347Z",
+        "_id": "75c4c002-c16f-65e9-b54e-f0f852ff46d5"
+      },
+      "value": {}
     },
     {
-      "type": "Task",
-      "title": "Vintage",
-      "project": "Market Garden",
-      "start": "2014-09-15",
-      "stop": "2014-10-01",
-      "state": "Confirmed",
-      "description": "La vendange est la récolte du raisin destiné à la production du vin"
+      "id": "86e70bca-7f77-c902-452b-560e7a74346a",
+      "key": "86e70bca-7f77-c902-452b-560e7a74346a",
+      "doc": {
+        "type": "Task",
+        "title": "Solar eclipse",
+        "project": "Events",
+        "start": "2014-04-29",
+        "stop": "2014-04-29",
+        "state": "Confirmed",
+        "description": "",
+        "modified": "2014-02-25T08:48:39.459Z",
+        "_id": "86e70bca-7f77-c902-452b-560e7a74346a"
+      },
+      "value": {}
     },
     {
-      "type": "Task",
-      "title": "Winter Olympics",
-      "project": "Events",
-      "start": "2014-02-07",
-      "stop": "2014-02-23",
-      "state": "Confirmed",
-      "description": "2014 Winter Olympics held in Sochi, Russia."
+      "id": "a85a4f4c-f139-6805-2f8d-18bdc6092eb6",
+      "key": "a85a4f4c-f139-6805-2f8d-18bdc6092eb6",
+      "doc": {
+        "type": "Task",
+        "title": "Jquery mobile in action",
+        "project": "Default Project",
+        "start": "2013-05-19T22:00:00.000Z",
+        "stop": "2013-11-01T23:00:00.000Z",
+        "state": "Completed",
+        "description": "some description coming soon",
+        "modified": "2014-02-25T08:48:39.388Z",
+        "_id": "a85a4f4c-f139-6805-2f8d-18bdc6092eb6"
+      },
+      "value": {}
     },
     {
-      "type": "Task",
-      "title": "Solar eclipse",
-      "project": "Events",
-      "start": "2014-04-29",
-      "stop": "2014-04-29",
-      "state": "Confirmed",
-      "description": ""
+      "id": "c3950908-b6e0-b7de-2bd2-6b3fdc6c59eb",
+      "key": "c3950908-b6e0-b7de-2bd2-6b3fdc6c59eb",
+      "doc": {
+        "type": "Task",
+        "title": "HTML5 and CSS3 overview",
+        "project": "Default Project",
+        "start": "2013-01-14T23:00:00.000Z",
+        "stop": "2014-10-29T23:00:00.000Z",
+        "state": "Started",
+        "description": "task manager app with JQM",
+        "modified": "2014-02-25T08:48:39.399Z",
+        "_id": "c3950908-b6e0-b7de-2bd2-6b3fdc6c59eb"
+      },
+      "value": {}
     },
     {
-      "type": "Task",
-      "title": "Soccer World Cup",
-      "project": "Events",
-      "start": "2014-06-12",
-      "stop": "2014-07-13",
-      "state": "Confirmed",
-      "description": "2014 FIFA World Cup held in Brazil."
+      "id": "ef61d6de-96e3-2a7a-9b62-882354fdc7e9",
+      "key": "ef61d6de-96e3-2a7a-9b62-882354fdc7e9",
+      "doc": {
+        "type": "Task",
+        "title": "Vintage",
+        "project": "Market Garden",
+        "start": "2014-09-15",
+        "stop": "2014-10-01",
+        "state": "Confirmed",
+        "description": "La vendange est la récolte du raisin destiné à la production du vin",
+        "modified": "2014-02-25T08:48:39.431Z",
+        "_id": "ef61d6de-96e3-2a7a-9b62-882354fdc7e9"
+      },
+      "value": {}
+    },
+    {
+      "id": "f176e7ca-2d81-da6f-eb97-6c967926f673",
+      "key": "f176e7ca-2d81-da6f-eb97-6c967926f673",
+      "doc": {
+        "type": "State",
+        "state": "Completed",
+        "modified": "2014-02-25T08:48:39.378Z",
+        "_id": "f176e7ca-2d81-da6f-eb97-6c967926f673"
+      },
+      "value": {}
+    },
+    {
+      "id": "f93e97e1-a6e8-d530-3e59-1f1b93532a97",
+      "key": "f93e97e1-a6e8-d530-3e59-1f1b93532a97",
+      "doc": {
+        "type": "Task",
+        "title": "Soccer World Cup",
+        "project": "Events",
+        "start": "2014-06-12",
+        "stop": "2014-07-13",
+        "state": "Confirmed",
+        "description": "2014 FIFA World Cup held in Brazil.",
+        "modified": "2014-02-25T08:48:39.475Z",
+        "_id": "f93e97e1-a6e8-d530-3e59-1f1b93532a97"
+      },
+      "value": {}
     }
   ]
 }
