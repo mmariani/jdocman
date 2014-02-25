@@ -227,6 +227,7 @@
             <a href="#" data-role="button"
               id="task-delete"
               data-icon="delete"
+              data-mini="true"
               data-inline="true"
               data-i18n="details.delete">
               Delete
@@ -234,6 +235,7 @@
             {{else}}
             <a href="#task-list-page" data-role="button"
               data-rel="back"
+              data-mini="true"
               data-inline="true"
               data-i18n="details.cancel">
               Cancel
@@ -242,14 +244,64 @@
             <a href="#" data-role="button"
               id="task-save"
               data-icon="check"
+              data-mini="true"
               data-inline="true"
               data-i18n="details.save">
               Save
             </a>
           </div>
+
+          {{#if task._id}}
+          <ul data-role="listview" data-inset="true">
+            {{#if attachments}}
+            {{#each attachments}}
+              <li>
+                <a href="#task-attachment-page?task_id={{../task._id}}&attachment_name={{encode @key}}" class="task-edit-attachment-link">
+                  {{@key}}
+                </a>
+              </li>
+            {{/each}}
+            {{else}}
+              <li>
+              <h3>No documents.</h3>
+              </li>
+            {{/if}}
+          </ul>
+
+          <a href="#task-attachment-page" id="task-add-attachment" data-role="button" data-icon="plus" data-mini="true" data-inline="true">
+            New Document
+          </a>
+          {{/if}}
         </form>
       </script>
     </section><!-- /task-detail-page -->
+
+
+    <!--
+    Task Attachment Page
+    -->
+
+    <section data-role="page" id="task-attachment-page">
+
+      <div data-role="content" class="attachment-content">
+        <article id="attachment"></article>
+      </div><!-- /content -->
+
+      <footer data-role="footer" data-position="fixed">
+        <fieldset data-role="controlgroup" data-mini="true" data-type="horizontal" data-inline="true">
+          <a href="#" data-role="button" data-rel="back"
+            data-icon="arrow-l" data-mini="true"
+            data-i18n="header.back">
+            Back
+          </a>
+          <a href="#" id="attachment-save" data-role="button"
+            data-icon="check" data-mini="true">
+            Save
+          </a>
+        </fieldset>
+      </footer>
+
+    </section>
 
 
     <!--
@@ -393,7 +445,7 @@
         <label>
           Select the file to import:
         </label>
-        <input type="file" data-clear-btn="false" id="storage-import-upload" value="">
+        <input type="file" id="storage-import-upload" value="" data-clear-btn="false">
         </p>
           or paste its content here:
         </p>
@@ -401,7 +453,7 @@
         <p>
           You can also <a href="#" id="storage-import-test">insert test data</a>.
         </p>
-        <a href="#" data-role="button" id="storage-import" data-mini="true" data-inline="true">
+        <a href="#" id="storage-import" data-role="button" data-mini="true" data-inline="true">
           Import
         </a>
         <a href="#" id="storage-clear" data-role="button" data-mini="true" data-inline="true">

@@ -1,5 +1,5 @@
 /*jslint indent: 2, nomen: true, vars: true, browser: true */
-/*global $, Logger, RSVP, dav_storage, Handlebars, jiodate, moment, i18n, jIO, Blob, complex_queries, Sanitize  */
+/*global $, Logger, RSVP, dav_storage, Handlebars, jiodate, moment, i18n, jIO, Blob, complex_queries, Sanitize, renderJS */
 
 $(document).on('mobileinit', function () {
   "use strict";
@@ -99,7 +99,26 @@ $(document).on('mobileinit', function () {
         }
       }
     },
-    default_storage_id = 'default_storage';
+    default_storage_id = 'default_storage',
+    root_gadget = null,
+    editor_gadget = null,
+    gadget_config_set = {
+      html: {
+        url: 'lib/officejs/gadget/bootstrap-wysiwyg.html'
+      },
+      jqs: {
+        url: 'lib/officejs/gadget/jqs.html'
+      },
+      svg: {
+        url: 'lib/officejs/gadget/svgedit.html',
+        beforeLoad: function () {
+          // Discard the previous data, which is possibly unrelated to the current task.
+          localStorage.removeItem('svgedit-default');
+        }
+      },
+    },
+    gadget_config = gadget_config_set.html;
+
 
 
 
@@ -196,8 +215,6 @@ $(document).on('mobileinit', function () {
       }
     });
   }
-
-
 
 
   /**
@@ -981,6 +998,14 @@ $(document).on('mobileinit', function () {
 
 
   /**
+   * Make translations accessible from within Handlebars templates
+   */
+  Handlebars.registerHelper('encode', function (text) {
+    return window.encodeURIComponent(text);
+  });
+
+
+  /**
    * Add value comparisions, see also
    * http://github.com/assemble/handlebars-helpers/blob/master/lib/helpers/helpers-comparisons.js
    * The operator must be quoted:
@@ -1201,11 +1226,15 @@ $(document).on('mobileinit', function () {
         then(function (response_list) {
           var task_resp = response_list[0],
             project_list = response_list[1],
-            state_list = response_list[2];
+            state_list = response_list[2],
+            attachments = task_resp.data._attachments || [];
+
+          Logger.info(task_id);
 
           $('#task-detail-container').
             html(template['task-detail']({
               task: task_resp.data,
+              attachments: attachments,
               project_list: project_list,
               state_list: state_list,
               dateinput_type: dateinput_type
@@ -1290,6 +1319,106 @@ $(document).on('mobileinit', function () {
         });
     }).fail(displayError);
   });
+
+
+
+  /**
+   * Redirects to the document edit page (for new attachments).
+   */
+  $(document).on('click', '#task-add-attachment', function () {
+    var task_id = parseHashParams(window.location.hash).task_id,
+      attachment_name = window.prompt('Document name?');
+
+    $('#task-attachment-page').jqmData('url', '#task-attachment-page?task_id=' + task_id + '&attachment_name=' + window.encodeURIComponent(attachment_name));
+    $.mobile.changePage('#task-attachment-page');
+  });
+
+
+  /**
+   * Redirects to the document edit page (for existing attachments).
+   */
+  $(document).on('click', '.task-edit-attachment-link', function () {
+    $('#task-attachment-page').jqmData('url', this.hash);
+    $.mobile.changePage('#task-attachment-page');
+  });
+
+
+  $(document).on('pagebeforeshow', '#task-attachment-page', function () {
+    var args = parseHashParams(window.location.hash),
+      task_id = args.task_id,
+      attachment_name = args.attachment_name;
+
+    editor_gadget = null;
+
+    if (gadget_config.beforeLoad) {
+      gadget_config.beforeLoad();
+    }
+    jioConnect().
+      then(function (jio) {
+        return jio.getAttachment({
+          _id: task_id,
+          _attachment: attachment_name
+        });
+      }).
+      fail(function (response) {
+        if (response.status === 404) {
+          // attachment does not exist, no content to read
+          return null;
+        }
+      }).
+      then(function (response) {
+        // XXX hack
+        if (response === null) {
+          return null;
+        }
+        return jIO.util.readBlobAsText(response.data).
+          then(function (ev) {
+            return ev.target.result;
+          });
+      }).
+      then(function (attachment_content) {
+        return root_gadget.declareGadget(gadget_config.url,
+                                         { sandbox: 'iframe',
+                                           element: document.getElementById('attachment')
+                                         }).
+          then(function (gadget) {
+            editor_gadget = gadget;
+            if (attachment_content) {
+              return gadget.setContent(attachment_content);
+            }
+          });
+      }).
+      fail(displayError);
+  });
+
+
+  $(document).on('click', '#attachment-save', function () {
+    var args = parseHashParams(window.location.hash),
+      task_id = args.task_id,
+      attachment_name = args.attachment_name;
+
+    editor_gadget.getContent().
+      then(function (attachment_content) {
+        var attachment = {
+          _id: task_id,
+          _attachment: attachment_name,
+          _data: new Blob([attachment_content], {type: 'application/octet-stream'})
+        };
+        return jioConnect().
+          then(function (jio) {
+            return jio.putAttachment(attachment);
+          }).then(function () {
+            parent.history.back();
+          });
+      }).
+      fail(displayError);
+  });
+
+
+  $(document).on('pagebeforehide', '#task-attachment-page', function () {
+    $('#attachment iframe').remove();
+  });
+
 
 
   /**
@@ -1750,6 +1879,10 @@ $(document).on('mobileinit', function () {
     resGetPath: 'i18n/__lng__/__ns__.json',
     preload: ['en', 'fr', 'zh']
   }, applyTranslation);
+
+  renderJS(window).ready(function (gadget) {
+    root_gadget = gadget;
+  });
 
   checkCacheUpdate();
 
