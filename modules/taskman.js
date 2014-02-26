@@ -637,24 +637,27 @@ $(document).on('mobileinit', function () {
    * @return {String} A query tree that can be used with allDocs
    */
   function smartQuery(search_string) {
-    var wildcard_search_string = search_string ? ('%' + search_string + '%') : '%',
-      query = null,
+    var query = null,
       search_date = parseJIODate(search_string),
-      content_query_list = [
-        {
-          type: 'simple',
-          key: 'title',
-          value: wildcard_search_string
-        }, {
-          type: 'simple',
-          key: 'description',
-          value: wildcard_search_string
-        }, {
-          type: 'simple',
-          key: 'translated_state',
-          value: search_string
-        }
-      ];
+      content_query_list = [];
+
+    if (search_string) {
+      content_query_list.push({
+        type: 'simple',
+        key: 'title',
+        value: '%' + search_string + '%'
+      });
+      content_query_list.push({
+        type: 'simple',
+        key: 'description',
+        value: '%' + search_string + '%'
+      });
+      content_query_list.push({
+        type: 'simple',
+        key: 'translated_state',
+        value: search_string
+      });
+    }
 
     if (search_date) {
       Logger.debug('Search for date: %o', search_date);
@@ -679,20 +682,25 @@ $(document).on('mobileinit', function () {
     }
 
     query = {
-      type: 'complex',
-      operator: 'AND',
-      query_list: [
-        {
-          type: 'simple',
-          key: 'type',
-          value: 'Task'
-        }, {
-          type: 'complex',
-          operator: 'OR',
-          query_list: content_query_list
-        }
-      ]
+      type: 'simple',
+      key: 'type',
+      value: 'Task'
     };
+
+    if (content_query_list.length) {
+      query = {
+        type: 'complex',
+        operator: 'AND',
+        query_list: [
+          query,
+          {
+            type: 'complex',
+            operator: 'OR',
+            query_list: content_query_list
+          }
+        ]
+      };
+    }
 
     return query;
   }
