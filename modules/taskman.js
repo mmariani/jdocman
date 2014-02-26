@@ -896,7 +896,7 @@ $(document).on('mobileinit', function () {
       key = null;
     for (key in params) {
       if (params.hasOwnProperty(key)) {
-        if (ret.charAt(ret.length-1) !== '?') {
+        if (ret.charAt(ret.length - 1) !== '?') {
           ret += '&';
         }
         ret += key + '=' + encodeURIComponent(params[key]);
@@ -944,6 +944,8 @@ $(document).on('mobileinit', function () {
    * Handlebars helpers registration *
    *                                 *
    ***********************************/
+
+  Handlebars.registerPartial('task-link', $('#task-link-partial').text());
 
   /**
    * Clean up HTML before display for security reasons
@@ -1103,30 +1105,31 @@ $(document).on('mobileinit', function () {
       }, task_map = {};
 
       Logger.debug('Querying projects...');
-      return docQuery(jio, options).
-        then(function (docs) {
-          var i = 0;
+      return jio.allDocs(options).
+        then(function (response) {
+          var i = 0,
+            rows = response.data.rows;
 
           // Handlebars has very limited support for traversing data,
           // so we have to group/count everything in advance.
 
-          for (i = 0; i < docs.length; i += 1) {
-            if (docs[i].type === 'Project') {
-              task_map[docs[i].project] = {tasks: [], task_count: 0};
+          for (i = 0; i < rows.length; i += 1) {
+            if (rows[i].doc.type === 'Project') {
+              task_map[rows[i].doc.project] = {tasks: [], task_count: 0};
             }
           }
 
-          for (i = 0; i < docs.length; i += 1) {
-            if (docs[i].type === 'Task') {
-              task_map[docs[i].project] = task_map[docs[i].project] || {tasks: [], task_count: 0};
-              task_map[docs[i].project].tasks.push(docs[i]);
-              task_map[docs[i].project].task_count += 1;
+          for (i = 0; i < rows.length; i += 1) {
+            if (rows[i].doc.type === 'Task') {
+              task_map[rows[i].doc.project] = task_map[rows[i].doc.project] || {tasks: [], task_count: 0};
+              task_map[rows[i].doc.project].tasks.push(rows[i]);
+              task_map[rows[i].doc.project].task_count += 1;
             }
           }
 
           $('#project-list-container').
             html(template['project-list']({
-              project_count: docs.length,
+              project_count: rows.length,
               task_map: task_map
             })).
             trigger('create'); // notify jqm of the changes we made

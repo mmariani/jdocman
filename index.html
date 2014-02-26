@@ -16,6 +16,36 @@
 
 
     <!--
+    Task Link partial, used in task listviews
+    -->
+
+    <script id="task-link-partial" type="text/x-handlebars-template">
+      <a
+        {{#if this.doc._attachments.primary_document}}
+        href="#task-attachment-page?task_id={{this.id}}&attachment_name=primary_document" class="task-edit-attachment-link"
+        {{else}}
+        href="#task-detail-page?task_id={{this.id}}" class="task-detail-link"
+        {{/if}}
+        >
+        {{this.doc.title}}
+        <p class="description">{{sanitize this.doc.description 100}}</p>
+        <p>
+          <span class="state">{{t this.doc.state}}</span>
+          {{t "tasks.from"}}
+          <span class="from-date">{{asYMD this.doc.start}}</span>
+          {{t "tasks.to"}}
+          <span class="to-date">{{asYMD this.doc.stop}}</span>
+        </p>
+        {{#if this.doc._attachments}}
+        <p>
+          documents: {{#each this.doc._attachments}}<span class="attachment">{{@key}}</span>{{/each}}
+        </p>
+        {{/if}}
+      </a>
+    </script>
+
+
+    <!--
     Task List Page
     -->
 
@@ -57,30 +87,7 @@
         <ul data-role="listview" data-inset="true" class="task-listview">
           {{#if rows}}
           {{#rows}}
-            <li>
-              <a
-                {{#if this.doc._attachments.primary_document}}
-                href="#task-attachment-page?task_id={{this.id}}&attachment_name=primary_document" class="task-edit-attachment-link"
-                {{else}}
-                href="#task-detail-page?task_id={{this.id}}" class="task-detail-link"
-                {{/if}}
-                >
-                {{this.doc.title}}
-                <p class="description">{{sanitize this.doc.description 100}}</p>
-                <p>
-                  <span class="state">{{t this.doc.state}}</span>
-                  {{t "tasks.from"}}
-                  <span class="from-date">{{asYMD this.doc.start}}</span>
-                  {{t "tasks.to"}}
-                  <span class="to-date">{{asYMD this.doc.stop}}</span>
-                </p>
-                {{#if this.doc._attachments}}
-                <p>
-                  documents: {{#each this.doc._attachments}}<span class="attachment">{{@key}}</span>{{/each}}
-                </p>
-                {{/if}}
-              </a>
-            </li>
+            <li>{{> task-link}}</li>
           {{/rows}}
           {{else}}
             <li>
@@ -125,19 +132,7 @@
             {{#if this.task_count}}
             <ul data-role="listview" class="task-listview">
               {{#each this.tasks}}
-              <li>
-                <a href="#task-detail-page?task_id={{this._id}}" class="task-detail-link">
-                  {{title}}
-                  <p>{{sanitize description 100}}</p>
-                  <p>
-                    <span class="state">{{t state}}</span>
-                    {{t "tasks.from"}}
-                    <span class="from-date">{{asYMD start}}</span>
-                    {{t "tasks.to"}}
-                    <span class="to-date">{{asYMD stop}}</span>
-                  </p>
-                </a>
-              </li>
+              <li>{{> task-link}}</li>
               {{/each}}
             </ul>
             {{/if}}
