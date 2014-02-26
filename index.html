@@ -60,17 +60,19 @@
             <li>
               <a href="#task-detail-page?task_id={{this.id}}" class="task-detail-link">
                 {{this.doc.title}}
-                <p>{{sanitize this.doc.description 100}}</p>
+                <p class="description">{{sanitize this.doc.description 100}}</p>
                 <p>
                   <span class="state">{{t this.doc.state}}</span>
                   {{t "tasks.from"}}
                   <span class="from-date">{{asYMD this.doc.start}}</span>
                   {{t "tasks.to"}}
                   <span class="to-date">{{asYMD this.doc.stop}}</span>
-                  {{#if this.doc._attachments}}
-                  ({{#each this.doc._attachments}}<span class="attachment">{{@key}}</span>{{/each}})
-                  {{/if}}
                 </p>
+                {{#if this.doc._attachments}}
+                <p>
+                  documents: {{#each this.doc._attachments}}<span class="attachment">{{@key}}</span>{{/each}}
+                </p>
+                {{/if}}
               </a>
             </li>
           {{/rows}}
@@ -271,7 +273,7 @@
             {{/if}}
           </ul>
 
-          <a href="#task-attachment-page" id="task-add-attachment" data-role="button" data-icon="plus" data-mini="true" data-inline="true">
+          <a href="#" id="task-add-attachment" data-role="button" data-icon="plus" data-mini="true" data-inline="true">
             New Document
           </a>
           {{/if}}

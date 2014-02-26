@@ -22,15 +22,20 @@
 
 .task-listview li p {
   font-size: 80%;
+}
+
+.task-listview li p.description {
   font-weight: bold;
 }
 
 .task-listview .from-date,
 .task-listview .to-date {
+  font-weight: bold;
   color: #A52A2A;
 }
 
 .task-listview .state {
+  font-weight: bold;
   color: green;
 }
 

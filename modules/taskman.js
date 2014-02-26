@@ -763,7 +763,6 @@ $(document).on('mobileinit', function () {
    * Update the settings form to edit project/state list.
    */
   function updateSettingsForm() {
-    console.log('updateSettingsForm');
     var _storage_list = null,
       error_message = null;
 
@@ -777,7 +776,6 @@ $(document).on('mobileinit', function () {
       // keep going even if we could not connect to the main storage
       fail(ignoreError).
       always(function (jio) {
-        console.log('connected to ', jio);
         var project_opt = {include_docs: true, sort_on: [['project', 'ascending']], query: '(type:"Project")'},
           state_opt = {include_docs: true, sort_on: [['state', 'ascending']], query: '(type:"State")'};
 
@@ -1328,7 +1326,15 @@ $(document).on('mobileinit', function () {
    */
   $(document).on('click', '#task-add-attachment', function () {
     var task_id = parseHashParams(window.location.hash).task_id,
-      attachment_name = window.prompt('Document name?');
+      attachment_name = window.prompt('Document name?') || '';
+
+    attachment_name = attachment_name.trim();
+
+    if (!attachment_name) {
+      return;
+    }
+
+    // XXX check for duplicate names
 
     $('#task-attachment-page').jqmData('url', '#task-attachment-page?task_id=' + task_id + '&attachment_name=' + window.encodeURIComponent(attachment_name));
     $.mobile.changePage('#task-attachment-page');
