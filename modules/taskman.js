@@ -891,6 +891,21 @@ $(document).on('mobileinit', function () {
   }
 
 
+  function encodeHashParams(fragment, params) {
+    var ret = fragment + '?',
+      key = null;
+    for (key in params) {
+      if (params.hasOwnProperty(key)) {
+        if (ret.charAt(ret.length-1) !== '?') {
+          ret += '&';
+        }
+        ret += key + '=' + encodeURIComponent(params[key]);
+      }
+    }
+    return ret;
+  }
+
+
   /**
    * If the current page has a .footer-container element,
    * update it and set the current tab.
@@ -1336,7 +1351,9 @@ $(document).on('mobileinit', function () {
 
     // XXX check for duplicate names
 
-    $('#task-attachment-page').jqmData('url', '#task-attachment-page?task_id=' + task_id + '&attachment_name=' + window.encodeURIComponent(attachment_name));
+    $('#task-attachment-page').jqmData('url', encodeHashParams('#task-attachment-page',
+                                                               { task_id: task_id,
+                                                                 attachment_name: attachment_name}));
     $.mobile.changePage('#task-attachment-page');
   });
 
@@ -1436,7 +1453,9 @@ $(document).on('mobileinit', function () {
    */
   $(document).on('click', '#storage-config', function () {
     var storage_id = $('#storage-select').val();
-    $('#storage-config-page').jqmData('url', '#storage-config-page?storage_id=' + storage_id);
+    $('#storage-config-page').jqmData('url',
+                                      encodeHashParams('#storage-config-page',
+                                                       { storage_id: storage_id }));
     $.mobile.changePage('#storage-config-page');
   });
 

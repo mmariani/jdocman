@@ -58,7 +58,13 @@
           {{#if rows}}
           {{#rows}}
             <li>
-              <a href="#task-detail-page?task_id={{this.id}}" class="task-detail-link">
+              <a
+                {{#if this.doc._attachments.primary_document}}
+                href="#task-attachment-page?task_id={{this.id}}&attachment_name=primary_document" class="task-edit-attachment-link"
+                {{else}}
+                href="#task-detail-page?task_id={{this.id}}" class="task-detail-link"
+                {{/if}}
+                >
                 {{this.doc.title}}
                 <p class="description">{{sanitize this.doc.description 100}}</p>
                 <p>
