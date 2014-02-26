@@ -20,13 +20,7 @@
     -->
 
     <script id="task-link-partial" type="text/x-handlebars-template">
-      <a
-        {{#if this.doc._attachments.primary_document}}
-        href="#task-attachment-page?task_id={{this.id}}&attachment_name=primary_document" class="task-edit-attachment-link"
-        {{else}}
-        href="#task-detail-page?task_id={{this.id}}" class="task-detail-link"
-        {{/if}}
-        >
+      <a href="#task-detail-page?task_id={{this.id}}" class="task-detail-link">
         {{this.doc.title}}
         <p class="description">{{sanitize this.doc.description 100}}</p>
         <p>
@@ -123,7 +117,6 @@
       <div class="footer-container"></div>
 
       <script id="project-list-template" type="text/x-handlebars-template">
-
         {{#if project_count}}
         <div data-role="collapsible-set">
           {{#each task_map}}
@@ -142,7 +135,6 @@
         {{else}}
         <p>There are no projects yet.</p>
         {{/if}}
-
       </script>
     </section><!-- /project-list-page -->
 
@@ -152,25 +144,42 @@
     -->
 
     <section data-role="page" id="task-detail-page">
+      <div data-role="content">
+        <div id="task-detail-container"></div>
+      </div><!-- /content -->
 
-      <header data-role="header">
+      <footer data-role="footer" data-position="fixed">
         <a href="#" data-role="button" data-rel="back"
           data-icon="arrow-l" data-mini="true"
           data-i18n="header.back">
           Back
         </a>
-        <h2 data-i18n="header.details">
-          Details
-        </h2>
-      </header>
-
-      <div data-role="content">
-        <div id="task-detail-container"></div>
-      </div><!-- /content -->
-
-      <div class="footer-container"></div>
+        <a href="#" data-role="button"
+          id="task-save"
+          data-icon="check"
+          data-mini="true"
+          data-inline="true">
+          Save data
+        </a>
+        <a href="#" data-role="button"
+          id="task-delete"
+          class="ui-btn-right"
+          data-icon="delete"
+          data-mini="true"
+          data-inline="true"
+          data-i18n="details.delete">
+          Delete
+        </a>
+      </footer>
 
       <script id="task-detail-template" type="text/x-handlebars-template">
+        {{#if SINGLE_ATTACHMENT}}
+        <a href="#task-attachment-page?task_id={{task._id}}&attachment_name=primary_document" class="task-edit-attachment-link"
+           data-role="button">
+        Edit Document
+        </a>
+        {{/if}}
+
         <form action="javascript:void(0);">
           <input type="hidden" id="task-id" value="{{task._id}}" />
 
@@ -228,36 +237,8 @@
             <textarea name="description" id="task-description">{{task.description}}</textarea>
           </div>
 
-          <div data-role="fieldcontain">
-            {{#if task._id}}
-            <a href="#" data-role="button"
-              id="task-delete"
-              data-icon="delete"
-              data-mini="true"
-              data-inline="true"
-              data-i18n="details.delete">
-              Delete
-            </a>
-            {{else}}
-            <a href="#task-list-page" data-role="button"
-              data-rel="back"
-              data-mini="true"
-              data-inline="true"
-              data-i18n="details.cancel">
-              Cancel
-            </a>
-            {{/if}}
-            <a href="#" data-role="button"
-              id="task-save"
-              data-icon="check"
-              data-mini="true"
-              data-inline="true"
-              data-i18n="details.save">
-              Save
-            </a>
-          </div>
-
           {{#if task._id}}
+          {{#unless SINGLE_ATTACHMENT}}
           <ul data-role="listview" data-inset="true">
             {{#if attachments}}
             {{#each attachments}}
@@ -277,6 +258,7 @@
           <a href="#" id="task-add-attachment" data-role="button" data-icon="plus" data-mini="true" data-inline="true">
             New Document
           </a>
+          {{/unless}}
           {{/if}}
         </form>
       </script>
@@ -294,17 +276,15 @@
       </div><!-- /content -->
 
       <footer data-role="footer" data-position="fixed">
-        <fieldset data-role="controlgroup" data-mini="true" data-type="horizontal" data-inline="true">
-          <a href="#" data-role="button" data-rel="back"
-            data-mini="true"
-            data-i18n="details.cancel">
-            Cancel
-          </a>
-          <a href="#" id="attachment-save" data-role="button"
-            data-icon="check" data-mini="true">
-            Save
-          </a>
-        </fieldset>
+        <a href="#" data-role="button" data-rel="back"
+          data-icon="arrow-l" data-mini="true"
+          data-i18n="header.back">
+          Back
+        </a>
+        <a href="#" id="attachment-save" data-role="button"
+          data-icon="check" data-mini="true">
+          Save document
+        </a>
       </footer>
 
     </section>
@@ -547,7 +527,6 @@
           </div>
 
           <div data-role="fieldcontain">
-
             {{#if id}}
             {{#ifCond id '!==' default_storage_id}}
             <a href="#" data-role="button"

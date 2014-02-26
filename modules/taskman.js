@@ -5,6 +5,7 @@ $(document).on('mobileinit', function () {
   "use strict";
 
   var USE_FULLSCREEN_WIDGET = false,
+    SINGLE_ATTACHMENT = true,
     template = {
       // precompile for speed
       'feedback-popup': Handlebars.compile($('#feedback-popup-template').text()),
@@ -1261,6 +1262,7 @@ $(document).on('mobileinit', function () {
 
           $('#task-detail-container').
             html(template['task-detail']({
+              SINGLE_ATTACHMENT: SINGLE_ATTACHMENT,
               task: task_resp.data,
               attachments: attachments,
               project_list: project_list,
@@ -1444,10 +1446,6 @@ $(document).on('mobileinit', function () {
           then(function (jio) {
             return jio.putAttachment(attachment);
           }).then(function () {
-            if (attachment_name === 'primary_document') {
-              gotoPage('#task-detail-page', {task_id: task_id});
-              return;
-            }
             parent.history.back();
           });
       }).
