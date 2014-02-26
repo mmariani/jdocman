@@ -892,17 +892,14 @@ $(document).on('mobileinit', function () {
 
 
   function encodeHashParams(fragment, params) {
-    var ret = fragment + '?',
-      key = null;
+    var parts = [], key = null;
+    params = params || {};
     for (key in params) {
       if (params.hasOwnProperty(key)) {
-        if (ret.charAt(ret.length - 1) !== '?') {
-          ret += '&';
-        }
-        ret += key + '=' + encodeURIComponent(params[key]);
+        parts.push(key + '=' + encodeURIComponent(params[key]));
       }
     }
-    return ret;
+    return parts.length ? (fragment + '?' + parts.join('&')) : fragment;
   }
 
 
@@ -935,6 +932,23 @@ $(document).on('mobileinit', function () {
     $footer_container.find('a[href=#' + page_id + ']').addClass('ui-btn-active');
 
     applyTranslation();
+  }
+
+
+  /*
+   * Changes page and provide parameters within the fragment identifier.
+   * The hack is to temporarily change the target url of the JQM page.
+   * It will be restored during the pageshow event.
+   *
+   * @param {String} page the page id, including '#'.
+   * @param {Object|String} params the parameters to encode, or a fragment
+   * identifier which is already encoded. Optional.
+   */
+  function gotoPage(page, params) {
+    // here '#' has double meaning: CSS selector and fragment separator
+    var url = (typeof params === 'string') ? params : encodeHashParams(page, params);
+    $(page).jqmData('url', url);
+    $.mobile.changePage(page);
   }
 
 
@@ -1204,8 +1218,7 @@ $(document).on('mobileinit', function () {
    * the target page. It will be restored during the pageshow event.
    */
   $(document).on('click', '.task-detail-link', function () {
-    $('#task-detail-page').jqmData('url', this.hash);
-    $.mobile.changePage('#task-detail-page');
+    gotoPage('#task-detail-page', this.hash);
   });
 
 
@@ -1217,7 +1230,6 @@ $(document).on('mobileinit', function () {
   $(document).on('pagebeforeshow', '#task-detail-page', function () {
     var task_id = parseHashParams(window.location.hash).task_id;
     jioConnect().then(function (jio) {
-      Logger.debug('Loading Task Edit page');
       var project_opt = {include_docs: true, sort_on: [['project', 'ascending']], query: '(type:"Project")'},
         project_promise = docQuery(jio, project_opt),
         task_promise = null,
@@ -1227,7 +1239,6 @@ $(document).on('mobileinit', function () {
 
       if (task_id) {
         task_promise = jio.get({_id: task_id});
-        Logger.debug('Retrieving task %s', task_id);
       } else {
         task_promise = new RSVP.Promise(function (resolve) {
           resolve({
@@ -1354,10 +1365,9 @@ $(document).on('mobileinit', function () {
 
     // XXX check for duplicate names
 
-    $('#task-attachment-page').jqmData('url', encodeHashParams('#task-attachment-page',
-                                                               { task_id: task_id,
-                                                                 attachment_name: attachment_name}));
-    $.mobile.changePage('#task-attachment-page');
+    gotoPage('#task-attachment-page',
+             { task_id: task_id,
+               attachment_name: attachment_name});
   });
 
 
@@ -1365,8 +1375,7 @@ $(document).on('mobileinit', function () {
    * Redirects to the document edit page (for existing attachments).
    */
   $(document).on('click', '.task-edit-attachment-link', function () {
-    $('#task-attachment-page').jqmData('url', this.hash);
-    $.mobile.changePage('#task-attachment-page');
+    gotoPage('#task-attachment-page', this.hash);
   });
 
 
@@ -1435,6 +1444,10 @@ $(document).on('mobileinit', function () {
           then(function (jio) {
             return jio.putAttachment(attachment);
           }).then(function () {
+            if (attachment_name === 'primary_document') {
+              gotoPage('#task-detail-page', {task_id: task_id});
+              return;
+            }
             parent.history.back();
           });
       }).
@@ -1456,10 +1469,7 @@ $(document).on('mobileinit', function () {
    */
   $(document).on('click', '#storage-config', function () {
     var storage_id = $('#storage-select').val();
-    $('#storage-config-page').jqmData('url',
-                                      encodeHashParams('#storage-config-page',
-                                                       { storage_id: storage_id }));
-    $.mobile.changePage('#storage-config-page');
+    gotoPage('#storage-config-page', {storage_id: storage_id});
   });
 
 
@@ -1544,7 +1554,7 @@ $(document).on('mobileinit', function () {
           Logger.debug('Updated storage %s', response.id);
           Logger.debug('  status %s (%s)', response.status, response.statusText);
           setSelectedStorage(response.id);
-          $.mobile.changePage('#settings-page');
+          gotoPage('#settings-page');
         });
     }).fail(displayError);
   });
@@ -1564,7 +1574,7 @@ $(document).on('mobileinit', function () {
           Logger.debug('Deleted storage %o:', response.id);
           Logger.debug('  status %s', response.status);
           setSelectedStorage(default_storage_id);
-          $.mobile.changePage('#settings-page');
+          gotoPage('#settings-page');
         });
     }).fail(displayError);
   });
