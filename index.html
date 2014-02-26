@@ -55,22 +55,25 @@
 
       <script id="task-list-template" type="text/x-handlebars-template">
         <ul data-role="listview" data-inset="true" class="task-listview">
-          {{#if tasks}}
-          {{#tasks}}
+          {{#if rows}}
+          {{#rows}}
             <li>
-              <a href="#task-detail-page?task_id={{this._id}}" class="task-detail-link">
-                {{this.title}}
-                <p>{{sanitize this.description 100}}</p>
+              <a href="#task-detail-page?task_id={{this.id}}" class="task-detail-link">
+                {{this.doc.title}}
+                <p>{{sanitize this.doc.description 100}}</p>
                 <p>
-                  <span class="state">{{t this.state}}</span>
+                  <span class="state">{{t this.doc.state}}</span>
                   {{t "tasks.from"}}
-                  <span class="from-date">{{asYMD this.start}}</span>
+                  <span class="from-date">{{asYMD this.doc.start}}</span>
                   {{t "tasks.to"}}
-                  <span class="to-date">{{asYMD this.stop}}</span>
+                  <span class="to-date">{{asYMD this.doc.stop}}</span>
+                  {{#if this.doc._attachments}}
+                  ({{#each this.doc._attachments}}<span class="attachment">{{@key}}</span>{{/each}})
+                  {{/if}}
                 </p>
               </a>
             </li>
-          {{/tasks}}
+          {{/rows}}
           {{else}}
             <li>
             <h3 data-i18n="tasks.noresult">No results found.</h3>
@@ -290,9 +293,9 @@
       <footer data-role="footer" data-position="fixed">
         <fieldset data-role="controlgroup" data-mini="true" data-type="horizontal" data-inline="true">
           <a href="#" data-role="button" data-rel="back"
-            data-icon="arrow-l" data-mini="true"
-            data-i18n="header.back">
-            Back
+            data-mini="true"
+            data-i18n="details.cancel">
+            Cancel
           </a>
           <a href="#" id="attachment-save" data-role="button"
             data-icon="check" data-mini="true">

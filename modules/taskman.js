@@ -718,11 +718,12 @@ $(document).on('mobileinit', function () {
       };
 
     Logger.debug('Querying tasks with: "%s" (%o)...', search_string, options.query);
-    return docQuery(jio, options).
-      then(function (tasks) {
-        Logger.debug('%i tasks found', tasks.length);
+
+    return jio.allDocs(options).
+      then(function (response) {
+        Logger.debug('%i tasks found', response.data.total_rows);
         $('#task-list-container').
-          html(template['task-list']({tasks: tasks})).
+          html(template['task-list']({rows: response.data.rows})).
           trigger('create');
         applyTranslation();
       });

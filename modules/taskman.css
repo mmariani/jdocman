@@ -34,6 +34,10 @@
   color: green;
 }
 
+.task-listview .attachment:not(:last-child):after {
+  content: ', ';
+}
+
 
  /*
  * Fix for disappearing textarea issue
