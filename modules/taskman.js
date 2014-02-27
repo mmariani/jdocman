@@ -4,8 +4,7 @@
 $(document).on('mobileinit', function () {
   "use strict";
 
-  var USE_FULLSCREEN_WIDGET = false,
-    ATTACHMENT = 'none',   // 'none', 'single', 'multiple'
+  var ATTACHMENT = 'none',   // 'none', 'single', 'multiple'
     SINGLE_ATTACHMENT_NAME = 'content',
     template = {
       // precompile for speed
@@ -924,14 +923,10 @@ $(document).on('mobileinit', function () {
     // We can't inspect the page to see if there's an iframe, since
     // the form is generated with a template and is not on the DOM yet.
     // Therefore we hardcode the id of the page and directly check it.
-    var toggle_fullscreen = USE_FULLSCREEN_WIDGET && ($.mobile.activePage.attr('id') === 'task-detail-page'),
-      footer_template = template[page_id + '-footer'] || template.footer;
+    var footer_template = template[page_id + '-footer'] || template.footer;
 
     $footer_container.
-      html(footer_template({
-        page_id: page_id,
-        toggle_fullscreen: toggle_fullscreen
-      })).
+      html(footer_template()).
       trigger('create');
 
     // activate the tab related to the current page (if any)
@@ -1307,14 +1302,6 @@ $(document).on('mobileinit', function () {
           applyTranslation();
         });
     }).fail(displayError);
-  });
-
-
-  /**
-   * Fullscreen toggle for complex widgets
-   */
-  $(document).on('click', '.fullscreen-toggle', function () {
-    $('#task-description iframe').toggleClass('fullscreen');
   });
 
 

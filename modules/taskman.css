@@ -82,13 +82,6 @@ textarea {
 }
 
 
-.fullscreen-toggle {
-  position: fixed;
-  bottom: 0;
-  right: 0;
-  margin: 0;
-}
-
 .attachment-content {
   padding: 0;
 }
