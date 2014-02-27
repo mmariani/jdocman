@@ -5,13 +5,15 @@ $(document).on('mobileinit', function () {
   "use strict";
 
   var USE_FULLSCREEN_WIDGET = false,
-    SINGLE_ATTACHMENT = true,
+    ATTACHMENT = 'none',   // 'none', 'single', 'multiple'
+    SINGLE_ATTACHMENT_NAME = 'content',
     template = {
       // precompile for speed
       'feedback-popup': Handlebars.compile($('#feedback-popup-template').text()),
       'task-list': Handlebars.compile($('#task-list-template').text()),
       'settings-form': Handlebars.compile($('#settings-form-template').text()),
       'footer': Handlebars.compile($('#footer-template').text()),
+      'task-attachment-page-footer': Handlebars.compile($('#task-attachment-page-footer-template').text()),
       'project-list': Handlebars.compile($('#project-list-template').text()),
       'task-detail': Handlebars.compile($('#task-detail-template').text()),
       'storage-config': Handlebars.compile($('#storage-config-template').text())
@@ -724,7 +726,9 @@ $(document).on('mobileinit', function () {
       then(function (response) {
         Logger.debug('%i tasks found', response.data.total_rows);
         $('#task-list-container').
-          html(template['task-list']({rows: response.data.rows})).
+          html(template['task-list']({
+            rows: response.data.rows
+          })).
           trigger('create');
         applyTranslation();
       });
@@ -920,10 +924,11 @@ $(document).on('mobileinit', function () {
     // We can't inspect the page to see if there's an iframe, since
     // the form is generated with a template and is not on the DOM yet.
     // Therefore we hardcode the id of the page and directly check it.
-    var toggle_fullscreen = USE_FULLSCREEN_WIDGET && ($.mobile.activePage.attr('id') === 'task-detail-page');
+    var toggle_fullscreen = USE_FULLSCREEN_WIDGET && ($.mobile.activePage.attr('id') === 'task-detail-page'),
+      footer_template = template[page_id + '-footer'] || template.footer;
 
     $footer_container.
-      html(template.footer({
+      html(footer_template({
         page_id: page_id,
         toggle_fullscreen: toggle_fullscreen
       })).
@@ -961,6 +966,33 @@ $(document).on('mobileinit', function () {
    ***********************************/
 
   Handlebars.registerPartial('task-link', $('#task-link-partial').text());
+
+  Handlebars.registerHelper('SINGLE_ATTACHMENT_NAME', function () {
+    return SINGLE_ATTACHMENT_NAME;
+  });
+
+  Handlebars.registerHelper('ATTACHMENT', function (options) {
+    if (ATTACHMENT !== 'none') {
+      return options.fn(this);
+    }
+    return options.inverse(this);
+  });
+
+  Handlebars.registerHelper('ATTACHMENT_SINGLE', function (options) {
+    if (ATTACHMENT === 'single') {
+      return options.fn(this);
+    }
+    return options.inverse(this);
+  });
+
+  Handlebars.registerHelper('ATTACHMENT_MULTIPLE', function (options) {
+    if (ATTACHMENT === 'multiple') {
+      return options.fn(this);
+    }
+    return options.inverse(this);
+  });
+
+
 
   /**
    * Clean up HTML before display for security reasons
@@ -1262,7 +1294,6 @@ $(document).on('mobileinit', function () {
 
           $('#task-detail-container').
             html(template['task-detail']({
-              SINGLE_ATTACHMENT: SINGLE_ATTACHMENT,
               task: task_resp.data,
               attachments: attachments,
               project_list: project_list,
@@ -1293,7 +1324,7 @@ $(document).on('mobileinit', function () {
    */
   $(document).on('click', '#task-save', function () {
     jioConnect().then(function (jio) {
-      var id = $('#task-id').val(),
+      var id = $('#task-id').val(),   // XXX use hash ?
         title = $('#task-title').val(),
         start = $('#task-start').val(),
         stop = $('#task-stop').val(),
@@ -1337,19 +1368,41 @@ $(document).on('mobileinit', function () {
    * Delete the currently open task from the storage.
    */
   $(document).on('click', '#task-delete', function () {
-    jioConnect().then(function (jio) {
-      var id = $('#task-id').val();
+    var task_id = parseHashParams(window.location.hash).task_id;
 
-      return jio.remove({_id: id}).
-        then(function (response) {
-          Logger.debug('Deleted task %o:', response.id);
-          Logger.debug('  status %s', response.status);
-          parent.history.back();
-          // XXX explicit redirect
-        });
+    jioConnect().then(function (jio) {
+      return jio.remove({_id: task_id});
+    }).then(function (response) {
+      Logger.debug('Deleted task %o:', response.id);
+      Logger.debug('  status %s', response.status);
+      parent.history.back();
     }).fail(displayError);
   });
 
+
+  /**
+   * Delete the currently open attachment.
+   */
+  $(document).on('click', '#attachment-delete', function () {
+    var args = parseHashParams(window.location.hash),
+      task_id = args.task_id,
+      attachment_name = args.attachment_name;
+
+    jioConnect().then(function (jio) {
+      return jio.removeAttachment({_id: task_id,
+                                   _attachment: attachment_name});
+    }).then(function (response) {
+      Logger.debug('Deleted attachment %s/%s:', response.id, response.attachment);
+      Logger.debug('  status %s', response.status);
+      parent.history.back();
+    }).fail(function (response) {
+      if (response.status === 404) {
+        parent.history.back();
+        return;
+      }
+      throw response;
+    }).fail(displayError);
+  });
 
 
   /**

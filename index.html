@@ -20,7 +20,13 @@
     -->
 
     <script id="task-link-partial" type="text/x-handlebars-template">
-      <a href="#task-detail-page?task_id={{this.id}}" class="task-detail-link">
+      <a data-role="button"
+        {{#ATTACHMENT_SINGLE}}
+        href="#task-attachment-page?task_id={{this.id}}&attachment_name={{SINGLE_ATTACHMENT_NAME}}" class="task-edit-attachment-link"
+        {{else}}
+        href="#task-detail-page?task_id={{this.id}}" class="task-detail-link"
+        {{/ATTACHMENT_SINGLE}}
+        >
         {{this.doc.title}}
         <p class="description">{{sanitize this.doc.description 100}}</p>
         <p>
@@ -30,11 +36,13 @@
           {{t "tasks.to"}}
           <span class="to-date">{{asYMD this.doc.stop}}</span>
         </p>
+        {{#ATTACHMENT_MULTIPLE}}
         {{#if this.doc._attachments}}
         <p>
           documents: {{#each this.doc._attachments}}<span class="attachment">{{@key}}</span>{{/each}}
         </p>
         {{/if}}
+        {{/ATTACHMENT_MULTIPLE}}
       </a>
     </script>
 
@@ -166,20 +174,12 @@
           class="ui-btn-right"
           data-icon="delete"
           data-mini="true"
-          data-inline="true"
           data-i18n="details.delete">
           Delete
         </a>
       </footer>
 
       <script id="task-detail-template" type="text/x-handlebars-template">
-        {{#if SINGLE_ATTACHMENT}}
-        <a href="#task-attachment-page?task_id={{task._id}}&attachment_name=primary_document" class="task-edit-attachment-link"
-           data-role="button">
-        Edit Document
-        </a>
-        {{/if}}
-
         <form action="javascript:void(0);">
           <input type="hidden" id="task-id" value="{{task._id}}" />
 
@@ -237,8 +237,8 @@
             <textarea name="description" id="task-description">{{task.description}}</textarea>
           </div>
 
+          {{#ATTACHMENT_MULTIPLE}}
           {{#if task._id}}
-          {{#unless SINGLE_ATTACHMENT}}
           <ul data-role="listview" data-inset="true">
             {{#if attachments}}
             {{#each attachments}}
@@ -250,16 +250,16 @@
             {{/each}}
             {{else}}
               <li>
-              <h3>No documents.</h3>
+              <h3>No attachments.</h3>
               </li>
             {{/if}}
           </ul>
 
           <a href="#" id="task-add-attachment" data-role="button" data-icon="plus" data-mini="true" data-inline="true">
-            New Document
+            New attachment
           </a>
-          {{/unless}}
           {{/if}}
+          {{/ATTACHMENT_MULTIPLE}}
         </form>
       </script>
     </section><!-- /task-detail-page -->
@@ -275,17 +275,36 @@
         <article id="attachment"></article>
       </div><!-- /content -->
 
-      <footer data-role="footer" data-position="fixed">
-        <a href="#" data-role="button" data-rel="back"
-          data-icon="arrow-l" data-mini="true"
-          data-i18n="header.back">
-          Back
-        </a>
-        <a href="#" id="attachment-save" data-role="button"
-          data-icon="check" data-mini="true">
-          Save document
-        </a>
-      </footer>
+      <div class="footer-container"></div>
+
+      <script id="task-attachment-page-footer-template" type="text/x-handlebars-template">
+        <footer data-role="footer" data-position="fixed">
+          <a href="#" data-role="button" data-rel="back"
+            data-icon="arrow-l" data-mini="true"
+            data-i18n="header.back">
+            Back
+          </a>
+          <a href="#" id="attachment-save" data-role="button"
+            data-icon="check" data-mini="true">
+            Save document
+          </a>
+          <a href="#" id="attachment-metadata" data-role="button"
+            data-mini="true">
+            Metadata
+          </a>
+          <a href="#" data-role="button" class="ui-btn-right"
+            {{#ATTACHMENT_SINGLE}}
+            id="task-delete"
+            {{else}}
+            id="attachment-delete"
+            {{/ATTACHMENT_SINGLE}}
+            data-icon="delete"
+            data-mini="true"
+            data-i18n="details.delete">
+            Delete
+          </a>
+        </footer>
+      </script><!-- /task-attachment-page-footer -->
 
     </section>
 
@@ -348,12 +367,8 @@
           {{#if error_message}}
             <h3>Cannot connect to the storage</h3>
             <p>
-              {{#if error_message}}
               {{error_message}}
-              {{else}}
-              Please check the configuration
-              {{/if}}
-              </p>
+            </p>
           {{else}}
           <fieldset data-role="controlgroup" data-mini="true">
             <legend data-i18n="settings.states">States:</legend>
@@ -533,6 +548,7 @@
               id="storage-delete"
               data-icon="delete"
               data-inline="true"
+              data-mini="true"
               data-i18n="details.delete">
               Delete
             </a>
@@ -542,6 +558,7 @@
             <a href="#storage-config-page" data-role="button"
               data-rel="back"
               data-inline="true"
+              data-mini="true"
               data-i18n="details.cancel">
               Cancel
             </a>
@@ -550,6 +567,7 @@
               id="storage-save"
               data-icon="check"
               data-inline="true"
+              data-mini="true"
               data-i18n="details.save">
               Save
             </a>
