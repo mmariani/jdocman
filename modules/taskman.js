@@ -4,22 +4,66 @@
 $(document).on('mobileinit', function () {
   "use strict";
 
-  var USE_FULLSCREEN_WIDGET = false,
+  var DEBUG = true;
+
+  // Set up logging (as soon as possible) to console
+  Logger.useDefaults();
+
+  Logger.setLevel(DEBUG ? Logger.DEBUG : Logger.WARN);
+
+  var ATTACHMENT_MODE = 'single',   // 'none', 'single', 'multiple'
+    SINGLE_ATTACHMENT_NAME = 'content',
     template = {
       // precompile for speed
       'feedback-popup': Handlebars.compile($('#feedback-popup-template').text()),
       'task-list': Handlebars.compile($('#task-list-template').text()),
       'settings-form': Handlebars.compile($('#settings-form-template').text()),
       'footer': Handlebars.compile($('#footer-template').text()),
+      'task-attachment-page-footer': Handlebars.compile($('#task-attachment-page-footer-template').text()),
       'project-list': Handlebars.compile($('#project-list-template').text()),
-      'task-detail': Handlebars.compile($('#task-detail-template').text()),
+      'task-metadata': Handlebars.compile($('#task-metadata-template').text()),
       'storage-config': Handlebars.compile($('#storage-config-template').text())
-    };
+    },
+    default_storage_id = 'default_storage',
+    root_gadget = null,
+    editor_gadget = null,
+    gadget_config_set = {
+      html: {
+        url: 'lib/officejs/gadget/bootstrap-wysiwyg.html'
+      },
+      jqs: {
+        url: 'lib/officejs/gadget/jqs.html'
+      },
+      svg: {
+        url: 'lib/officejs/gadget/svgedit.html',
+        beforeLoad: function () {
+          // Discard the previous data, which is possibly unrelated to the current task.
+          localStorage.removeItem('svgedit-default');
+        }
+      },
+    },
+    gadget_config = gadget_config_set.html,
+    _jio = null,
+    _jio_promise = null,
+    _jio_config = null,
+    _jio_config_promise = null;
 
-  Logger.useDefaults();   // log to console
 
-  // DEBUG for development, WARN for production
-  Logger.setLevel(Logger.DEBUG);
+
+  if (DEBUG) {
+    switch (window.location.hash) {
+    case '#attachment-none':
+      ATTACHMENT_MODE = 'none';
+      break;
+    case '#attachment-single':
+      ATTACHMENT_MODE = 'single';
+      break;
+    case '#attachment-multiple':
+      ATTACHMENT_MODE = 'multiple';
+      break;
+    }
+    Logger.debug('Attachment mode: ', ATTACHMENT_MODE);
+  }
 
 
   /**
@@ -98,27 +142,7 @@ $(document).on('mobileinit', function () {
           equal_match: 'translatedStateMatch'
         }
       }
-    },
-    default_storage_id = 'default_storage',
-    root_gadget = null,
-    editor_gadget = null,
-    gadget_config_set = {
-      html: {
-        url: 'lib/officejs/gadget/bootstrap-wysiwyg.html'
-      },
-      jqs: {
-        url: 'lib/officejs/gadget/jqs.html'
-      },
-      svg: {
-        url: 'lib/officejs/gadget/svgedit.html',
-        beforeLoad: function () {
-          // Discard the previous data, which is possibly unrelated to the current task.
-          localStorage.removeItem('svgedit-default');
-        }
-      },
-    },
-    gadget_config = gadget_config_set.html;
-
+    };
 
 
 
@@ -128,19 +152,81 @@ $(document).on('mobileinit', function () {
    *                                      *
    ****************************************/
 
-
+  /**
+   * Retrieve the ID of the main storage
+   * to use for metadata and attachments.
+   *
+   * @return {String} The id of the storage
+   */
   function getSelectedStorage() {
     return localStorage.getItem('jio_selected_storage');
   }
 
-  var _jio = null;
-  var _jio_promise = null;
 
+  /**
+   * Change the current storage, and force
+   * jioConnect to ask for a new instance.
+   *
+   * @param {String} val The id of the storage to use
+   */
   function setSelectedStorage(val) {
-    Logger.debug('Switching storage to', getSelectedStorage());
+    Logger.debug('Switching storage to', val);
     _jio = null;
     _jio_promise = null;
-    return localStorage.setItem('jio_selected_storage', val);
+    localStorage.setItem('jio_selected_storage', val);
+  }
+
+
+  /**
+   * If the browser supports the Application Cache, check
+   * if an update is available and propose a page reload to the user.
+   */
+  function checkCacheUpdate() {
+    var ac = window.applicationCache;
+    if (!ac) {
+      return;
+    }
+    ac.addEventListener('updateready', function () {
+      if (ac.status === ac.UPDATEREADY) {
+        ac.swapCache();
+        if (window.confirm('An update is available. Reload now?')) {
+          window.location.reload();
+        }
+      }
+    }, false);
+  }
+
+
+  /**
+   * Parse a fragment identifier with parameters.
+   *
+   * @param {String} hash The fragment string, like '#foo?bar=baz
+   * @return {Object} A mapping of the parsed parameters, like {bar: 'baz'}
+   */
+  function parseHashParams(hash) {
+    var pos = hash.indexOf('?'),
+      s = pos > -1 ? hash.substr(pos + 1) : '',
+      p = s ? s.split(/\&/) : [],
+      l = 0,
+      key_value,
+      params = {};
+    for (l = 0; l < p.length; l += 1) {
+      key_value = p[l].split(/\=/);
+      params[key_value[0]] = decodeURIComponent(key_value[1] || '') || true;
+    }
+    return params;
+  }
+
+
+  function encodeHashParams(fragment, params) {
+    var parts = [], key = null;
+    params = params || {};
+    for (key in params) {
+      if (params.hasOwnProperty(key)) {
+        parts.push(key + '=' + encodeURIComponent(params[key]));
+      }
+    }
+    return parts.length ? (fragment + '?' + parts.join('&')) : fragment;
   }
 
 
@@ -184,6 +270,23 @@ $(document).on('mobileinit', function () {
   }
 
 
+  /*
+   * Changes page and provide parameters within the fragment identifier.
+   * The hack is to temporarily change the target url of the JQM page.
+   * It will be restored during the pageshow event.
+   *
+   * @param {String} page the page id, including '#'.
+   * @param {Object|String} params the parameters to encode, or a fragment
+   * identifier which is already encoded. Optional.
+   */
+  function gotoPage(page, params) {
+    // here '#' has double meaning: CSS selector and fragment separator
+    var url = (typeof params === 'string') ? params : encodeHashParams(page, params);
+    $(page).jqmData('url', url);
+    $.mobile.changePage(page);
+  }
+
+
   /**
    * Retrieves the text typed by the user for searching.
    *
@@ -194,6 +297,26 @@ $(document).on('mobileinit', function () {
   }
 
 
+  /**
+   * Attempt to parse a string to a (possibly partial) date.
+   * The returned object can be directly fed to a query if
+   * the right key_schema has been provided.
+   *
+   * @param {String} s The string to be parsed
+   * @return {Object} a JIODate instance if possible, or null
+   */
+  function parseJIODate(s) {
+    try {
+      return jiodate.JIODate(s);
+    } catch (e) {
+      return null;
+    }
+  }
+
+
+  /**
+   * Display a message, within a JQM modal popup.
+   */
   function displayFeedback(header, message) {
     var $container = $('#feedbackPopupContainer'),
       html = template['feedback-popup']({
@@ -218,8 +341,7 @@ $(document).on('mobileinit', function () {
 
 
   /**
-   * Display an error's title and message, within a JQM modal popup,
-   * as received by jIO methods.
+   * Display an error's title and message, as received by jIO methods.
    * In case of exception, shows the stack trace.
    * This function can be used as a then parameter.
    *
@@ -258,8 +380,33 @@ $(document).on('mobileinit', function () {
   }
 
 
-  var _jio_config = null;
-  var _jio_config_promise = null;
+  /**
+   * Creates a storage description from to a configuration object.
+   */
+  function storageDescription(config) {
+    if (config.storage_type === 'local') {
+      return {
+        type: 'local',
+        username: config.username,
+        application_name: config.application_name
+      };
+    }
+
+    if (config.storage_type === 'dav') {
+      return {
+        type: 'query',
+        sub_storage: dav_storage.createDescription(
+          config.url,
+          config.auth_type,
+          config.realm,
+          config.username,
+          config.password
+        )
+      };
+    }
+    window.alert('unsupported storage type: ' + config.storage_type);
+  }
+
 
   /**
    * This function creates the global _jio_config instance bound to localStorage
@@ -359,34 +506,6 @@ $(document).on('mobileinit', function () {
 
 
   /**
-   * Creates a storage description from to a configuration object.
-   */
-  function storageDescription(config) {
-    if (config.storage_type === 'local') {
-      return {
-        type: 'local',
-        username: config.username,
-        application_name: config.application_name
-      };
-    }
-
-    if (config.storage_type === 'dav') {
-      return {
-        type: 'query',
-        sub_storage: dav_storage.createDescription(
-          config.url,
-          config.auth_type,
-          config.realm,
-          config.username,
-          config.password
-        )
-      };
-    }
-    window.alert('unsupported storage type: ' + config.storage_type);
-  }
-
-
-  /**
    * This function creates the global _jio instance bound to the
    * main storage.
    * The returned promise will have _jio as fulfillment value or undefined,
@@ -418,7 +537,7 @@ $(document).on('mobileinit', function () {
         return JSON.parse(ev.target.result);
       }).
       then(function (config) {
-        Logger.debug('Using storage: %o', config);
+        Logger.debug('Using storage:', config.application_name);
         var storage_description = storageDescription(config);
         storage_description.key_schema = key_schema;
         _jio = jIO.createJIO(storage_description);
@@ -445,24 +564,6 @@ $(document).on('mobileinit', function () {
         return del_promise_list.length;
       });
     });
-  }
-
-
-  /**
-   * Perform a query with allDocs(), and return a promise
-   * that resolves to the list of 'doc' objects.
-   *
-   * @param {Object} jio the storage instance to use
-   * @param {Object} options the argument to use with allDocs()
-   * @return {Promise} A Promise which resolves to a list of 'doc' objects
-   */
-  function docQuery(jio, options) {
-    return jio.allDocs(options).
-      then(function (response) {
-        return RSVP.resolve(response.data.rows.map(function (row) {
-          return row.doc;
-        }));
-      });
   }
 
 
@@ -595,23 +696,6 @@ $(document).on('mobileinit', function () {
 
 
   /**
-   * Attempt to parse a string to a (possibly partial) date.
-   * The returned object can be directly fed to a query if
-   * the right key_schema has been provided.
-   *
-   * @param {String} s The string to be parsed
-   * @return {Object} a JIODate instance if possible, or null
-   */
-  function parseJIODate(s) {
-    try {
-      return jiodate.JIODate(s);
-    } catch (e) {
-      return null;
-    }
-  }
-
-
-  /**
    * Create a query string from the input text, if the
    * text already complies to the complex_queries grammar.
    * Basically adds a filter for the task type.
@@ -731,7 +815,9 @@ $(document).on('mobileinit', function () {
       then(function (response) {
         Logger.debug('%i tasks found', response.data.total_rows);
         $('#task-list-container').
-          html(template['task-list']({rows: response.data.rows})).
+          html(template['task-list']({
+            rows: response.data.rows
+          })).
           trigger('create');
         applyTranslation();
       });
@@ -756,6 +842,7 @@ $(document).on('mobileinit', function () {
             }).
             then(function (ev) {
               return {
+                id: row.id,
                 doc: row.doc,
                 config: JSON.parse(ev.target.result)
               };
@@ -789,8 +876,8 @@ $(document).on('mobileinit', function () {
 
         if (jio) {
           return RSVP.all([
-            docQuery(jio, project_opt),
-            docQuery(jio, state_opt),
+            jio.allDocs(project_opt),
+            jio.allDocs(state_opt),
           ]);
         }
       }).
@@ -799,8 +886,8 @@ $(document).on('mobileinit', function () {
         error_message = e.message; // enough for both jio messages and exceptions
       }).
       always(function (response_list) {
-        var project_list = response_list ? response_list[0] : null,
-          state_list = response_list ? response_list[1] : null;
+        var project_list = response_list ? response_list[0].data.rows : null,
+          state_list = response_list ? response_list[1].data.rows : null;
 
         $('#settings-form-container').
           html(template['settings-form']({
@@ -817,16 +904,6 @@ $(document).on('mobileinit', function () {
         applyTranslation();
       }).fail(displayError);
   }
-
-
-  /**
-   * When a storage is selected, force the next jioConnect() call
-   * to use its configuration.
-   */
-  $(document).on('change', '#storage-select', function () {
-    setSelectedStorage($(this).val());
-    updateSettingsForm();
-  });
 
 
   /**
@@ -859,47 +936,6 @@ $(document).on('mobileinit', function () {
 
 
   /**
-   * If the browser supports the Application Cache, check
-   * if an update is available and propose a page reload to the user.
-   */
-  function checkCacheUpdate() {
-    var ac = window.applicationCache;
-    if (!ac) {
-      return;
-    }
-    ac.addEventListener('updateready', function () {
-      if (ac.status === ac.UPDATEREADY) {
-        ac.swapCache();
-        if (window.confirm('An update is available. Reload now?')) {
-          window.location.reload();
-        }
-      }
-    }, false);
-  }
-
-
-  /**
-   * Parse a fragment identifier with parameters.
-   *
-   * @param {String} hash The fragment string, like '#foo?bar=baz
-   * @return {Object} A mapping of the parsed parameters, like {bar: 'baz'}
-   */
-  function parseHashParams(hash) {
-    var pos = hash.indexOf('?'),
-      s = pos > -1 ? hash.substr(pos + 1) : '',
-      p = s ? s.split(/\&/) : [],
-      l = 0,
-      key_value,
-      params = {};
-    for (l = 0; l < p.length; l += 1) {
-      key_value = p[l].split(/\=/);
-      params[key_value[0]] = decodeURIComponent(key_value[1] || '') || true;
-    }
-    return params;
-  }
-
-
-  /**
    * If the current page has a .footer-container element,
    * update it and set the current tab.
    */
@@ -915,13 +951,10 @@ $(document).on('mobileinit', function () {
     // We can't inspect the page to see if there's an iframe, since
     // the form is generated with a template and is not on the DOM yet.
     // Therefore we hardcode the id of the page and directly check it.
-    var toggle_fullscreen = USE_FULLSCREEN_WIDGET && ($.mobile.activePage.attr('id') === 'task-detail-page');
+    var footer_template = template[page_id + '-footer'] || template.footer;
 
     $footer_container.
-      html(template.footer({
-        page_id: page_id,
-        toggle_fullscreen: toggle_fullscreen
-      })).
+      html(footer_template()).
       trigger('create');
 
     // activate the tab related to the current page (if any)
@@ -931,12 +964,135 @@ $(document).on('mobileinit', function () {
   }
 
 
+  /**
+   * Update the metadata form to edit project/state list.
+   * Works either in a full page or a popup.
+   */
+  function updateMetadataForm() {
+    var task_id = parseHashParams(window.location.hash).task_id;
+
+    jioConnect().then(function (jio) {
+      var project_opt = {include_docs: true, sort_on: [['project', 'ascending']], query: '(type:"Project")'},
+        project_promise = jio.allDocs(project_opt),
+        task_promise = null,
+        state_opt = {include_docs: true, sort_on: [['state', 'ascending']], query: '(type:"State")'},
+        state_promise = jio.allDocs(state_opt),
+        dateinput_type = hasHTML5DatePicker() ? 'date' : 'text';
+
+      if (task_id) {
+        task_promise = jio.get({_id: task_id});
+      } else {
+        task_promise = new RSVP.Promise(function (resolve) {
+          resolve({
+            data: {
+              title: 'New task',
+              start: moment().format('YYYY-MM-DD')
+            }
+          });
+        });
+      }
+
+      return RSVP.all([task_promise, project_promise, state_promise]).
+        then(function (response_list) {
+          var task_resp = response_list[0],
+            project_list = response_list[1].data.rows,
+            state_list = response_list[2].data.rows,
+            attachments = task_resp.data._attachments || [],
+            page = $.mobile.activePage;
+
+          page.find('.task-metadata-container').
+            html(template['task-metadata']({
+              task: task_resp.data,
+              task_id: task_resp.id,
+              attachments: attachments,
+              project_list: project_list,
+              state_list: state_list,
+              dateinput_type: dateinput_type
+            })).
+            trigger('create');
+
+          jqmSetSelected(page.find('[name=project]'), task_resp.data.project);
+          jqmSetSelected(page.find('[name=state]'), task_resp.data.state);
+          applyTranslation();
+        });
+    }).fail(displayError);
+  }
+
+
+  function saveMetadata() {
+    return jioConnect().then(function (jio) {
+      var task_id = parseHashParams(window.location.hash).task_id,
+        page = $.mobile.activePage,
+        title = page.find('[name=title]').val(),
+        start = page.find('[name=start]').val(),
+        stop = page.find('[name=stop]').val(),
+        project = page.find('[name=project]').val(),
+        state = page.find('[name=state]').val(),
+        description = $('[name=description]').val(),
+        metadata = {},
+        update_prom = null;
+
+      // XXX validate input
+
+      metadata = {
+        type: 'Task',
+        title: title,
+        start: start,
+        stop: stop,
+        project: project,
+        state: state,
+        description: description,
+        modified: new Date()
+      };
+
+      if (task_id) {
+        metadata._id = task_id;
+        update_prom = jio.put(metadata);
+      } else {
+        update_prom = jio.post(metadata);
+      }
+
+      return update_prom.
+        then(function (response) {
+          Logger.debug('Updated task %o:', response.id);
+          Logger.debug('  status %s (%s)', response.status, response.statusText);
+          return RSVP.resolve(response.id);
+        });
+    }).fail(displayError);
+  }
+
+
+
+
+
 
   /***********************************
    *                                 *
    * Handlebars helpers registration *
    *                                 *
    ***********************************/
+
+  Handlebars.registerPartial('task-link', $('#task-link-partial').text());
+
+  Handlebars.registerHelper('SINGLE_ATTACHMENT_NAME', function () {
+    return SINGLE_ATTACHMENT_NAME;
+  });
+
+  Handlebars.registerHelper('ATTACHMENT_MODE_SINGLE', function (options) {
+    if (ATTACHMENT_MODE === 'single') {
+      return options.fn(this);
+    }
+    return options.inverse(this);
+  });
+
+  Handlebars.registerHelper('ATTACHMENT_MODE_MULTIPLE', function (options) {
+    if (ATTACHMENT_MODE === 'multiple') {
+      return options.fn(this);
+    }
+    return options.inverse(this);
+  });
+
+
 
   /**
    * Clean up HTML before display for security reasons
@@ -1000,7 +1156,7 @@ $(document).on('mobileinit', function () {
    * Make translations accessible from within Handlebars templates
    */
   Handlebars.registerHelper('t', function (i18n_key) {
-    return new Handlebars.SafeString(i18n.t(i18n_key));
+    return i18n_key ? new Handlebars.SafeString(i18n.t(i18n_key)) : '';
   });
 
 
@@ -1049,17 +1205,6 @@ $(document).on('mobileinit', function () {
    *                              *
    ********************************/
 
-  /**
-   * Apply a language change upon selection from the menu.
-   * This will store the selected language in the 'i18next'
-   * session cookie.
-   */
-  $(document).on('change', '#translate', function () {
-    var current_language = $(this).val();
-    $.i18n.setLng(current_language, applyTranslation);
-  });
-
-
   $(document).on('pageshow', function () {
     var $page = $.mobile.activePage;
 
@@ -1075,6 +1220,17 @@ $(document).on('mobileinit', function () {
   });
 
 
+  /**
+   * Apply a language change upon selection from the menu.
+   * This will store the selected language in the 'i18next'
+   * session cookie.
+   */
+  $(document).on('change', '#translate', function () {
+    var current_language = $(this).val();
+    $.i18n.setLng(current_language, applyTranslation);
+  });
+
+
   $(document).on('pagebeforeshow', '#settings-page', function () {
     updateSettingsForm();
   });
@@ -1087,7 +1243,6 @@ $(document).on('mobileinit', function () {
    * Translation is applied after rendering the template.
    */
   $(document).on('pagebeforeshow', '#project-list-page', function () {
-    Logger.debug('Loading Projects page');
     jioConnect().then(function (jio) {
       var options = {
         include_docs: true,
@@ -1095,31 +1250,31 @@ $(document).on('mobileinit', function () {
         sort_on: [['project', 'ascending']]
       }, task_map = {};
 
-      Logger.debug('Querying projects...');
-      return docQuery(jio, options).
-        then(function (docs) {
-          var i = 0;
+      return jio.allDocs(options).
+        then(function (response) {
+          var i = 0,
+            rows = response.data.rows;
 
           // Handlebars has very limited support for traversing data,
           // so we have to group/count everything in advance.
 
-          for (i = 0; i < docs.length; i += 1) {
-            if (docs[i].type === 'Project') {
-              task_map[docs[i].project] = {tasks: [], task_count: 0};
+          for (i = 0; i < rows.length; i += 1) {
+            if (rows[i].doc.type === 'Project') {
+              task_map[rows[i].doc.project] = {tasks: [], task_count: 0};
             }
           }
 
-          for (i = 0; i < docs.length; i += 1) {
-            if (docs[i].type === 'Task') {
-              task_map[docs[i].project] = task_map[docs[i].project] || {tasks: [], task_count: 0};
-              task_map[docs[i].project].tasks.push(docs[i]);
-              task_map[docs[i].project].task_count += 1;
+          for (i = 0; i < rows.length; i += 1) {
+            if (rows[i].doc.type === 'Task') {
+              task_map[rows[i].doc.project] = task_map[rows[i].doc.project] || {tasks: [], task_count: 0};
+              task_map[rows[i].doc.project].tasks.push(rows[i]);
+              task_map[rows[i].doc.project].task_count += 1;
             }
           }
 
           $('#project-list-container').
             html(template['project-list']({
-              project_count: docs.length,
+              project_count: rows.length,
               task_map: task_map
             })).
             trigger('create'); // notify jqm of the changes we made
@@ -1144,7 +1299,6 @@ $(document).on('mobileinit', function () {
    * Initial rendering of the 'task list' page.
    */
   $(document).on('pagebeforeshow', '#task-list-page', function () {
-    Logger.debug('Loading Task List Page');
     jioConnect().then(function (jio) {
       // attempt to fix cosmetic issue with a select menu in the header
       $('#task-sortby-button').addClass('ui-btn-left');
@@ -1193,9 +1347,8 @@ $(document).on('mobileinit', function () {
    * with the appcache) we temporarily change the url of
    * the target page. It will be restored during the pageshow event.
    */
-  $(document).on('click', '.task-detail-link', function () {
-    $('#task-detail-page').jqmData('url', this.hash);
-    $.mobile.changePage('#task-detail-page');
+  $(document).on('click', '.task-metadata-link', function () {
+    gotoPage('#task-metadata-page', this.hash);
   });
 
 
@@ -1204,63 +1357,22 @@ $(document).on('mobileinit', function () {
    * or to create a new task.
    * Translation is applied after rendering the template.
    */
-  $(document).on('pagebeforeshow', '#task-detail-page', function () {
-    var task_id = parseHashParams(window.location.hash).task_id;
-    jioConnect().then(function (jio) {
-      Logger.debug('Loading Task Edit page');
-      var project_opt = {include_docs: true, sort_on: [['project', 'ascending']], query: '(type:"Project")'},
-        project_promise = docQuery(jio, project_opt),
-        task_promise = null,
-        state_opt = {include_docs: true, sort_on: [['state', 'ascending']], query: '(type:"State")'},
-        state_promise = docQuery(jio, state_opt),
-        dateinput_type = hasHTML5DatePicker() ? 'date' : 'text';
-
-      if (task_id) {
-        task_promise = jio.get({_id: task_id});
-        Logger.debug('Retrieving task %s', task_id);
-      } else {
-        task_promise = new RSVP.Promise(function (resolve) {
-          resolve({
-            data: {
-              title: 'New task',
-              start: moment().format('YYYY-MM-DD')
-            }
-          });
-        });
-      }
-
-      return RSVP.all([task_promise, project_promise, state_promise]).
-        then(function (response_list) {
-          var task_resp = response_list[0],
-            project_list = response_list[1],
-            state_list = response_list[2],
-            attachments = task_resp.data._attachments || [];
-
-          Logger.info(task_id);
-
-          $('#task-detail-container').
-            html(template['task-detail']({
-              task: task_resp.data,
-              attachments: attachments,
-              project_list: project_list,
-              state_list: state_list,
-              dateinput_type: dateinput_type
-            })).
-            trigger('create');
-
-          jqmSetSelected('#task-project', task_resp.data.project);
-          jqmSetSelected('#task-state', task_resp.data.state);
-          applyTranslation();
-        });
-    }).fail(displayError);
+  $(document).on('pagebeforeshow', '#task-metadata-page', function () {
+    updateMetadataForm();
   });
 
 
-  /**
-   * Fullscreen toggle for complex widgets
-   */
-  $(document).on('click', '.fullscreen-toggle', function () {
-    $('#task-description iframe').toggleClass('fullscreen');
+  $(document).on('click', '#task-metadata-popup-trigger', function () {
+    updateMetadataForm();
+    $('#task-metadata-popup').popup('open');
+  });
+
+
+  $(document).on('click', '#metadata-save', function () {
+    saveMetadata().
+      then(function () {
+        $('#task-metadata-popup').popup('close');
+      });
   });
 
 
@@ -1269,44 +1381,16 @@ $(document).on('mobileinit', function () {
    * a new task in the storage.
    */
   $(document).on('click', '#task-save', function () {
-    jioConnect().then(function (jio) {
-      var id = $('#task-id').val(),
-        title = $('#task-title').val(),
-        start = $('#task-start').val(),
-        stop = $('#task-stop').val(),
-        project = $('#task-project').val(),
-        state = $('#task-state').val(),
-        description = $('#task-description').val(),
-        metadata = {},
-        update_prom = null;
-
-      // XXX validate input
-
-      metadata = {
-        type: 'Task',
-        title: title,
-        start: start,
-        stop: stop,
-        project: project,
-        state: state,
-        description: description,
-        modified: new Date()
-      };
-
-      if (id) {
-        metadata._id = id;
-        update_prom = jio.put(metadata);
-      } else {
-        update_prom = jio.post(metadata);
-      }
-
-      return update_prom.
-        then(function (response) {
-          Logger.debug('Updated task %o:', response.id);
-          Logger.debug('  status %s (%s)', response.status, response.statusText);
-          parent.history.back();
-        });
-    }).fail(displayError);
+    saveMetadata().
+      then(function (task_id) {
+        if (ATTACHMENT_MODE === 'single') {
+          gotoPage('#task-attachment-page',
+                   { task_id: task_id,
+                     attachment_name: SINGLE_ATTACHMENT_NAME});
+          return;
+        }
+        parent.history.back();
+      });
   });
 
 
@@ -1314,19 +1398,41 @@ $(document).on('mobileinit', function () {
    * Delete the currently open task from the storage.
    */
   $(document).on('click', '#task-delete', function () {
-    jioConnect().then(function (jio) {
-      var id = $('#task-id').val();
+    var task_id = parseHashParams(window.location.hash).task_id;
 
-      return jio.remove({_id: id}).
-        then(function (response) {
-          Logger.debug('Deleted task %o:', response.id);
-          Logger.debug('  status %s', response.status);
-          parent.history.back();
-          // XXX explicit redirect
-        });
+    jioConnect().then(function (jio) {
+      return jio.remove({_id: task_id});
+    }).then(function (response) {
+      Logger.debug('Deleted task %o:', response.id);
+      Logger.debug('  status %s', response.status);
+      parent.history.back();
     }).fail(displayError);
   });
 
+
+  /**
+   * Delete the currently open attachment.
+   */
+  $(document).on('click', '#attachment-delete', function () {
+    var args = parseHashParams(window.location.hash),
+      task_id = args.task_id,
+      attachment_name = args.attachment_name;
+
+    jioConnect().then(function (jio) {
+      return jio.removeAttachment({_id: task_id,
+                                   _attachment: attachment_name});
+    }).then(function (response) {
+      Logger.debug('Deleted attachment %s/%s:', response.id, response.attachment);
+      Logger.debug('  status %s', response.status);
+      parent.history.back();
+    }).fail(function (response) {
+      if (response.status === 404) {
+        parent.history.back();
+        return;
+      }
+      throw response;
+    }).fail(displayError);
+  });
 
 
   /**
@@ -1344,8 +1450,9 @@ $(document).on('mobileinit', function () {
 
     // XXX check for duplicate names
 
-    $('#task-attachment-page').jqmData('url', '#task-attachment-page?task_id=' + task_id + '&attachment_name=' + window.encodeURIComponent(attachment_name));
-    $.mobile.changePage('#task-attachment-page');
+    gotoPage('#task-attachment-page',
+             { task_id: task_id,
+               attachment_name: attachment_name});
   });
 
 
@@ -1353,8 +1460,7 @@ $(document).on('mobileinit', function () {
    * Redirects to the document edit page (for existing attachments).
    */
   $(document).on('click', '.task-edit-attachment-link', function () {
-    $('#task-attachment-page').jqmData('url', this.hash);
-    $.mobile.changePage('#task-attachment-page');
+    gotoPage('#task-attachment-page', this.hash);
   });
 
 
@@ -1435,6 +1541,15 @@ $(document).on('mobileinit', function () {
   });
 
 
+  /**
+   * When a storage is selected, force the next jioConnect() call
+   * to use its configuration.
+   */
+  $(document).on('change', '#storage-select', function () {
+    setSelectedStorage($(this).val());
+    updateSettingsForm();
+  });
+
 
   /**
    * Redirects to the details page for the selected storage.
@@ -1444,8 +1559,7 @@ $(document).on('mobileinit', function () {
    */
   $(document).on('click', '#storage-config', function () {
     var storage_id = $('#storage-select').val();
-    $('#storage-config-page').jqmData('url', '#storage-config-page?storage_id=' + storage_id);
-    $.mobile.changePage('#storage-config-page');
+    gotoPage('#storage-config-page', {storage_id: storage_id});
   });
 
 
@@ -1457,8 +1571,6 @@ $(document).on('mobileinit', function () {
   $(document).on('pagebeforeshow', '#storage-config-page', function () {
     var storage_id = parseHashParams(window.location.hash).storage_id;
     jioConfigConnect().then(function (jio_config) {
-      Logger.debug('Loading Storage Edit page:', storage_id);
-
       return storageConfig(jio_config, storage_id).
         then(function (config) {
           $('#storage-config-container').
@@ -1530,7 +1642,7 @@ $(document).on('mobileinit', function () {
           Logger.debug('Updated storage %s', response.id);
           Logger.debug('  status %s (%s)', response.status, response.statusText);
           setSelectedStorage(response.id);
-          $.mobile.changePage('#settings-page');
+          gotoPage('#settings-page');
         });
     }).fail(displayError);
   });
@@ -1550,7 +1662,7 @@ $(document).on('mobileinit', function () {
           Logger.debug('Deleted storage %o:', response.id);
           Logger.debug('  status %s', response.status);
           setSelectedStorage(default_storage_id);
-          $.mobile.changePage('#settings-page');
+          gotoPage('#settings-page');
         });
     }).fail(displayError);
   });
@@ -1863,7 +1975,6 @@ $(document).on('mobileinit', function () {
    * Application starts here *
    *                         *
    ***************************/
-
 
   if (!getSelectedStorage()) {
     setSelectedStorage(default_storage_id);

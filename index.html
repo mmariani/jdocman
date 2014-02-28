@@ -16,6 +16,38 @@
 
 
     <!--
+    Task Link partial, used in task listviews
+    -->
+
+    <script id="task-link-partial" type="text/x-handlebars-template">
+      <a data-role="button"
+        {{#ATTACHMENT_MODE_SINGLE}}
+        href="#task-attachment-page?task_id={{this.id}}&attachment_name={{SINGLE_ATTACHMENT_NAME}}" class="task-edit-attachment-link"
+        {{else}}
+        href="#task-metadata-page?task_id={{this.id}}" class="task-metadata-link"
+        {{/ATTACHMENT_MODE_SINGLE}}
+        >
+        {{this.doc.title}}
+        <p class="description">{{sanitize this.doc.description 100}}</p>
+        <p>
+          <span class="state">{{t this.doc.state}}</span>
+          {{t "tasks.from"}}
+          <span class="from-date">{{asYMD this.doc.start}}</span>
+          {{t "tasks.to"}}
+          <span class="to-date">{{asYMD this.doc.stop}}</span>
+        </p>
+        {{#ATTACHMENT_MODE_MULTIPLE}}
+        {{#if this.doc._attachments}}
+        <p>
+          attachments: {{#each this.doc._attachments}}<span class="attachment">{{@key}}</span>{{/each}}
+        </p>
+        {{/if}}
+        {{/ATTACHMENT_MODE_MULTIPLE}}
+      </a>
+    </script>
+
+
+    <!--
     Task List Page
     -->
 
@@ -33,7 +65,7 @@
         <h2 data-i18n="header.tasks">
           Tasks
         </h2>
-        <a href="#task-detail-page" data-role="button" data-icon="plus"
+        <a href="#task-metadata-page" data-role="button" data-icon="plus"
            class="ui-btn-right"
            data-mini="true"
            data-i18n="tasks.newtask">
@@ -57,24 +89,7 @@
         <ul data-role="listview" data-inset="true" class="task-listview">
           {{#if rows}}
           {{#rows}}
-            <li>
-              <a href="#task-detail-page?task_id={{this.id}}" class="task-detail-link">
-                {{this.doc.title}}
-                <p class="description">{{sanitize this.doc.description 100}}</p>
-                <p>
-                  <span class="state">{{t this.doc.state}}</span>
-                  {{t "tasks.from"}}
-                  <span class="from-date">{{asYMD this.doc.start}}</span>
-                  {{t "tasks.to"}}
-                  <span class="to-date">{{asYMD this.doc.stop}}</span>
-                </p>
-                {{#if this.doc._attachments}}
-                <p>
-                  documents: {{#each this.doc._attachments}}<span class="attachment">{{@key}}</span>{{/each}}
-                </p>
-                {{/if}}
-              </a>
-            </li>
+            <li>{{> task-link}}</li>
           {{/rows}}
           {{else}}
             <li>
@@ -110,7 +125,6 @@
       <div class="footer-container"></div>
 
       <script id="project-list-template" type="text/x-handlebars-template">
-
         {{#if project_count}}
         <div data-role="collapsible-set">
           {{#each task_map}}
@@ -119,19 +133,7 @@
             {{#if this.task_count}}
             <ul data-role="listview" class="task-listview">
               {{#each this.tasks}}
-              <li>
-                <a href="#task-detail-page?task_id={{this._id}}" class="task-detail-link">
-                  {{title}}
-                  <p>{{sanitize description 100}}</p>
-                  <p>
-                    <span class="state">{{t state}}</span>
-                    {{t "tasks.from"}}
-                    <span class="from-date">{{asYMD start}}</span>
-                    {{t "tasks.to"}}
-                    <span class="to-date">{{asYMD stop}}</span>
-                  </p>
-                </a>
-              </li>
+              <li>{{> task-link}}</li>
               {{/each}}
             </ul>
             {{/if}}
@@ -141,7 +143,6 @@
         {{else}}
         <p>There are no projects yet.</p>
         {{/if}}
-
       </script>
     </section><!-- /project-list-page -->
 
@@ -150,136 +151,102 @@
     Task Detail Page
     -->
 
-    <section data-role="page" id="task-detail-page">
+    <section data-role="page" id="task-metadata-page">
+      <div data-role="content">
+        <div class="task-metadata-container"></div>
+      </div><!-- /content -->
 
-      <header data-role="header">
+      <footer data-role="footer" data-position="fixed">
         <a href="#" data-role="button" data-rel="back"
           data-icon="arrow-l" data-mini="true"
           data-i18n="header.back">
           Back
         </a>
-        <h2 data-i18n="header.details">
-          Details
-        </h2>
-      </header>
+        <a href="#" data-role="button"
+          id="task-save"
+          data-icon="check"
+          data-mini="true"
+          data-inline="true">
+          Save data
+        </a>
+        <a href="#" data-role="button"
+          id="task-delete"
+          class="ui-btn-right"
+          data-icon="delete"
+          data-mini="true"
+          data-i18n="details.delete">
+          Delete
+        </a>
+      </footer>
 
-      <div data-role="content">
-        <div id="task-detail-container"></div>
-      </div><!-- /content -->
-
-      <div class="footer-container"></div>
-
-      <script id="task-detail-template" type="text/x-handlebars-template">
+      <script id="task-metadata-template" type="text/x-handlebars-template">
         <form action="javascript:void(0);">
-          <input type="hidden" id="task-id" value="{{task._id}}" />
+          <label>
+            <span data-i18n="details.title">Title:</span>
+            <input type="text" name="title" id="task-title" value="{{task.title}}" data-mini="true" />
+          </label>
 
-          <div data-role="fieldcontain">
-            <label for="task-title" data-i18n="details.title">
-              Title:
-            </label>
-            <input type="text" name="title" id="task-title" value="{{task.title}}" />
-          </div>
+          <label>
+            <span data-i18n="details.start">Begin date:</span>
+            <input type="{{dateinput_type}}" name="start" data-role="date" data-mini="true" data-inline="true" value="{{asYMD task.start}}" />
+          </label>
 
-          <div data-role="fieldcontain">
-            <label for="task-start" data-i18n="details.start">
-              Begin date:
-            </label>
-            <input type="{{dateinput_type}}" name="start" id="task-start" data-role="date" value="{{asYMD task.start}}" />
-          </div>
+          <label>
+            <span data-i18n="details.stop">End date:</span>
+            <input type="{{dateinput_type}}" name="stop" data-role="date" data-mini="true" data-inline="true" value="{{asYMD task.stop}}" />
+          </label>
 
-          <div data-role="fieldcontain">
-            <label for="task-stop" data-i18n="details.stop">
-              End date:
-            </label>
-            <input type="{{dateinput_type}}" name="stop" id="task-stop" data-role="date" value="{{asYMD task.stop}}" />
-          </div>
-
-          <div data-role="fieldcontain">
-            <label for="task-project" class="select"
-                  data-i18n="details.project">
-              Project:
-            </label>
-            <select name="project-select" id="task-project" data-role="select">
+          <label>
+            <span data-i18n="details.project">Project:</span>
+            <select name="project" data-role="select" data-inline="true" data-mini="true">
               <option value="">--</option>
               {{#project_list}}
-              <option value="{{this.project}}">{{this.project}}</option>
+              <option value="{{this.doc.project}}">{{this.doc.project}}</option>
               {{/project_list}}
             </select>
-          </div>
+          </label>
 
-          <div data-role="fieldcontain">
-            <label for="task-state" class="select"
-                  data-i18n="details.state">
-              State:
-            </label>
-            <select name="state-select" id="task-state" data-role="select">
+          <label>
+            <span data-i18n="details.state">State:</span>
+            <select name="state" data-role="select" data-inline="true" data-mini="true">
               <option value="">--</option>
               {{#state_list}}
-              <option value="{{this.state}}">{{t this.state}}</option>
+              <option value="{{this.doc.state}}">{{t this.doc.state}}</option>
               {{/state_list}}
             </select>
-          </div>
+          </label>
 
-          <div data-role="fieldcontain">
-            <label for="task-description" data-i18n="details.description">
-                Description:
-            </label>
-            <textarea name="description" id="task-description">{{task.description}}</textarea>
-          </div>
+          <label for="task-description">
+            <span data-i18n="details.description">Description:</span>
+            <textarea name="description">{{task.description}}</textarea>
+          </label>
 
-          <div data-role="fieldcontain">
-            {{#if task._id}}
-            <a href="#" data-role="button"
-              id="task-delete"
-              data-icon="delete"
-              data-mini="true"
-              data-inline="true"
-              data-i18n="details.delete">
-              Delete
-            </a>
-            {{else}}
-            <a href="#task-list-page" data-role="button"
-              data-rel="back"
-              data-mini="true"
-              data-inline="true"
-              data-i18n="details.cancel">
-              Cancel
-            </a>
-            {{/if}}
-            <a href="#" data-role="button"
-              id="task-save"
-              data-icon="check"
-              data-mini="true"
-              data-inline="true"
-              data-i18n="details.save">
-              Save
-            </a>
-          </div>
-
-          {{#if task._id}}
+          {{#ATTACHMENT_MODE_MULTIPLE}}
+          {{#if task_id}}
           <ul data-role="listview" data-inset="true">
             {{#if attachments}}
             {{#each attachments}}
               <li>
-                <a href="#task-attachment-page?task_id={{../task._id}}&attachment_name={{encode @key}}" class="task-edit-attachment-link">
+                <a href="#task-attachment-page?task_id={{../task_id}}&attachment_name={{encode @key}}" class="task-edit-attachment-link">
                   {{@key}}
                 </a>
               </li>
             {{/each}}
             {{else}}
               <li>
-              <h3>No documents.</h3>
+              <h3>No attachments.</h3>
               </li>
             {{/if}}
           </ul>
 
           <a href="#" id="task-add-attachment" data-role="button" data-icon="plus" data-mini="true" data-inline="true">
-            New Document
+            New attachment
           </a>
           {{/if}}
+          {{/ATTACHMENT_MODE_MULTIPLE}}
         </form>
       </script>
-    </section><!-- /task-detail-page -->
+    </section><!-- /task-metadata-page -->
 
 
     <!--
@@ -292,21 +259,58 @@
         <article id="attachment"></article>
       </div><!-- /content -->
 
-      <footer data-role="footer" data-position="fixed">
-        <fieldset data-role="controlgroup" data-mini="true" data-type="horizontal" data-inline="true">
+      <div class="footer-container"></div>
+
+      <script id="task-attachment-page-footer-template" type="text/x-handlebars-template">
+        <footer data-role="footer" data-position="fixed">
           <a href="#" data-role="button" data-rel="back"
-            data-mini="true"
-            data-i18n="details.cancel">
-            Cancel
+            data-icon="arrow-l" data-mini="true"
+            data-i18n="header.back">
+            Back
           </a>
           <a href="#" id="attachment-save" data-role="button"
             data-icon="check" data-mini="true">
-            Save
+            Save document
           </a>
-        </fieldset>
-      </footer>
+          <a data-role="button"
+            id="task-metadata-popup-trigger"
+            data-mini="true">
+            Metadata
+          </a>
+          <a href="#" data-role="button" class="ui-btn-right"
+            {{#ATTACHMENT_MODE_SINGLE}}
+            id="task-delete"
+            {{else}}
+            id="attachment-delete"
+            {{/ATTACHMENT_MODE_SINGLE}}
+            data-icon="delete"
+            data-mini="true"
+            data-i18n="details.delete">
+            Delete
+          </a>
+        </footer>
+      </script><!-- /task-attachment-page-footer -->
+
+      <article data-role="popup" id="task-metadata-popup" data-dismissible="false">
+        <div data-role="content">
+          <div class="task-metadata-container"></div>
+        </div><!-- /content -->
+
+        <a href="#" data-mini="true" data-role="button" data-inline="true" data-rel="back">
+          Cancel
+        </a>
+        <a href="#" data-role="button"
+          id="metadata-save"
+          data-icon="check"
+          data-inline="true"
+          data-mini="true"
+          data-i18n="details.save">
+          Save
+        </a>
+      </article>
 
     </section>
+
 
 
     <!--
@@ -353,7 +357,7 @@
             Storage:
             <select id="storage-select" data-role="select" data-mini="true" data-inline="true">
               {{#storage_list}}
-              <option value="{{this.doc._id}}">{{this.config.application_name}} ({{this.config.storage_type}})</option>
+              <option value="{{this.id}}">{{this.config.application_name}} ({{this.config.storage_type}})</option>
               {{/storage_list}}
             </select>
           </label>
@@ -367,17 +371,13 @@
           {{#if error_message}}
             <h3>Cannot connect to the storage</h3>
             <p>
-              {{#if error_message}}
               {{error_message}}
-              {{else}}
-              Please check the configuration
-              {{/if}}
-              </p>
+            </p>
           {{else}}
           <fieldset data-role="controlgroup" data-mini="true">
             <legend data-i18n="settings.states">States:</legend>
             {{#state_list}}
-            <label data-i18n="{{this.state}}"><input type="radio" name="state-radio" data-jio-state="{{this.state}}" data-jio-id="{{this._id}}" />{{t this.state}}</label>
+            <label data-i18n="{{this.doc.state}}"><input type="radio" name="state-radio" data-jio-state="{{this.doc.state}}" data-jio-id="{{this.id}}" />{{t this.doc.state}}</label>
             {{/state_list}}
           </fieldset>
           <fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
@@ -390,7 +390,7 @@
           <fieldset data-role="controlgroup" data-mini="true">
             <legend data-i18n="settings.projects">Projects:</legend>
             {{#project_list}}
-            <label data-i18n="{{this.project}}"><input type="radio" name="project-radio" data-jio-project="{{this.project}}" data-jio-id="{{this._id}}" />{{this.project}}</label>
+            <label data-i18n="{{this.doc.project}}"><input type="radio" name="project-radio" data-jio-project="{{this.doc.project}}" data-jio-id="{{this.id}}" />{{this.doc.project}}</label>
             {{/project_list}}
           </fieldset>
           <fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
@@ -546,13 +546,13 @@
           </div>
 
           <div data-role="fieldcontain">
-
             {{#if id}}
             {{#ifCond id '!==' default_storage_id}}
             <a href="#" data-role="button"
               id="storage-delete"
               data-icon="delete"
               data-inline="true"
+              data-mini="true"
               data-i18n="details.delete">
               Delete
             </a>
@@ -562,6 +562,7 @@
             <a href="#storage-config-page" data-role="button"
               data-rel="back"
               data-inline="true"
+              data-mini="true"
               data-i18n="details.cancel">
               Cancel
             </a>
@@ -570,6 +571,7 @@
               id="storage-save"
               data-icon="check"
               data-inline="true"
+              data-mini="true"
               data-i18n="details.save">
               Save
             </a>
@@ -641,9 +643,6 @@
             </li>
           </ul>
         </div>
-        {{#if toggle_fullscreen}}
-        <a href="#" data-icon="arrows-alt" class="fullscreen-toggle">Fullscreen</a>
-        {{/if}}
       </footer>
     </script><!-- /footer-template -->
 
