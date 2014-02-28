@@ -24,7 +24,7 @@
         {{#ATTACHMENT_SINGLE}}
         href="#task-attachment-page?task_id={{this.id}}&attachment_name={{SINGLE_ATTACHMENT_NAME}}" class="task-edit-attachment-link"
         {{else}}
-        href="#task-detail-page?task_id={{this.id}}" class="task-detail-link"
+        href="#task-metadata-page?task_id={{this.id}}" class="task-metadata-link"
         {{/ATTACHMENT_SINGLE}}
         >
         {{this.doc.title}}
@@ -65,7 +65,7 @@
         <h2 data-i18n="header.tasks">
           Tasks
         </h2>
-        <a href="#task-detail-page" data-role="button" data-icon="plus"
+        <a href="#task-metadata-page" data-role="button" data-icon="plus"
            class="ui-btn-right"
            data-mini="true"
            data-i18n="tasks.newtask">
@@ -151,9 +151,9 @@
     Task Detail Page
     -->
 
-    <section data-role="page" id="task-detail-page">
+    <section data-role="page" id="task-metadata-page">
       <div data-role="content">
-        <div id="task-detail-container"></div>
+        <div class="task-metadata-container"></div>
       </div><!-- /content -->
 
       <footer data-role="footer" data-position="fixed">
@@ -179,63 +179,47 @@
         </a>
       </footer>
 
-      <script id="task-detail-template" type="text/x-handlebars-template">
+      <script id="task-metadata-template" type="text/x-handlebars-template">
         <form action="javascript:void(0);">
-          <input type="hidden" id="task-id" value="{{task._id}}" />
+          <label>
+            <span data-i18n="details.title">Title:</span>
+            <input type="text" name="title" id="task-title" value="{{task.title}}" data-mini="true" />
+          </label>
 
-          <div data-role="fieldcontain">
-            <label for="task-title" data-i18n="details.title">
-              Title:
-            </label>
-            <input type="text" name="title" id="task-title" value="{{task.title}}" />
-          </div>
+          <label>
+            <span data-i18n="details.start">Begin date:</span>
+            <input type="{{dateinput_type}}" name="start" data-role="date" data-mini="true" data-inline="true" value="{{asYMD task.start}}" />
+          </label>
 
-          <div data-role="fieldcontain">
-            <label for="task-start" data-i18n="details.start">
-              Begin date:
-            </label>
-            <input type="{{dateinput_type}}" name="start" id="task-start" data-role="date" value="{{asYMD task.start}}" />
-          </div>
+          <label>
+            <span data-i18n="details.stop">End date:</span>
+            <input type="{{dateinput_type}}" name="stop" data-role="date" data-mini="true" data-inline="true" value="{{asYMD task.stop}}" />
+          </label>
 
-          <div data-role="fieldcontain">
-            <label for="task-stop" data-i18n="details.stop">
-              End date:
-            </label>
-            <input type="{{dateinput_type}}" name="stop" id="task-stop" data-role="date" value="{{asYMD task.stop}}" />
-          </div>
-
-          <div data-role="fieldcontain">
-            <label for="task-project" class="select"
-                  data-i18n="details.project">
-              Project:
-            </label>
-            <select name="project-select" id="task-project" data-role="select">
+          <label>
+            <span data-i18n="details.project">Project:</span>
+            <select name="project" data-role="select" data-inline="true" data-mini="true">
               <option value="">--</option>
               {{#project_list}}
               <option value="{{this.project}}">{{this.project}}</option>
               {{/project_list}}
             </select>
-          </div>
+          </label>
 
-          <div data-role="fieldcontain">
-            <label for="task-state" class="select"
-                  data-i18n="details.state">
-              State:
-            </label>
-            <select name="state-select" id="task-state" data-role="select">
+          <label>
+            <span data-i18n="details.state">State:</span>
+            <select name="state" data-role="select" data-inline="true" data-mini="true">
               <option value="">--</option>
               {{#state_list}}
               <option value="{{this.state}}">{{t this.state}}</option>
               {{/state_list}}
             </select>
-          </div>
+          </label>
 
-          <div data-role="fieldcontain">
-            <label for="task-description" data-i18n="details.description">
-                Description:
-            </label>
-            <textarea name="description" id="task-description">{{task.description}}</textarea>
-          </div>
+          <label for="task-description">
+            <span data-i18n="details.description">Description:</span>
+            <textarea name="description">{{task.description}}</textarea>
+          </label>
 
           {{#ATTACHMENT_MULTIPLE}}
           {{#if task._id}}
@@ -262,7 +246,7 @@
           {{/ATTACHMENT_MULTIPLE}}
         </form>
       </script>
-    </section><!-- /task-detail-page -->
+    </section><!-- /task-metadata-page -->
 
 
     <!--
@@ -288,7 +272,8 @@
             data-icon="check" data-mini="true">
             Save document
           </a>
-          <a href="#" id="attachment-metadata" data-role="button"
+          <a data-role="button"
+            id="task-metadata-popup-trigger"
             data-mini="true">
             Metadata
           </a>
@@ -306,7 +291,26 @@
         </footer>
       </script><!-- /task-attachment-page-footer -->
 
+      <article data-role="popup" id="task-metadata-popup" data-dismissible="false">
+        <div data-role="content">
+          <div class="task-metadata-container"></div>
+        </div><!-- /content -->
+
+        <a href="#" data-mini="true" data-role="button" data-inline="true" data-rel="back">
+          Cancel
+        </a>
+        <a href="#" data-role="button"
+          id="metadata-save"
+          data-icon="check"
+          data-inline="true"
+          data-mini="true"
+          data-i18n="details.save">
+          Save
+        </a>
+      </article>
+
     </section>
+
 
 
     <!--
@@ -353,7 +357,7 @@
             Storage:
             <select id="storage-select" data-role="select" data-mini="true" data-inline="true">
               {{#storage_list}}
-              <option value="{{this.doc._id}}">{{this.config.application_name}} ({{this.config.storage_type}})</option>
+              <option value="{{this.id}}">{{this.config.application_name}} ({{this.config.storage_type}})</option>
               {{/storage_list}}
             </select>
           </label>
@@ -373,7 +377,7 @@
           <fieldset data-role="controlgroup" data-mini="true">
             <legend data-i18n="settings.states">States:</legend>
             {{#state_list}}
-            <label data-i18n="{{this.state}}"><input type="radio" name="state-radio" data-jio-state="{{this.state}}" data-jio-id="{{this._id}}" />{{t this.state}}</label>
+            <label data-i18n="{{this.doc.state}}"><input type="radio" name="state-radio" data-jio-state="{{this.doc.state}}" data-jio-id="{{this.id}}" />{{t this.doc.state}}</label>
             {{/state_list}}
           </fieldset>
           <fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
@@ -386,7 +390,7 @@
           <fieldset data-role="controlgroup" data-mini="true">
             <legend data-i18n="settings.projects">Projects:</legend>
             {{#project_list}}
-            <label data-i18n="{{this.project}}"><input type="radio" name="project-radio" data-jio-project="{{this.project}}" data-jio-id="{{this._id}}" />{{this.project}}</label>
+            <label data-i18n="{{this.doc.project}}"><input type="radio" name="project-radio" data-jio-project="{{this.doc.project}}" data-jio-id="{{this.id}}" />{{this.doc.project}}</label>
             {{/project_list}}
           </fieldset>
           <fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">

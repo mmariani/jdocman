@@ -4,7 +4,7 @@
 $(document).on('mobileinit', function () {
   "use strict";
 
-  var ATTACHMENT = 'none',   // 'none', 'single', 'multiple'
+  var ATTACHMENT = 'single',   // 'none', 'single', 'multiple'
     SINGLE_ATTACHMENT_NAME = 'content',
     template = {
       // precompile for speed
@@ -14,7 +14,7 @@ $(document).on('mobileinit', function () {
       'footer': Handlebars.compile($('#footer-template').text()),
       'task-attachment-page-footer': Handlebars.compile($('#task-attachment-page-footer-template').text()),
       'project-list': Handlebars.compile($('#project-list-template').text()),
-      'task-detail': Handlebars.compile($('#task-detail-template').text()),
+      'task-metadata': Handlebars.compile($('#task-metadata-template').text()),
       'storage-config': Handlebars.compile($('#storage-config-template').text())
     };
 
@@ -22,6 +22,17 @@ $(document).on('mobileinit', function () {
 
   // DEBUG for development, WARN for production
   Logger.setLevel(Logger.DEBUG);
+
+  // Debug attachment support
+  if (window.location.hash === '#attachment-none') {
+    ATTACHMENT = 'none';
+  }
+  if (window.location.hash === '#attachment-single') {
+    ATTACHMENT = 'single';
+  }
+  if (window.location.hash === '#attachment-multiple') {
+    ATTACHMENT = 'multiple';
+  }
 
 
   /**
@@ -785,8 +796,8 @@ $(document).on('mobileinit', function () {
 
         if (jio) {
           return RSVP.all([
-            docQuery(jio, project_opt),
-            docQuery(jio, state_opt),
+            jio.allDocs(project_opt),
+            jio.allDocs(state_opt),
           ]);
         }
       }).
@@ -803,8 +814,8 @@ $(document).on('mobileinit', function () {
             connection_ok: project_list !== null && state_list !== null,
             error_message: error_message,
             storage_list: _storage_list,
-            project_list: project_list,
-            state_list: state_list
+            project_list: project_list.data.rows,
+            state_list: state_list.data.rows
           })).
           trigger('create');
 
@@ -953,6 +964,65 @@ $(document).on('mobileinit', function () {
   }
 
 
+  /**
+   * Update the metadata form to edit project/state list.
+   * Works either in a full page or a popup.
+   */
+  function updateMetadataForm() {
+    var task_id = parseHashParams(window.location.hash).task_id;
+
+    jioConnect().then(function (jio) {
+      var project_opt = {include_docs: true, sort_on: [['project', 'ascending']], query: '(type:"Project")'},
+        project_promise = docQuery(jio, project_opt),
+        task_promise = null,
+        state_opt = {include_docs: true, sort_on: [['state', 'ascending']], query: '(type:"State")'},
+        state_promise = docQuery(jio, state_opt),
+        dateinput_type = hasHTML5DatePicker() ? 'date' : 'text';
+
+      if (task_id) {
+        task_promise = jio.get({_id: task_id});
+      } else {
+        task_promise = new RSVP.Promise(function (resolve) {
+          resolve({
+            data: {
+              title: 'New task',
+              start: moment().format('YYYY-MM-DD')
+            }
+          });
+        });
+      }
+
+      return RSVP.all([task_promise, project_promise, state_promise]).
+        then(function (response_list) {
+          var task_resp = response_list[0],
+            project_list = response_list[1],
+            state_list = response_list[2],
+            attachments = task_resp.data._attachments || [],
+            page = $.mobile.activePage;
+
+          Logger.info(task_id);
+
+          page.find('.task-metadata-container').
+            html(template['task-metadata']({
+              task: task_resp.data,
+              attachments: attachments,
+              project_list: project_list,
+              state_list: state_list,
+              dateinput_type: dateinput_type
+            })).
+            trigger('create');
+
+          jqmSetSelected(page.find('[name=project]'), task_resp.data.project);
+          jqmSetSelected(page.find('[name=state]'), task_resp.data.state);
+          applyTranslation();
+        });
+    }).fail(displayError);
+  }
+
+
+
+
+
 
   /***********************************
    *                                 *
@@ -1051,7 +1121,7 @@ $(document).on('mobileinit', function () {
    * Make translations accessible from within Handlebars templates
    */
   Handlebars.registerHelper('t', function (i18n_key) {
-    return new Handlebars.SafeString(i18n.t(i18n_key));
+    return i18n_key ? new Handlebars.SafeString(i18n.t(i18n_key)) : '';
   });
 
 
@@ -1245,8 +1315,8 @@ $(document).on('mobileinit', function () {
    * with the appcache) we temporarily change the url of
    * the target page. It will be restored during the pageshow event.
    */
-  $(document).on('click', '.task-detail-link', function () {
-    gotoPage('#task-detail-page', this.hash);
+  $(document).on('click', '.task-metadata-link', function () {
+    gotoPage('#task-metadata-page', this.hash);
   });
 
 
@@ -1255,69 +1325,28 @@ $(document).on('mobileinit', function () {
    * or to create a new task.
    * Translation is applied after rendering the template.
    */
-  $(document).on('pagebeforeshow', '#task-detail-page', function () {
-    var task_id = parseHashParams(window.location.hash).task_id;
-    jioConnect().then(function (jio) {
-      var project_opt = {include_docs: true, sort_on: [['project', 'ascending']], query: '(type:"Project")'},
-        project_promise = docQuery(jio, project_opt),
-        task_promise = null,
-        state_opt = {include_docs: true, sort_on: [['state', 'ascending']], query: '(type:"State")'},
-        state_promise = docQuery(jio, state_opt),
-        dateinput_type = hasHTML5DatePicker() ? 'date' : 'text';
-
-      if (task_id) {
-        task_promise = jio.get({_id: task_id});
-      } else {
-        task_promise = new RSVP.Promise(function (resolve) {
-          resolve({
-            data: {
-              title: 'New task',
-              start: moment().format('YYYY-MM-DD')
-            }
-          });
-        });
-      }
-
-      return RSVP.all([task_promise, project_promise, state_promise]).
-        then(function (response_list) {
-          var task_resp = response_list[0],
-            project_list = response_list[1],
-            state_list = response_list[2],
-            attachments = task_resp.data._attachments || [];
-
-          Logger.info(task_id);
-
-          $('#task-detail-container').
-            html(template['task-detail']({
-              task: task_resp.data,
-              attachments: attachments,
-              project_list: project_list,
-              state_list: state_list,
-              dateinput_type: dateinput_type
-            })).
-            trigger('create');
-
-          jqmSetSelected('#task-project', task_resp.data.project);
-          jqmSetSelected('#task-state', task_resp.data.state);
-          applyTranslation();
-        });
-    }).fail(displayError);
+  $(document).on('pagebeforeshow', '#task-metadata-page', function () {
+    updateMetadataForm();
   });
 
 
-  /**
-   * Apply changes to the edited task, or create
-   * a new task in the storage.
-   */
-  $(document).on('click', '#task-save', function () {
-    jioConnect().then(function (jio) {
-      var id = $('#task-id').val(),   // XXX use hash ?
-        title = $('#task-title').val(),
-        start = $('#task-start').val(),
-        stop = $('#task-stop').val(),
-        project = $('#task-project').val(),
-        state = $('#task-state').val(),
-        description = $('#task-description').val(),
+
+  $(document).on('click', '#task-metadata-popup-trigger', function () {
+    updateMetadataForm();
+    $('#task-metadata-popup').popup('open');
+  });
+
+
+  function saveMetadata() {
+    return jioConnect().then(function (jio) {
+      var task_id = parseHashParams(window.location.hash).task_id,
+        page = $.mobile.activePage,
+        title = page.find('[name=title]').val(),
+        start = page.find('[name=start]').val(),
+        stop = page.find('[name=stop]').val(),
+        project = page.find('[name=project]').val(),
+        state = page.find('[name=state]').val(),
+        description = $('[name=description]').val(),
         metadata = {},
         update_prom = null;
 
@@ -1334,8 +1363,8 @@ $(document).on('mobileinit', function () {
         modified: new Date()
       };
 
-      if (id) {
-        metadata._id = id;
+      if (task_id) {
+        metadata._id = task_id;
         update_prom = jio.put(metadata);
       } else {
         update_prom = jio.post(metadata);
@@ -1345,9 +1374,35 @@ $(document).on('mobileinit', function () {
         then(function (response) {
           Logger.debug('Updated task %o:', response.id);
           Logger.debug('  status %s (%s)', response.status, response.statusText);
-          parent.history.back();
+          return RSVP.resolve(response.id);
         });
     }).fail(displayError);
+  }
+
+
+  $(document).on('click', '#metadata-save', function () {
+    saveMetadata().
+      then(function () {
+        $('#task-metadata-popup').popup('close');
+      });
+  });
+
+
+  /**
+   * Apply changes to the edited task, or create
+   * a new task in the storage.
+   */
+  $(document).on('click', '#task-save', function () {
+    saveMetadata().
+      then(function (task_id) {
+        if (ATTACHMENT === 'single') {
+          gotoPage('#task-attachment-page',
+                   { task_id: task_id,
+                     attachment_name: SINGLE_ATTACHMENT_NAME});
+          return;
+        }
+        parent.history.back();
+      });
   });
 
 

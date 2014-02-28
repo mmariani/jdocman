@@ -44,7 +44,17 @@
 }
 
 
- /*
+/*
+ * Fullscreen popup
+ */
+
+#task-metadata-popup {
+  position:fixed;
+  top:0px;
+}
+
+
+/*
  * Fix for disappearing textarea issue
  * (https://github.com/jquery/jquery-mobile/issues/6801)
  */
@@ -65,10 +75,9 @@ textarea {
 }
 
 
- /*
-  * For the renderJS gadgets, like text editor etc.
-  */
-
+/*
+ * For the renderJS gadgets, like text editor etc.
+ */
 
 #attachment iframe {
   position: fixed;
@@ -80,7 +89,6 @@ textarea {
   overflow-y: hidden;
   border: 0;
 }
-
 
 .attachment-content {
   padding: 0;
@@ -105,7 +113,6 @@ html .ui-body-a .ui-bar-inherit, html body .ui-group-theme-a .ui-bar-inherit {
 .ui-icon-delete:after {
   background-color: #cc0000 !important;
 }
-
 
 .ui-dialog-contain .ui-icon-delete:after {
   background-color: gray !important;
