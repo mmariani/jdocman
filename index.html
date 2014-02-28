@@ -151,20 +151,26 @@
 
     <script id="task-metadata-template" type="text/x-handlebars-template">
       <form action="javascript:void(0);">
-        <label>
-          <span data-i18n="details.title">Title:</span>
-          <input type="text" name="title" id="task-title" value="{{task.title}}" data-mini="true" />
-        </label>
+        <div class="ui-field-contain">
+          <label>
+            <span data-i18n="details.title">Title:</span>
+            <input type="text" name="title" value="{{task.title}}" data-mini="true" />
+          </label>
+        </div>
 
-        <label>
-          <span data-i18n="details.start">Begin date:</span>
-          <input type="{{dateinput_type}}" name="start" data-role="date" data-mini="true" data-inline="true" value="{{asYMD task.start}}" />
-        </label>
+        <div class="ui-field-contain">
+          <label>
+            <span data-i18n="details.start">Begin date:</span>
+            <input type="{{dateinput_type}}" name="start" data-role="date" data-mini="true" data-inline="true" value="{{asYMD task.start}}" />
+          </label>
+        </div>
 
-        <label>
-          <span data-i18n="details.stop">End date:</span>
-          <input type="{{dateinput_type}}" name="stop" data-role="date" data-mini="true" data-inline="true" value="{{asYMD task.stop}}" />
-        </label>
+        <div class="ui-field-contain">
+          <label>
+            <span data-i18n="details.stop">End date:</span>
+            <input type="{{dateinput_type}}" name="stop" data-role="date" data-mini="true" data-inline="true" value="{{asYMD task.stop}}" />
+          </label>
+        </div>
 
         <label>
           <span data-i18n="details.project">Project:</span>
@@ -204,7 +210,7 @@
           {{/each}}
           {{else}}
             <li>
-            <h3>No attachments.</h3>
+              <h3>No attachments.</h3>
             </li>
           {{/if}}
         </ul>
@@ -478,56 +484,61 @@
       <form action="javascript:void(0);">
         <input type="hidden" id="storage-id" value="{{id}}" />
 
-        <div data-role="fieldcontain">
-          <label for="storage-application_name" data-i18n="i18n.todo">
-            Name:
+        <div class="ui-field-contain">
+          <label>
+            <span data-i18n="i18n.todo">Name:</span>
+            <input type="text" name="application_name" value="{{config.application_name}}" data-mini="true" />
           </label>
-          <input type="text" name="application_name" id="storage-application_name" value="{{config.application_name}}" />
         </div>
 
-        <div data-role="fieldcontain">
-          <label for="storage-storage_type" data-i18n="i18n.todo">
-            Type:
+        <div class="ui-field-contain">
+          <label>
+            <span data-i18n="i18n.todo">Type:</span>
+            <input type="text" name="storage_type" value="{{config.storage_type}}" data-mini="true" />
           </label>
-          <input type="text" name="storage_type" id="storage-storage_type" value="{{config.storage_type}}" />
         </div>
 
-        <div data-role="fieldcontain">
-          <label for="storage-url" data-i18n="i18n.todo">
-            URL:
+        <div class="ui-field-contain">
+          <label>
+            <span data-i18n="i18n.todo">URL:</span>
+            <input type="text" name="url" value="{{config.url}}" data-mini="true" />
           </label>
-          <input type="text" name="url" id="storage-url" value="{{config.url}}" />
         </div>
 
-        <div data-role="fieldcontain">
-          <label for="storage-auth_type" data-i18n="i18n.todo">
-            Auth Type:
+        <div class="ui-field-contain">
+          <label>
+            <span data-i18n="i18n.todo">Auth Type:</span>
+            <input type="text" name="auth_type" value="{{config.auth_type}}" data-mini="true" />
           </label>
-          <input type="text" name="auth_type" id="storage-auth_type" value="{{config.auth_type}}" />
         </div>
 
-        <div data-role="fieldcontain">
-          <label for="storage-realm" data-i18n="i18n.todo">
-            Realm:
+        <div class="ui-field-contain">
+          <label>
+            <span data-i18n="i18n.todo">Realm:</span>
+            <input type="text" name="realm" value="{{config.realm}}" data-mini="true" />
           </label>
-          <input type="text" name="realm" id="storage-realm" value="{{config.realm}}" />
         </div>
 
-        <div data-role="fieldcontain">
-          <label for="storage-username" data-i18n="i18n.todo">
-            Username:
+        <div class="ui-field-contain">
+          <label>
+            <span data-i18n="i18n.todo">Username:</span>
+            <input type="text" name="username" value="{{config.username}}" data-mini="true" />
           </label>
-          <input type="text" name="username" id="storage-username" value="{{config.username}}" />
         </div>
 
-        <div data-role="fieldcontain">
-          <label for="storage-password" data-i18n="i18n.todo">
-            Password:
+        <div class="ui-field-contain">
+          <label>
+            <span data-i18n="i18n.todo">Password:</span>
+            <input type="text" name="password" value="{{config.password}}" data-mini="true" />
           </label>
-          <input type="text" name="password" id="storage-password" value="{{config.password}}" />
         </div>
 
-        <div data-role="fieldcontain">
+        <label>
+          <span>JSON Description (overrides previous parameters)</span>
+          <textarea name="json_description" data-mini="true">{{config.json_description}}</textarea>
+        </label>
+
+        <div class="ui-field-contain">
           {{#if id}}
           {{#ifCond id '!==' default_storage_id}}
           <a href="#" data-role="button"

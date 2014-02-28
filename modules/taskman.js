@@ -464,12 +464,8 @@ $(document).on('mobileinit', function () {
             password: ''
           }, {
             storage_type: 'local',
-            username: 'Admin',
-            application_name: 'Taskman-local 2',
-            url: '',
-            realm: '',
-            auth_type: '',
-            password: ''
+            application_name: 'Local 2',
+            json_description: '{"type":"local","username":"Admin","application_name":"Local"}'
           }
         ];
 
@@ -539,7 +535,7 @@ $(document).on('mobileinit', function () {
       }).
       then(function (config) {
         Logger.debug('Using storage:', config.application_name);
-        var storage_description = storageDescription(config);
+        var storage_description = config.json_description ? JSON.parse(config.json_description) : storageDescription(config);
         storage_description.key_schema = key_schema;
         _jio = jIO.createJIO(storage_description);
         return _jio;
@@ -1595,13 +1591,17 @@ $(document).on('mobileinit', function () {
   $(document).on('click', '#storage-save', function () {
     jioConfigConnect().then(function (jio_config) {
       var id = $('#storage-id').val(),
-        application_name = $('#storage-application_name').val(),
-        storage_type = $('#storage-storage_type').val(),
-        url = $('#storage-url').val(),
-        auth_type = $('#storage-auth_type').val(),
-        realm = $('#storage-realm').val(),
-        username = $('#storage-username').val(),
-        password = $('#storage-password').val(),
+        page = $.mobile.activePage,
+        application_name = page.find('[name=application_name]').val(),
+        storage_type = page.find('[name=storage_type]').val(),
+        url = page.find('[name=storage_url]').val(),
+        auth_type = page.find('[name=auth_type]').val(),
+        realm = page.find('[name=realm]').val(),
+        username = page.find('[name=username]').val(),
+        password = page.find('[name=password]').val(),
+        // something like
+        // {"type":"local","username":"Admin","application_name":"Local"}
+        json_description = page.find('[name=json_description]').val(),
         config = null,
         metadata = null,
         update_prom = null;
@@ -1615,7 +1615,8 @@ $(document).on('mobileinit', function () {
         auth_type: auth_type,
         realm: realm,
         username: username,
-        password: password
+        password: password,
+        json_description: json_description
       };
 
       metadata = {
