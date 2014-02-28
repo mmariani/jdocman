@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html manifest="manifest.appcache">
   <head>
-    <title>Task Manager</title>
     <link rel="shortcut icon" href="favicon.png" type="image/png"/>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1" />
@@ -44,7 +43,7 @@
         {{/if}}
         {{/ATTACHMENT_MODE_MULTIPLE}}
       </a>
-    </script>
+    </script><!-- /task-link-partial -->
 
 
     <!--
@@ -52,7 +51,6 @@
     -->
 
     <section data-role="page" id="task-list-page">
-
       <header data-role="header">
         <select id="task-sortby" data-role="select" data-mini="true">
           <option value="" data-i18n="tasks.sortby.#">Sort by</option>
@@ -73,32 +71,31 @@
         </a>
       </header>
 
-      <div data-role="content">
+      <article data-role="content">
         <input type="text" data-type="search" name="search" id="search-tasks"
                value="" class="ui-input-text"
                data-mini="true"
                placeholder="filter by title, state, date or project"
                data-i18n="[placeholder]tasks.placeholder" />
         <div id="task-list-container"></div>
-
-      </div><!-- /content -->
+      </article>
 
       <div class="footer-container"></div>
-
-      <script id="task-list-template" type="text/x-handlebars-template">
-        <ul data-role="listview" data-inset="true" class="task-listview">
-          {{#if rows}}
-          {{#rows}}
-            <li>{{> task-link}}</li>
-          {{/rows}}
-          {{else}}
-            <li>
-            <h3 data-i18n="tasks.noresult">No results found.</h3>
-            </li>
-          {{/if}}
-        </ul>
-      </script>
     </section><!-- /task-list-page -->
+
+    <script id="task-list-template" type="text/x-handlebars-template">
+      <ul data-role="listview" data-inset="true" class="task-listview">
+        {{#if rows}}
+        {{#rows}}
+          <li>{{> task-link}}</li>
+        {{/rows}}
+        {{else}}
+          <li>
+          <h3 data-i18n="tasks.noresult">No results found.</h3>
+          </li>
+        {{/if}}
+      </ul>
+    </script><!-- /task-list-template -->
 
 
     <!--
@@ -106,7 +103,6 @@
     -->
 
     <section data-role="page" id="project-list-page">
-
       <header data-role="header">
         <a href="#" data-role="button" data-rel="back"
           data-icon="arrow-l" data-mini="true"
@@ -118,44 +114,110 @@
         </h2>
       </header>
 
-      <div data-role="content">
-        <div id="project-list-container"></div>
-      </div><!-- /content -->
-
+      <article data-role="content" id="project-list-container"></article>
       <div class="footer-container"></div>
-
-      <script id="project-list-template" type="text/x-handlebars-template">
-        {{#if project_count}}
-        <div data-role="collapsible-set">
-          {{#each task_map}}
-          <div data-role="collapsible">
-            <h2 class="ui-mini">{{@key}} <span class="ui-li-count">{{this.task_count}}</span></h2>
-            {{#if this.task_count}}
-            <ul data-role="listview" class="task-listview">
-              {{#each this.tasks}}
-              <li>{{> task-link}}</li>
-              {{/each}}
-            </ul>
-            {{/if}}
-          </div>
-          {{/each}}
-        </div>
-        {{else}}
-        <p>There are no projects yet.</p>
-        {{/if}}
-      </script>
     </section><!-- /project-list-page -->
+
+    <script id="project-list-template" type="text/x-handlebars-template">
+      {{#if project_count}}
+      <div data-role="collapsible-set">
+        {{#each task_map}}
+        <div data-role="collapsible">
+          <h2 class="ui-mini">{{@key}} <span class="ui-li-count">{{this.task_count}}</span></h2>
+          {{#if this.task_count}}
+          <ul data-role="listview" class="task-listview">
+            {{#each this.tasks}}
+            <li>{{> task-link}}</li>
+            {{/each}}
+          </ul>
+          {{/if}}
+        </div>
+        {{/each}}
+      </div>
+      {{else}}
+      <p>There are no projects yet.</p>
+      {{/if}}
+    </script><!-- /project-list-template -->
 
 
     <!--
     Task Detail Page
     -->
 
-    <section data-role="page" id="task-metadata-page">
-      <div data-role="content">
-        <div class="task-metadata-container"></div>
-      </div><!-- /content -->
+    <section data-role="page" id="task-metadata-page" data-title="New Task">
+      <article data-role="content" class="task-metadata-container"></article>
+      <div class="footer-container"></div>
+    </section><!-- /task-metadata-page -->
 
+    <script id="task-metadata-template" type="text/x-handlebars-template">
+      <form action="javascript:void(0);">
+        <label>
+          <span data-i18n="details.title">Title:</span>
+          <input type="text" name="title" id="task-title" value="{{task.title}}" data-mini="true" />
+        </label>
+
+        <label>
+          <span data-i18n="details.start">Begin date:</span>
+          <input type="{{dateinput_type}}" name="start" data-role="date" data-mini="true" data-inline="true" value="{{asYMD task.start}}" />
+        </label>
+
+        <label>
+          <span data-i18n="details.stop">End date:</span>
+          <input type="{{dateinput_type}}" name="stop" data-role="date" data-mini="true" data-inline="true" value="{{asYMD task.stop}}" />
+        </label>
+
+        <label>
+          <span data-i18n="details.project">Project:</span>
+          <select name="project" data-role="select" data-inline="true" data-mini="true">
+            <option value="">--</option>
+            {{#project_list}}
+            <option value="{{this.doc.project}}">{{this.doc.project}}</option>
+            {{/project_list}}
+          </select>
+        </label>
+
+        <label>
+          <span data-i18n="details.state">State:</span>
+          <select name="state" data-role="select" data-inline="true" data-mini="true">
+            <option value="">--</option>
+            {{#state_list}}
+            <option value="{{this.doc.state}}">{{t this.doc.state}}</option>
+            {{/state_list}}
+          </select>
+        </label>
+
+        <label for="task-description">
+          <span data-i18n="details.description">Description:</span>
+          <textarea name="description">{{task.description}}</textarea>
+        </label>
+
+        {{#ATTACHMENT_MODE_MULTIPLE}}
+        {{#if task_id}}
+        <ul data-role="listview" data-inset="true">
+          {{#if attachments}}
+          {{#each attachments}}
+            <li>
+              <a href="#task-attachment-page?task_id={{../task_id}}&attachment_name={{encode @key}}" class="task-edit-attachment-link">
+                {{@key}}
+              </a>
+            </li>
+          {{/each}}
+          {{else}}
+            <li>
+            <h3>No attachments.</h3>
+            </li>
+          {{/if}}
+        </ul>
+
+        <a href="#" id="task-add-attachment" data-role="button" data-icon="plus" data-mini="true" data-inline="true">
+          New attachment
+        </a>
+        {{/if}}
+        {{/ATTACHMENT_MODE_MULTIPLE}}
+      </form>
+    </script><!-- /task-metadata-template -->
+
+    <script id="task-metadata-page-footer-template" type="text/x-handlebars-template">
       <footer data-role="footer" data-position="fixed">
         <a href="#" data-role="button" data-rel="back"
           data-icon="arrow-l" data-mini="true"
@@ -169,6 +231,7 @@
           data-inline="true">
           Save data
         </a>
+        {{#if args.task_id}}
         <a href="#" data-role="button"
           id="task-delete"
           class="ui-btn-right"
@@ -177,76 +240,9 @@
           data-i18n="details.delete">
           Delete
         </a>
+        {{/if}}
       </footer>
-
-      <script id="task-metadata-template" type="text/x-handlebars-template">
-        <form action="javascript:void(0);">
-          <label>
-            <span data-i18n="details.title">Title:</span>
-            <input type="text" name="title" id="task-title" value="{{task.title}}" data-mini="true" />
-          </label>
-
-          <label>
-            <span data-i18n="details.start">Begin date:</span>
-            <input type="{{dateinput_type}}" name="start" data-role="date" data-mini="true" data-inline="true" value="{{asYMD task.start}}" />
-          </label>
-
-          <label>
-            <span data-i18n="details.stop">End date:</span>
-            <input type="{{dateinput_type}}" name="stop" data-role="date" data-mini="true" data-inline="true" value="{{asYMD task.stop}}" />
-          </label>
-
-          <label>
-            <span data-i18n="details.project">Project:</span>
-            <select name="project" data-role="select" data-inline="true" data-mini="true">
-              <option value="">--</option>
-              {{#project_list}}
-              <option value="{{this.doc.project}}">{{this.doc.project}}</option>
-              {{/project_list}}
-            </select>
-          </label>
-
-          <label>
-            <span data-i18n="details.state">State:</span>
-            <select name="state" data-role="select" data-inline="true" data-mini="true">
-              <option value="">--</option>
-              {{#state_list}}
-              <option value="{{this.doc.state}}">{{t this.doc.state}}</option>
-              {{/state_list}}
-            </select>
-          </label>
-
-          <label for="task-description">
-            <span data-i18n="details.description">Description:</span>
-            <textarea name="description">{{task.description}}</textarea>
-          </label>
-
-          {{#ATTACHMENT_MODE_MULTIPLE}}
-          {{#if task_id}}
-          <ul data-role="listview" data-inset="true">
-            {{#if attachments}}
-            {{#each attachments}}
-              <li>
-                <a href="#task-attachment-page?task_id={{../task_id}}&attachment_name={{encode @key}}" class="task-edit-attachment-link">
-                  {{@key}}
-                </a>
-              </li>
-            {{/each}}
-            {{else}}
-              <li>
-              <h3>No attachments.</h3>
-              </li>
-            {{/if}}
-          </ul>
-
-          <a href="#" id="task-add-attachment" data-role="button" data-icon="plus" data-mini="true" data-inline="true">
-            New attachment
-          </a>
-          {{/if}}
-          {{/ATTACHMENT_MODE_MULTIPLE}}
-        </form>
-      </script>
-    </section><!-- /task-metadata-page -->
+    </script><!-- /task-metadata-page-footer-template -->
 
 
     <!--
@@ -254,42 +250,11 @@
     -->
 
     <section data-role="page" id="task-attachment-page">
-
-      <div data-role="content" class="attachment-content">
-        <article id="attachment"></article>
-      </div><!-- /content -->
+      <article data-role="content" class="attachment-content">
+        <div id="attachment"></div>
+      </article>
 
       <div class="footer-container"></div>
-
-      <script id="task-attachment-page-footer-template" type="text/x-handlebars-template">
-        <footer data-role="footer" data-position="fixed">
-          <a href="#" data-role="button" data-rel="back"
-            data-icon="arrow-l" data-mini="true"
-            data-i18n="header.back">
-            Back
-          </a>
-          <a href="#" id="attachment-save" data-role="button"
-            data-icon="check" data-mini="true">
-            Save document
-          </a>
-          <a data-role="button"
-            id="task-metadata-popup-trigger"
-            data-mini="true">
-            Metadata
-          </a>
-          <a href="#" data-role="button" class="ui-btn-right"
-            {{#ATTACHMENT_MODE_SINGLE}}
-            id="task-delete"
-            {{else}}
-            id="attachment-delete"
-            {{/ATTACHMENT_MODE_SINGLE}}
-            data-icon="delete"
-            data-mini="true"
-            data-i18n="details.delete">
-            Delete
-          </a>
-        </footer>
-      </script><!-- /task-attachment-page-footer -->
 
       <article data-role="popup" id="task-metadata-popup" data-dismissible="false">
         <div data-role="content">
@@ -308,9 +273,37 @@
           Save
         </a>
       </article>
+    </section><!-- /task-attachment-page -->
 
-    </section>
-
+    <script id="task-attachment-page-footer-template" type="text/x-handlebars-template">
+      <footer data-role="footer" data-position="fixed">
+        <a href="#" data-role="button" data-rel="back"
+          data-icon="arrow-l" data-mini="true"
+          data-i18n="header.back">
+          Back
+        </a>
+        <a href="#" id="attachment-save" data-role="button"
+          data-icon="check" data-mini="true">
+          Save document
+        </a>
+        <a data-role="button"
+          id="task-metadata-popup-trigger"
+          data-mini="true">
+          Metadata
+        </a>
+        <a href="#" data-role="button" class="ui-btn-right"
+          {{#ATTACHMENT_MODE_SINGLE}}
+          id="task-delete"
+          {{else}}
+          id="attachment-delete"
+          {{/ATTACHMENT_MODE_SINGLE}}
+          data-icon="delete"
+          data-mini="true"
+          data-i18n="details.delete">
+          Delete
+        </a>
+      </footer>
+    </script><!-- /task-attachment-page-footer -->
 
 
     <!--
@@ -336,74 +329,68 @@
         </a>
       </header>
 
-      <div data-role="content">
-        <div id="settings-form-container"></div>
-      </div><!-- /content -->
-
+      <article data-role="content" id="settings-form-container"></article>
       <div class="footer-container"></div>
-
-      <script id="settings-form-template" type="text/x-handlebars-template">
-        <form action="javascript:void(0);">
-          <label>
-            Language:
-            <select name="translate" id="translate" data-mini="true" data-inline="true">
-              <option value="en" data-i18n="settings.translate.en">English</option>
-              <option value="fr" data-i18n="settings.translate.fr">Français</option>
-              <option value="zh" data-i18n="settings.translate.zh">中文 (Chinese)</option>
-            </select>
-          </label>
-
-          <label for="storage-select" data-inline="true">
-            Storage:
-            <select id="storage-select" data-role="select" data-mini="true" data-inline="true">
-              {{#storage_list}}
-              <option value="{{this.id}}">{{this.config.application_name}} ({{this.config.storage_type}})</option>
-              {{/storage_list}}
-            </select>
-          </label>
-          <fieldset data-role="controlgroup" data-mini="true" data-type="horizontal" data-inline="true">
-            <a href="#storage-config-page" id="storage-config" data-role="button">Configure</a>
-            <a href="#storage-export-page" data-role="button">Export</a>
-            <a href="#storage-import-page" data-role="button">Import</a>
-            <a href="#storage-config-page" data-role="button" data-icon="plus">New Storage</a>
-          </fieldset>
-
-          {{#if error_message}}
-            <h3>Cannot connect to the storage</h3>
-            <p>
-              {{error_message}}
-            </p>
-          {{else}}
-          <fieldset data-role="controlgroup" data-mini="true">
-            <legend data-i18n="settings.states">States:</legend>
-            {{#state_list}}
-            <label data-i18n="{{this.doc.state}}"><input type="radio" name="state-radio" data-jio-state="{{this.doc.state}}" data-jio-id="{{this.id}}" />{{t this.doc.state}}</label>
-            {{/state_list}}
-          </fieldset>
-          <fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
-            {{#if state_list}}
-            <a href="#" id="settings-del-state" data-role="button" data-icon="delete" data-inline="true">Delete</a>
-            {{/if}}
-            <a href="#" id="settings-add-state" data-role="button" data-icon="plus" data-inline="true">New State</a>
-          </fieldset>
-
-          <fieldset data-role="controlgroup" data-mini="true">
-            <legend data-i18n="settings.projects">Projects:</legend>
-            {{#project_list}}
-            <label data-i18n="{{this.doc.project}}"><input type="radio" name="project-radio" data-jio-project="{{this.doc.project}}" data-jio-id="{{this.id}}" />{{this.doc.project}}</label>
-            {{/project_list}}
-          </fieldset>
-          <fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
-            {{#if project_list}}
-            <a href="#" id="settings-del-project" data-role="button" data-icon="delete" data-inline="true">Delete</a>
-            {{/if}}
-            <a href="#" id="settings-add-project" data-role="button" data-icon="plus" data-inline="true">New Project</a>
-          </fieldset>
-          {{/if}}
-
-        </form>
-      </script>
     </section><!-- /settings-page -->
+
+    <script id="settings-form-template" type="text/x-handlebars-template">
+      <form action="javascript:void(0);">
+        <label>
+          Language:
+          <select name="translate" id="translate" data-mini="true" data-inline="true">
+            <option value="en" data-i18n="settings.translate.en">English</option>
+            <option value="fr" data-i18n="settings.translate.fr">Français</option>
+            <option value="zh" data-i18n="settings.translate.zh">中文 (Chinese)</option>
+          </select>
+        </label>
+
+        <label for="storage-select" data-inline="true">
+          Storage:
+          <select id="storage-select" data-role="select" data-mini="true" data-inline="true">
+            {{#storage_list}}
+            <option value="{{this.id}}">{{this.config.application_name}} ({{this.config.storage_type}})</option>
+            {{/storage_list}}
+          </select>
+        </label>
+        <fieldset data-role="controlgroup" data-mini="true" data-type="horizontal" data-inline="true">
+          <a href="#storage-config-page" id="storage-config" data-role="button">Configure</a>
+          <a href="#storage-export-page" data-role="button">Export</a>
+          <a href="#storage-import-page" data-role="button">Import</a>
+          <a href="#storage-config-page" data-role="button" data-icon="plus">New Storage</a>
+        </fieldset>
+
+        {{#if error_message}}
+          <h3>Cannot connect to the storage</h3>
+          <p>{{error_message}}</p>
+        {{else}}
+        <fieldset data-role="controlgroup" data-mini="true">
+          <legend data-i18n="settings.states">States:</legend>
+          {{#state_list}}
+          <label data-i18n="{{this.doc.state}}"><input type="radio" name="state-radio" data-jio-state="{{this.doc.state}}" data-jio-id="{{this.id}}" />{{t this.doc.state}}</label>
+          {{/state_list}}
+        </fieldset>
+        <fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+          {{#if state_list}}
+          <a href="#" id="settings-del-state" data-role="button" data-icon="delete" data-inline="true">Delete</a>
+          {{/if}}
+          <a href="#" id="settings-add-state" data-role="button" data-icon="plus" data-inline="true">New State</a>
+        </fieldset>
+
+        <fieldset data-role="controlgroup" data-mini="true">
+          <legend data-i18n="settings.projects">Projects:</legend>
+          {{#project_list}}
+          <label data-i18n="{{this.doc.project}}"><input type="radio" name="project-radio" data-jio-project="{{this.doc.project}}" data-jio-id="{{this.id}}" />{{this.doc.project}}</label>
+          {{/project_list}}
+        </fieldset>
+        <fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+          {{#if project_list}}
+          <a href="#" id="settings-del-project" data-role="button" data-icon="delete" data-inline="true">Delete</a>
+          {{/if}}
+          <a href="#" id="settings-add-project" data-role="button" data-icon="plus" data-inline="true">New Project</a>
+        </fieldset>
+        {{/if}}
+      </form>
+    </script><!-- /settings-form-template -->
 
 
     <!--
@@ -422,10 +409,7 @@
         </h2>
       </header>
 
-      <div data-role="content">
-        <div id="storage-export-json-container"></div>
-      </div><!-- /content -->
-
+      <article data-role="content" id="storage-export-json-container"></article>
       <div class="footer-container"></div>
     </section><!-- /storage-export-page -->
 
@@ -446,7 +430,7 @@
         </h2>
       </header>
 
-      <div data-role="content">
+      <article data-role="content">
         <label>
           Select the file to import:
         </label>
@@ -464,7 +448,7 @@
         <a href="#" id="storage-clear" data-role="button" data-mini="true" data-inline="true">
           Clear
         </a>
-      </div><!-- /content -->
+      </article>
 
       <div class="footer-container"></div>
     </section><!-- /storage-import-page -->
@@ -486,100 +470,96 @@
         </h2>
       </header>
 
-      <div data-role="content">
-        <div id="storage-config-container"></div>
-      </div><!-- /content -->
-
+      <article data-role="content" id="storage-config-container"></article>
       <div class="footer-container"></div>
-
-      <script id="storage-config-template" type="text/x-handlebars-template">
-        <form action="javascript:void(0);">
-          <input type="hidden" id="storage-id" value="{{id}}" />
-
-          <div data-role="fieldcontain">
-            <label for="storage-application_name" data-i18n="i18n.todo">
-              Name:
-            </label>
-            <input type="text" name="application_name" id="storage-application_name" value="{{config.application_name}}" />
-          </div>
-
-          <div data-role="fieldcontain">
-            <label for="storage-storage_type" data-i18n="i18n.todo">
-              Type:
-            </label>
-            <input type="text" name="storage_type" id="storage-storage_type" value="{{config.storage_type}}" />
-          </div>
-
-          <div data-role="fieldcontain">
-            <label for="storage-url" data-i18n="i18n.todo">
-              URL:
-            </label>
-            <input type="text" name="url" id="storage-url" value="{{config.url}}" />
-          </div>
-
-          <div data-role="fieldcontain">
-            <label for="storage-auth_type" data-i18n="i18n.todo">
-              Auth Type:
-            </label>
-            <input type="text" name="auth_type" id="storage-auth_type" value="{{config.auth_type}}" />
-          </div>
-
-          <div data-role="fieldcontain">
-            <label for="storage-realm" data-i18n="i18n.todo">
-              Realm:
-            </label>
-            <input type="text" name="realm" id="storage-realm" value="{{config.realm}}" />
-          </div>
-
-          <div data-role="fieldcontain">
-            <label for="storage-username" data-i18n="i18n.todo">
-              Username:
-            </label>
-            <input type="text" name="username" id="storage-username" value="{{config.username}}" />
-          </div>
-
-          <div data-role="fieldcontain">
-            <label for="storage-password" data-i18n="i18n.todo">
-              Password:
-            </label>
-            <input type="text" name="password" id="storage-password" value="{{config.password}}" />
-          </div>
-
-          <div data-role="fieldcontain">
-            {{#if id}}
-            {{#ifCond id '!==' default_storage_id}}
-            <a href="#" data-role="button"
-              id="storage-delete"
-              data-icon="delete"
-              data-inline="true"
-              data-mini="true"
-              data-i18n="details.delete">
-              Delete
-            </a>
-            {{/ifCond}}
-            {{/if}}
-
-            <a href="#storage-config-page" data-role="button"
-              data-rel="back"
-              data-inline="true"
-              data-mini="true"
-              data-i18n="details.cancel">
-              Cancel
-            </a>
-
-            <a href="#" data-role="button"
-              id="storage-save"
-              data-icon="check"
-              data-inline="true"
-              data-mini="true"
-              data-i18n="details.save">
-              Save
-            </a>
-          </div>
-
-        </form>
-      </script>
     </section><!-- /storage-config-page -->
+
+    <script id="storage-config-template" type="text/x-handlebars-template">
+      <form action="javascript:void(0);">
+        <input type="hidden" id="storage-id" value="{{id}}" />
+
+        <div data-role="fieldcontain">
+          <label for="storage-application_name" data-i18n="i18n.todo">
+            Name:
+          </label>
+          <input type="text" name="application_name" id="storage-application_name" value="{{config.application_name}}" />
+        </div>
+
+        <div data-role="fieldcontain">
+          <label for="storage-storage_type" data-i18n="i18n.todo">
+            Type:
+          </label>
+          <input type="text" name="storage_type" id="storage-storage_type" value="{{config.storage_type}}" />
+        </div>
+
+        <div data-role="fieldcontain">
+          <label for="storage-url" data-i18n="i18n.todo">
+            URL:
+          </label>
+          <input type="text" name="url" id="storage-url" value="{{config.url}}" />
+        </div>
+
+        <div data-role="fieldcontain">
+          <label for="storage-auth_type" data-i18n="i18n.todo">
+            Auth Type:
+          </label>
+          <input type="text" name="auth_type" id="storage-auth_type" value="{{config.auth_type}}" />
+        </div>
+
+        <div data-role="fieldcontain">
+          <label for="storage-realm" data-i18n="i18n.todo">
+            Realm:
+          </label>
+          <input type="text" name="realm" id="storage-realm" value="{{config.realm}}" />
+        </div>
+
+        <div data-role="fieldcontain">
+          <label for="storage-username" data-i18n="i18n.todo">
+            Username:
+          </label>
+          <input type="text" name="username" id="storage-username" value="{{config.username}}" />
+        </div>
+
+        <div data-role="fieldcontain">
+          <label for="storage-password" data-i18n="i18n.todo">
+            Password:
+          </label>
+          <input type="text" name="password" id="storage-password" value="{{config.password}}" />
+        </div>
+
+        <div data-role="fieldcontain">
+          {{#if id}}
+          {{#ifCond id '!==' default_storage_id}}
+          <a href="#" data-role="button"
+            id="storage-delete"
+            data-icon="delete"
+            data-inline="true"
+            data-mini="true"
+            data-i18n="details.delete">
+            Delete
+          </a>
+          {{/ifCond}}
+          {{/if}}
+
+          <a href="#storage-config-page" data-role="button"
+            data-rel="back"
+            data-inline="true"
+            data-mini="true"
+            data-i18n="details.cancel">
+            Cancel
+          </a>
+
+          <a href="#" data-role="button"
+            id="storage-save"
+            data-icon="check"
+            data-inline="true"
+            data-mini="true"
+            data-i18n="details.save">
+            Save
+          </a>
+        </div>
+      </form>
+    </script><!-- /storage_config_template -->
 
 
     <!--
@@ -593,7 +573,7 @@
         </h2>
       </header>
 
-      <div data-role="content">
+      <article data-role="content">
         <p>
           This mobile web app is written with <a data-rel="external" href="http://jquerymobile.com/">jQuery Mobile</a> and <a data-rel="external" href="http://jio.readthedocs.org/en/latest/">jIO</a>.
         </p>
@@ -610,8 +590,7 @@
           All data is stored in the browser by default, but with jIO
           it can be automatically replicated on an existing server (S3, WebDAV, XWiki, ERP5...)
         </p>
-
-      </div><!-- /content -->
+      </article>
     </section><!-- /about-dialog -->
 
 

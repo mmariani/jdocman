@@ -11,7 +11,7 @@ $(document).on('mobileinit', function () {
 
   Logger.setLevel(DEBUG ? Logger.DEBUG : Logger.WARN);
 
-  var ATTACHMENT_MODE = 'single',   // 'none', 'single', 'multiple'
+  var ATTACHMENT_MODE = 'none',   // 'none', 'single', 'multiple'
     SINGLE_ATTACHMENT_NAME = 'content',
     template = {
       // precompile for speed
@@ -20,6 +20,7 @@ $(document).on('mobileinit', function () {
       'settings-form': Handlebars.compile($('#settings-form-template').text()),
       'footer': Handlebars.compile($('#footer-template').text()),
       'task-attachment-page-footer': Handlebars.compile($('#task-attachment-page-footer-template').text()),
+      'task-metadata-page-footer': Handlebars.compile($('#task-metadata-page-footer-template').text()),
       'project-list': Handlebars.compile($('#project-list-template').text()),
       'task-metadata': Handlebars.compile($('#task-metadata-template').text()),
       'storage-config': Handlebars.compile($('#storage-config-template').text())
@@ -954,7 +955,9 @@ $(document).on('mobileinit', function () {
     var footer_template = template[page_id + '-footer'] || template.footer;
 
     $footer_container.
-      html(footer_template()).
+      html(footer_template({
+        args: parseHashParams(window.location.hash)
+      })).
       trigger('create');
 
     // activate the tab related to the current page (if any)
@@ -1091,7 +1094,6 @@ $(document).on('mobileinit', function () {
     }
     return options.inverse(this);
   });
-
 
 
   /**
