@@ -39,7 +39,7 @@
         {{#ATTACHMENT_MODE_MULTIPLE}}
         {{#if this.doc._attachments}}
         <p>
-          documents: {{#each this.doc._attachments}}<span class="attachment">{{@key}}</span>{{/each}}
+          attachments: {{#each this.doc._attachments}}<span class="attachment">{{@key}}</span>{{/each}}
         </p>
         {{/if}}
         {{/ATTACHMENT_MODE_MULTIPLE}}
@@ -201,7 +201,7 @@
             <select name="project" data-role="select" data-inline="true" data-mini="true">
               <option value="">--</option>
               {{#project_list}}
-              <option value="{{this.project}}">{{this.project}}</option>
+              <option value="{{this.doc.project}}">{{this.doc.project}}</option>
               {{/project_list}}
             </select>
           </label>
@@ -211,7 +211,7 @@
             <select name="state" data-role="select" data-inline="true" data-mini="true">
               <option value="">--</option>
               {{#state_list}}
-              <option value="{{this.state}}">{{t this.state}}</option>
+              <option value="{{this.doc.state}}">{{t this.doc.state}}</option>
               {{/state_list}}
             </select>
           </label>
