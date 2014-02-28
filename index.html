@@ -21,11 +21,11 @@
 
     <script id="task-link-partial" type="text/x-handlebars-template">
       <a data-role="button"
-        {{#ATTACHMENT_SINGLE}}
+        {{#ATTACHMENT_MODE_SINGLE}}
         href="#task-attachment-page?task_id={{this.id}}&attachment_name={{SINGLE_ATTACHMENT_NAME}}" class="task-edit-attachment-link"
         {{else}}
         href="#task-metadata-page?task_id={{this.id}}" class="task-metadata-link"
-        {{/ATTACHMENT_SINGLE}}
+        {{/ATTACHMENT_MODE_SINGLE}}
         >
         {{this.doc.title}}
         <p class="description">{{sanitize this.doc.description 100}}</p>
@@ -36,13 +36,13 @@
           {{t "tasks.to"}}
           <span class="to-date">{{asYMD this.doc.stop}}</span>
         </p>
-        {{#ATTACHMENT_MULTIPLE}}
+        {{#ATTACHMENT_MODE_MULTIPLE}}
         {{#if this.doc._attachments}}
         <p>
           documents: {{#each this.doc._attachments}}<span class="attachment">{{@key}}</span>{{/each}}
         </p>
         {{/if}}
-        {{/ATTACHMENT_MULTIPLE}}
+        {{/ATTACHMENT_MODE_MULTIPLE}}
       </a>
     </script>
 
@@ -221,13 +221,13 @@
             <textarea name="description">{{task.description}}</textarea>
           </label>
 
-          {{#ATTACHMENT_MULTIPLE}}
-          {{#if task._id}}
+          {{#ATTACHMENT_MODE_MULTIPLE}}
+          {{#if task_id}}
           <ul data-role="listview" data-inset="true">
             {{#if attachments}}
             {{#each attachments}}
               <li>
-                <a href="#task-attachment-page?task_id={{../task._id}}&attachment_name={{encode @key}}" class="task-edit-attachment-link">
+                <a href="#task-attachment-page?task_id={{../task_id}}&attachment_name={{encode @key}}" class="task-edit-attachment-link">
                   {{@key}}
                 </a>
               </li>
@@ -243,7 +243,7 @@
             New attachment
           </a>
           {{/if}}
-          {{/ATTACHMENT_MULTIPLE}}
+          {{/ATTACHMENT_MODE_MULTIPLE}}
         </form>
       </script>
     </section><!-- /task-metadata-page -->
@@ -278,11 +278,11 @@
             Metadata
           </a>
           <a href="#" data-role="button" class="ui-btn-right"
-            {{#ATTACHMENT_SINGLE}}
+            {{#ATTACHMENT_MODE_SINGLE}}
             id="task-delete"
             {{else}}
             id="attachment-delete"
-            {{/ATTACHMENT_SINGLE}}
+            {{/ATTACHMENT_MODE_SINGLE}}
             data-icon="delete"
             data-mini="true"
             data-i18n="details.delete">

@@ -4,7 +4,7 @@
 $(document).on('mobileinit', function () {
   "use strict";
 
-  var ATTACHMENT = 'single',   // 'none', 'single', 'multiple'
+  var ATTACHMENT_MODE = 'single',   // 'none', 'single', 'multiple'
     SINGLE_ATTACHMENT_NAME = 'content',
     template = {
       // precompile for speed
@@ -25,13 +25,13 @@ $(document).on('mobileinit', function () {
 
   // Debug attachment support
   if (window.location.hash === '#attachment-none') {
-    ATTACHMENT = 'none';
+    ATTACHMENT_MODE = 'none';
   }
   if (window.location.hash === '#attachment-single') {
-    ATTACHMENT = 'single';
+    ATTACHMENT_MODE = 'single';
   }
   if (window.location.hash === '#attachment-multiple') {
-    ATTACHMENT = 'multiple';
+    ATTACHMENT_MODE = 'multiple';
   }
 
 
@@ -1000,11 +1000,10 @@ $(document).on('mobileinit', function () {
             attachments = task_resp.data._attachments || [],
             page = $.mobile.activePage;
 
-          Logger.info(task_id);
-
           page.find('.task-metadata-container').
             html(template['task-metadata']({
               task: task_resp.data,
+              task_id: task_resp.id,
               attachments: attachments,
               project_list: project_list,
               state_list: state_list,
@@ -1036,22 +1035,15 @@ $(document).on('mobileinit', function () {
     return SINGLE_ATTACHMENT_NAME;
   });
 
-  Handlebars.registerHelper('ATTACHMENT', function (options) {
-    if (ATTACHMENT !== 'none') {
+  Handlebars.registerHelper('ATTACHMENT_MODE_SINGLE', function (options) {
+    if (ATTACHMENT_MODE === 'single') {
       return options.fn(this);
     }
     return options.inverse(this);
   });
 
-  Handlebars.registerHelper('ATTACHMENT_SINGLE', function (options) {
-    if (ATTACHMENT === 'single') {
-      return options.fn(this);
-    }
-    return options.inverse(this);
-  });
-
-  Handlebars.registerHelper('ATTACHMENT_MULTIPLE', function (options) {
-    if (ATTACHMENT === 'multiple') {
+  Handlebars.registerHelper('ATTACHMENT_MODE_MULTIPLE', function (options) {
+    if (ATTACHMENT_MODE === 'multiple') {
       return options.fn(this);
     }
     return options.inverse(this);
@@ -1208,7 +1200,6 @@ $(document).on('mobileinit', function () {
    * Translation is applied after rendering the template.
    */
   $(document).on('pagebeforeshow', '#project-list-page', function () {
-    Logger.debug('Loading Projects page');
     jioConnect().then(function (jio) {
       var options = {
         include_docs: true,
@@ -1216,7 +1207,6 @@ $(document).on('mobileinit', function () {
         sort_on: [['project', 'ascending']]
       }, task_map = {};
 
-      Logger.debug('Querying projects...');
       return jio.allDocs(options).
         then(function (response) {
           var i = 0,
@@ -1266,7 +1256,6 @@ $(document).on('mobileinit', function () {
    * Initial rendering of the 'task list' page.
    */
   $(document).on('pagebeforeshow', '#task-list-page', function () {
-    Logger.debug('Loading Task List Page');
     jioConnect().then(function (jio) {
       // attempt to fix cosmetic issue with a select menu in the header
       $('#task-sortby-button').addClass('ui-btn-left');
@@ -1395,7 +1384,7 @@ $(document).on('mobileinit', function () {
   $(document).on('click', '#task-save', function () {
     saveMetadata().
       then(function (task_id) {
-        if (ATTACHMENT === 'single') {
+        if (ATTACHMENT_MODE === 'single') {
           gotoPage('#task-attachment-page',
                    { task_id: task_id,
                      attachment_name: SINGLE_ATTACHMENT_NAME});
@@ -1574,8 +1563,6 @@ $(document).on('mobileinit', function () {
   $(document).on('pagebeforeshow', '#storage-config-page', function () {
     var storage_id = parseHashParams(window.location.hash).storage_id;
     jioConfigConnect().then(function (jio_config) {
-      Logger.debug('Loading Storage Edit page:', storage_id);
-
       return storageConfig(jio_config, storage_id).
         then(function (config) {
           $('#storage-config-container').
