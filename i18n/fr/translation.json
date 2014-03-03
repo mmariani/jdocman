@@ -8,7 +8,7 @@
         "storage": "Configure Storage",
         "back": "Retour"
     },
-    "tasks": {
+    "documents": {
       "newtask": "Nouvelle tâche",
       "from": "du",
       "to": "au",

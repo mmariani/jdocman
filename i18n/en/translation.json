@@ -8,7 +8,7 @@
         "storage": "Configure Storage",
         "back": "Back"
     },
-    "tasks": {
+    "documents": {
       "newtask": "New Task",
       "from": "from",
       "to": "to",

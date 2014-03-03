@@ -15,24 +15,24 @@
 
 
     <!--
-    Task Link partial, used in task listviews
+    Document Link partial, used in document listviews
     -->
 
-    <script id="task-link-partial" type="text/x-handlebars-template">
+    <script id="document-link-partial" type="text/x-handlebars-template">
       <a data-role="button"
         {{#ATTACHMENT_MODE_SINGLE}}
-        href="#task-attachment-page?task_id={{this.id}}&attachment_name={{SINGLE_ATTACHMENT_NAME}}" class="task-edit-attachment-link"
+        href="#attachment-page?document_id={{this.id}}&attachment_name={{SINGLE_ATTACHMENT_NAME}}" class="edit-attachment-link"
         {{else}}
-        href="#task-metadata-page?task_id={{this.id}}" class="task-metadata-link"
+        href="#metadata-page?document_id={{this.id}}" class="metadata-link"
         {{/ATTACHMENT_MODE_SINGLE}}
         >
         {{this.doc.title}}
         <p class="description">{{sanitize this.doc.description 100}}</p>
         <p>
           <span class="state">{{t this.doc.state}}</span>
-          {{t "tasks.from"}}
+          {{t "documents.from"}}
           <span class="from-date">{{asYMD this.doc.start}}</span>
-          {{t "tasks.to"}}
+          {{t "documents.to"}}
           <span class="to-date">{{asYMD this.doc.stop}}</span>
         </p>
         {{#ATTACHMENT_MODE_MULTIPLE}}
@@ -43,59 +43,59 @@
         {{/if}}
         {{/ATTACHMENT_MODE_MULTIPLE}}
       </a>
-    </script><!-- /task-link-partial -->
+    </script><!-- /document-link-partial -->
 
 
     <!--
-    Task List Page
+    Document List Page
     -->
 
-    <section data-role="page" id="task-list-page">
+    <section data-role="page" id="document-list-page">
       <header data-role="header">
-        <select id="task-sortby" data-role="select" data-mini="true">
-          <option value="" data-i18n="tasks.sortby.#">Sort by</option>
-          <option value="title" data-i18n="tasks.sortby.title">Title</option>
-          <option value="start" data-i18n="tasks.sortby.start">Begin Date</option>
-          <option value="stop" data-i18n="tasks.sortby.stop">End Date</option>
-          <option value="state" data-i18n="tasks.sortby.state">State</option>
-          <option value="description" data-i18n="tasks.sortby.description">Description</option>
+        <select id="document-sortby" data-role="select" data-mini="true">
+          <option value="" data-i18n="documents.sortby.#">Sort by</option>
+          <option value="title" data-i18n="documents.sortby.title">Title</option>
+          <option value="start" data-i18n="documents.sortby.start">Begin Date</option>
+          <option value="stop" data-i18n="documents.sortby.stop">End Date</option>
+          <option value="state" data-i18n="documents.sortby.state">State</option>
+          <option value="description" data-i18n="documents.sortby.description">Description</option>
         </select>
         <h2 data-i18n="header.tasks">
           Tasks
         </h2>
-        <a href="#task-metadata-page" data-role="button" data-icon="plus"
+        <a href="#metadata-page" data-role="button" data-icon="plus"
            class="ui-btn-right"
            data-mini="true"
-           data-i18n="tasks.newtask">
+           data-i18n="documents.newdocument">
           New Task
         </a>
       </header>
 
       <article data-role="content">
-        <input type="text" data-type="search" name="search" id="search-tasks"
+        <input type="text" data-type="search" name="search" id="search-documents"
                value="" class="ui-input-text"
                data-mini="true"
                placeholder="filter by title, state, date or project"
-               data-i18n="[placeholder]tasks.placeholder" />
-        <div id="task-list-container"></div>
+               data-i18n="[placeholder]documents.placeholder" />
+        <div id="document-list-container"></div>
       </article>
 
       <div class="footer-container"></div>
-    </section><!-- /task-list-page -->
+    </section><!-- /document-list-page -->
 
-    <script id="task-list-template" type="text/x-handlebars-template">
-      <ul data-role="listview" data-inset="true" class="task-listview">
+    <script id="document-list-template" type="text/x-handlebars-template">
+      <ul data-role="listview" data-inset="true" class="document-listview">
         {{#if rows}}
         {{#rows}}
-          <li>{{> task-link}}</li>
+          <li>{{> document-link}}</li>
         {{/rows}}
         {{else}}
           <li>
-          <h3 data-i18n="tasks.noresult">No results found.</h3>
+          <h3 data-i18n="documents.noresult">No results found.</h3>
           </li>
         {{/if}}
       </ul>
-    </script><!-- /task-list-template -->
+    </script><!-- /document-list-template -->
 
 
     <!--
@@ -121,13 +121,13 @@
     <script id="project-list-template" type="text/x-handlebars-template">
       {{#if project_count}}
       <div data-role="collapsible-set">
-        {{#each task_map}}
+        {{#each document_map}}
         <div data-role="collapsible">
-          <h2 class="ui-mini">{{@key}} <span class="ui-li-count">{{this.task_count}}</span></h2>
-          {{#if this.task_count}}
-          <ul data-role="listview" class="task-listview">
-            {{#each this.tasks}}
-            <li>{{> task-link}}</li>
+          <h2 class="ui-mini">{{@key}} <span class="ui-li-count">{{this.document_count}}</span></h2>
+          {{#if this.document_count}}
+          <ul data-role="listview" class="document-listview">
+            {{#each this.document_list}}
+            <li>{{> document-link}}</li>
             {{/each}}
           </ul>
           {{/if}}
@@ -141,34 +141,34 @@
 
 
     <!--
-    Task Detail Page
+    Metadata Page
     -->
 
-    <section data-role="page" id="task-metadata-page" data-title="New Task">
-      <article data-role="content" class="task-metadata-container"></article>
+    <section data-role="page" id="metadata-page" data-title="New Task">
+      <article data-role="content" class="metadata-container"></article>
       <div class="footer-container"></div>
-    </section><!-- /task-metadata-page -->
+    </section><!-- /metadata-page -->
 
-    <script id="task-metadata-template" type="text/x-handlebars-template">
+    <script id="metadata-template" type="text/x-handlebars-template">
       <form action="javascript:void(0);">
         <div class="ui-field-contain">
           <label>
             <span data-i18n="details.title">Title:</span>
-            <input type="text" name="title" value="{{task.title}}" data-mini="true" />
+            <input type="text" name="title" value="{{metadata.title}}" data-mini="true" />
           </label>
         </div>
 
         <div class="ui-field-contain">
           <label>
             <span data-i18n="details.start">Begin date:</span>
-            <input type="{{dateinput_type}}" name="start" data-role="date" data-mini="true" data-inline="true" value="{{asYMD task.start}}" />
+            <input type="{{dateinput_type}}" name="start" data-role="date" data-mini="true" data-inline="true" value="{{asYMD metadata.start}}" />
           </label>
         </div>
 
         <div class="ui-field-contain">
           <label>
             <span data-i18n="details.stop">End date:</span>
-            <input type="{{dateinput_type}}" name="stop" data-role="date" data-mini="true" data-inline="true" value="{{asYMD task.stop}}" />
+            <input type="{{dateinput_type}}" name="stop" data-role="date" data-mini="true" data-inline="true" value="{{asYMD metadata.stop}}" />
           </label>
         </div>
 
@@ -192,18 +192,18 @@
           </select>
         </label>
 
-        <label for="task-description">
+        <label>
           <span data-i18n="details.description">Description:</span>
-          <textarea name="description">{{task.description}}</textarea>
+          <textarea name="description">{{metadata.description}}</textarea>
         </label>
 
         {{#ATTACHMENT_MODE_MULTIPLE}}
-        {{#if task_id}}
+        {{#if document_id}}
         <ul data-role="listview" data-inset="true">
           {{#if attachments}}
           {{#each attachments}}
             <li>
-              <a href="#task-attachment-page?task_id={{../task_id}}&attachment_name={{encode @key}}" class="task-edit-attachment-link">
+              <a href="#attachment-page?document_id={{../document_id}}&attachment_name={{encode @key}}" class="edit-attachment-link">
                 {{@key}}
               </a>
             </li>
@@ -215,15 +215,15 @@
           {{/if}}
         </ul>
 
-        <a href="#" id="task-add-attachment" data-role="button" data-icon="plus" data-mini="true" data-inline="true">
+        <a href="#" id="add-attachment" data-role="button" data-icon="plus" data-mini="true" data-inline="true">
           New attachment
         </a>
         {{/if}}
         {{/ATTACHMENT_MODE_MULTIPLE}}
       </form>
-    </script><!-- /task-metadata-template -->
+    </script><!-- /metadata-template -->
 
-    <script id="task-metadata-page-footer-template" type="text/x-handlebars-template">
+    <script id="metadata-page-footer-template" type="text/x-handlebars-template">
       <footer data-role="footer" data-position="fixed">
         <a href="#" data-role="button" data-rel="back"
           data-icon="arrow-l" data-mini="true"
@@ -231,16 +231,15 @@
           Back
         </a>
         <a href="#" data-role="button"
-          id="task-save"
+          id="document-save"
           data-icon="check"
           data-mini="true"
           data-inline="true">
           Save data
         </a>
-        {{#if args.task_id}}
+        {{#if args.document_id}}
         <a href="#" data-role="button"
-          id="task-delete"
-          class="ui-btn-right"
+          class="document-delete ui-btn-right"
           data-icon="delete"
           data-mini="true"
           data-i18n="details.delete">
@@ -248,23 +247,23 @@
         </a>
         {{/if}}
       </footer>
-    </script><!-- /task-metadata-page-footer-template -->
+    </script><!-- /metadata-page-footer-template -->
 
 
     <!--
-    Task Attachment Page
+    Attachment Page
     -->
 
-    <section data-role="page" id="task-attachment-page">
+    <section data-role="page" id="attachment-page">
       <article data-role="content" class="attachment-content">
         <div id="attachment"></div>
       </article>
 
       <div class="footer-container"></div>
 
-      <article data-role="popup" id="task-metadata-popup" data-dismissible="false">
+      <article data-role="popup" id="metadata-popup" data-dismissible="false">
         <div data-role="content">
-          <div class="task-metadata-container"></div>
+          <div class="metadata-container"></div>
         </div><!-- /content -->
 
         <a href="#" data-mini="true" data-role="button" data-inline="true" data-rel="back">
@@ -279,9 +278,9 @@
           Save
         </a>
       </article>
-    </section><!-- /task-attachment-page -->
+    </section><!-- /attachment-page -->
 
-    <script id="task-attachment-page-footer-template" type="text/x-handlebars-template">
+    <script id="attachment-page-footer-template" type="text/x-handlebars-template">
       <footer data-role="footer" data-position="fixed">
         <a href="#" data-role="button" data-rel="back"
           data-icon="arrow-l" data-mini="true"
@@ -293,15 +292,15 @@
           Save document
         </a>
         <a data-role="button"
-          id="task-metadata-popup-trigger"
+          id="metadata-popup-trigger"
           data-mini="true">
           Metadata
         </a>
-        <a href="#" data-role="button" class="ui-btn-right"
+        <a href="#" data-role="button"
           {{#ATTACHMENT_MODE_SINGLE}}
-          id="task-delete"
+          id="document-delete ui-btn-right"
           {{else}}
-          id="attachment-delete"
+          id="attachment-delete ui-btn-right"
           {{/ATTACHMENT_MODE_SINGLE}}
           data-icon="delete"
           data-mini="true"
@@ -309,7 +308,7 @@
           Delete
         </a>
       </footer>
-    </script><!-- /task-attachment-page-footer -->
+    </script><!-- /attachment-page-footer -->
 
 
     <!--
@@ -614,7 +613,7 @@
         <div data-role="navbar" data-iconpos="left">
           <ul>
             <li>
-              <a href="#task-list-page"
+              <a href="#document-list-page"
                 data-i18n="navbar.tasks">
                 Tasks
               </a>

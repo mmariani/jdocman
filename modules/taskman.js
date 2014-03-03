@@ -13,16 +13,17 @@ $(document).on('mobileinit', function () {
 
   var ATTACHMENT_MODE = 'none',   // 'none', 'single', 'multiple'
     SINGLE_ATTACHMENT_NAME = 'content',
+    METADATA_TYPE = 'Task',
     template = {
       // precompile for speed
       'feedback-popup': Handlebars.compile($('#feedback-popup-template').text()),
-      'task-list': Handlebars.compile($('#task-list-template').text()),
+      'document-list': Handlebars.compile($('#document-list-template').text()),
       'settings-form': Handlebars.compile($('#settings-form-template').text()),
       'footer': Handlebars.compile($('#footer-template').text()),
-      'task-attachment-page-footer': Handlebars.compile($('#task-attachment-page-footer-template').text()),
-      'task-metadata-page-footer': Handlebars.compile($('#task-metadata-page-footer-template').text()),
+      'attachment-page-footer': Handlebars.compile($('#attachment-page-footer-template').text()),
+      'metadata-page-footer': Handlebars.compile($('#metadata-page-footer-template').text()),
       'project-list': Handlebars.compile($('#project-list-template').text()),
-      'task-metadata': Handlebars.compile($('#task-metadata-template').text()),
+      'metadata': Handlebars.compile($('#metadata-template').text()),
       'storage-config': Handlebars.compile($('#storage-config-template').text())
     },
     default_storage_id = 'default_storage',
@@ -38,7 +39,7 @@ $(document).on('mobileinit', function () {
       svg: {
         url: 'lib/officejs/gadget/svgedit.html',
         beforeLoad: function () {
-          // Discard the previous data, which is possibly unrelated to the current task.
+          // Discard the previous data, which is possibly unrelated to the current document.
           localStorage.removeItem('svgedit-default');
         }
       },
@@ -105,7 +106,7 @@ $(document).on('mobileinit', function () {
       [new RegExp('[ýÿ]', 'gi'), 'y']
     ]),
     //
-    // Define a schema of search keys for the task queries,
+    // Define a schema of search keys for the document queries,
     // as described in http://jio.readthedocs.org/en/latest/keys.html
     // This schema implements filtering with partial dates, titles and descriptions
     // regardless of the accents and letter case, and translated state values.
@@ -259,13 +260,12 @@ $(document).on('mobileinit', function () {
   function jqmSetSelected(element, value) {
     var $select = $(element);
 
-    /*jslint unparam: true*/
     $select.children().each(function (i, op) {
+      /*jslint unparam: true*/
       if (op.getAttribute('value') === value) {
         op.setAttribute('selected', 'selected');
       }
     });
-    /*jslint unparam: false*/
 
     $select.selectmenu('refresh');
   }
@@ -294,7 +294,7 @@ $(document).on('mobileinit', function () {
    * @return {String} the search string
    */
   function getSearchString() {
-    return $('#search-tasks').val().trim();
+    return $('#search-documents').val().trim();
   }
 
 
@@ -569,7 +569,7 @@ $(document).on('mobileinit', function () {
    *
    * @param {Object} jio the storage instance to use
    * @param {String} project name of the project to look up
-   * @return {Promise} A promise that resolved to true
+   * @return {Promise} A promise that resolves to true
    * if the project exists, false otherwise.
    */
   function checkProjectExists(jio, project) {
@@ -597,14 +597,14 @@ $(document).on('mobileinit', function () {
 
 
   /**
-   * Count the tasks with a given state.
+   * Count the documents with a given state.
    *
    * @param {Object} jio the storage instance to use
    * @param {String} state name of the state to look up
-   * @return {Promise} A promise that resolved to the
-   * number of tasks with that state.
+   * @return {Promise} A promise that resolves to the
+   * number of documents with that state.
    */
-  function countStateTasks(jio, state) {
+  function countStateDocuments(jio, state) {
     return jio.allDocs({
       query:  {
         type: 'complex',
@@ -613,7 +613,7 @@ $(document).on('mobileinit', function () {
           {
             type: 'simple',
             key: 'type',
-            value: 'Task'
+            value: METADATA_TYPE
           }, {
             type: 'simple',
             key: 'state',
@@ -629,14 +629,14 @@ $(document).on('mobileinit', function () {
 
 
   /**
-   * Count the tasks within a project.
+   * Count the documents within a project.
    *
    * @param {Object} jio the storage instance to use
    * @param {String} project name of the project to look up
-   * @return {Promise} A promise that resolved to the
-   * number of tasks in the project.
+   * @return {Promise} A promise that resolves to the
+   * number of documents in the project.
    */
-  function countProjectTasks(jio, project) {
+  function countProjectDocuments(jio, project) {
     return jio.allDocs({
       query:  {
         type: 'complex',
@@ -645,7 +645,7 @@ $(document).on('mobileinit', function () {
           {
             type: 'simple',
             key: 'type',
-            value: 'Task'
+            value: METADATA_TYPE
           }, {
             type: 'simple',
             key: 'project',
@@ -665,7 +665,7 @@ $(document).on('mobileinit', function () {
    *
    * @param {Object} jio the storage instance to use
    * @param {String} state name of the state to look up
-   * @return {Promise} A promise that resolved to true
+   * @return {Promise} A promise that resolves to true
    * if the state exists, false otherwise.
    */
   function checkStateExists(jio, state) {
@@ -695,14 +695,14 @@ $(document).on('mobileinit', function () {
   /**
    * Create a query string from the input text, if the
    * text already complies to the complex_queries grammar.
-   * Basically adds a filter for the task type.
+   * Basically adds a filter for the document type.
    * XXX nice to have: check grammar
    *
    * @param {Object} input_text a grammar-complying query string
    * @return {String} A query string that can be used with allDocs
    */
   function grammarQuery(search_string) {
-    var query = '(type: "Task")';
+    var query = '(type: "' + METADATA_TYPE + '")';
     if (search_string) {
       query += ' AND ' + search_string;
     }
@@ -765,7 +765,7 @@ $(document).on('mobileinit', function () {
     query = {
       type: 'simple',
       key: 'type',
-      value: 'Task'
+      value: METADATA_TYPE
     };
 
     if (content_query_list.length) {
@@ -788,14 +788,14 @@ $(document).on('mobileinit', function () {
 
 
   /**
-   * Display (or refresh) a list of tasks in the current page,
+   * Display (or refresh) a list of documents in the current page,
    * performing a search if there is search input.
    * Translation is applied after rendering the template.
    *
    * @param {Object} jio The storage instance
    * @param {String} sort_by name of the metadata property to sort on
    */
-  function updateTaskList(jio, sort_by) {
+  function updateDocumentList(jio, sort_by) {
     var search_string = getSearchString(),
       sort_on = [[sort_by || 'start', 'ascending']],
       query_function = search_string.charAt(0) === '(' ? grammarQuery : smartQuery,
@@ -806,13 +806,13 @@ $(document).on('mobileinit', function () {
         query: query_function(search_string)
       };
 
-    Logger.debug('Querying tasks with: "%s" (%o)...', search_string, options.query);
+    Logger.debug('Querying documents with: "%s" (%o)...', search_string, options.query);
 
     return jio.allDocs(options).
       then(function (response) {
-        Logger.debug('%i tasks found', response.data.total_rows);
-        $('#task-list-container').
-          html(template['task-list']({
+        Logger.debug('%i documents found', response.data.total_rows);
+        $('#document-list-container').
+          html(template['document-list']({
             rows: response.data.rows
           })).
           trigger('create');
@@ -968,41 +968,41 @@ $(document).on('mobileinit', function () {
    * Works either in a full page or a popup.
    */
   function updateMetadataForm() {
-    var task_id = parseHashParams(window.location.hash).task_id;
+    var document_id = parseHashParams(window.location.hash).document_id;
 
     jioConnect().then(function (jio) {
       var project_opt = {include_docs: true, sort_on: [['project', 'ascending']], query: '(type:"Project")'},
         project_promise = jio.allDocs(project_opt),
-        task_promise = null,
+        metadata_promise = null,
         state_opt = {include_docs: true, sort_on: [['state', 'ascending']], query: '(type:"State")'},
         state_promise = jio.allDocs(state_opt),
         dateinput_type = hasHTML5DatePicker() ? 'date' : 'text';
 
-      if (task_id) {
-        task_promise = jio.get({_id: task_id});
+      if (document_id) {
+        metadata_promise = jio.get({_id: document_id});
       } else {
-        task_promise = new RSVP.Promise(function (resolve) {
+        metadata_promise = new RSVP.Promise(function (resolve) {
           resolve({
             data: {
-              title: 'New task',
+              title: 'New Document',
               start: moment().format('YYYY-MM-DD')
             }
           });
         });
       }
 
-      return RSVP.all([task_promise, project_promise, state_promise]).
+      return RSVP.all([metadata_promise, project_promise, state_promise]).
         then(function (response_list) {
-          var task_resp = response_list[0],
+          var metadata_resp = response_list[0],
             project_list = response_list[1].data.rows,
             state_list = response_list[2].data.rows,
-            attachments = task_resp.data._attachments || [],
+            attachments = metadata_resp.data._attachments || [],
             page = $.mobile.activePage;
 
-          page.find('.task-metadata-container').
-            html(template['task-metadata']({
-              task: task_resp.data,
-              task_id: task_resp.id,
+          page.find('.metadata-container').
+            html(template.metadata({
+              metadata: metadata_resp.data,
+              document_id: metadata_resp.id,
               attachments: attachments,
               project_list: project_list,
               state_list: state_list,
@@ -1010,8 +1010,8 @@ $(document).on('mobileinit', function () {
             })).
             trigger('create');
 
-          jqmSetSelected(page.find('[name=project]'), task_resp.data.project);
-          jqmSetSelected(page.find('[name=state]'), task_resp.data.state);
+          jqmSetSelected(page.find('[name=project]'), metadata_resp.data.project);
+          jqmSetSelected(page.find('[name=state]'), metadata_resp.data.state);
           applyTranslation();
         });
     }).fail(displayError);
@@ -1020,7 +1020,7 @@ $(document).on('mobileinit', function () {
 
   function saveMetadata() {
     return jioConnect().then(function (jio) {
-      var task_id = parseHashParams(window.location.hash).task_id,
+      var document_id = parseHashParams(window.location.hash).document_id,
         page = $.mobile.activePage,
         title = page.find('[name=title]').val(),
         start = page.find('[name=start]').val(),
@@ -1034,7 +1034,7 @@ $(document).on('mobileinit', function () {
       // XXX validate input
 
       metadata = {
-        type: 'Task',
+        type: METADATA_TYPE,
         title: title,
         start: start,
         stop: stop,
@@ -1044,8 +1044,8 @@ $(document).on('mobileinit', function () {
         modified: new Date()
       };
 
-      if (task_id) {
-        metadata._id = task_id;
+      if (document_id) {
+        metadata._id = document_id;
         update_prom = jio.put(metadata);
       } else {
         update_prom = jio.post(metadata);
@@ -1053,7 +1053,7 @@ $(document).on('mobileinit', function () {
 
       return update_prom.
         then(function (response) {
-          Logger.debug('Updated task %o:', response.id);
+          Logger.debug('Updated document %o:', response.id);
           Logger.debug('  status %s (%s)', response.status, response.statusText);
           return RSVP.resolve(response.id);
         });
@@ -1071,7 +1071,7 @@ $(document).on('mobileinit', function () {
    *                                 *
    ***********************************/
 
-  Handlebars.registerPartial('task-link', $('#task-link-partial').text());
+  Handlebars.registerPartial('document-link', $('#document-link-partial').text());
 
   Handlebars.registerHelper('SINGLE_ATTACHMENT_NAME', function () {
     return SINGLE_ATTACHMENT_NAME;
@@ -1236,7 +1236,7 @@ $(document).on('mobileinit', function () {
 
   /**
    * Prepare the #project-list-page before displaying.
-   * This queries the storage for a list of the projects and tasks,
+   * This queries the storage for a list of the projects and documents,
    * then provides them as parameters to Handlebars.
    * Translation is applied after rendering the template.
    */
@@ -1244,9 +1244,9 @@ $(document).on('mobileinit', function () {
     jioConnect().then(function (jio) {
       var options = {
         include_docs: true,
-        query: '(type:"Project") OR (type:"Task")',
+        query: '(type:"Project") OR (type:"' + METADATA_TYPE + '")',
         sort_on: [['project', 'ascending']]
-      }, task_map = {};
+      }, document_map = {};
 
       return jio.allDocs(options).
         then(function (response) {
@@ -1258,22 +1258,22 @@ $(document).on('mobileinit', function () {
 
           for (i = 0; i < rows.length; i += 1) {
             if (rows[i].doc.type === 'Project') {
-              task_map[rows[i].doc.project] = {tasks: [], task_count: 0};
+              document_map[rows[i].doc.project] = {document_list: [], document_count: 0};
             }
           }
 
           for (i = 0; i < rows.length; i += 1) {
-            if (rows[i].doc.type === 'Task') {
-              task_map[rows[i].doc.project] = task_map[rows[i].doc.project] || {tasks: [], task_count: 0};
-              task_map[rows[i].doc.project].tasks.push(rows[i]);
-              task_map[rows[i].doc.project].task_count += 1;
+            if (rows[i].doc.type === METADATA_TYPE) {
+              document_map[rows[i].doc.project] = document_map[rows[i].doc.project] || {document_list: [], document_count: 0};
+              document_map[rows[i].doc.project].document_list.push(rows[i]);
+              document_map[rows[i].doc.project].document_count += 1;
             }
           }
 
           $('#project-list-container').
             html(template['project-list']({
               project_count: rows.length,
-              task_map: task_map
+              document_map: document_map
             })).
             trigger('create'); // notify jqm of the changes we made
           applyTranslation();
@@ -1283,24 +1283,24 @@ $(document).on('mobileinit', function () {
 
 
   /**
-   * Apply a sort order change to the task list, upon selection from the menu.
+   * Apply a sort order change to the document list, upon selection from the menu.
    */
-  $(document).on('change', '#task-sortby', function () {
+  $(document).on('change', '#document-sortby', function () {
     var sort_by = $(this).val();
     jioConnect().then(function (jio) {
-      return updateTaskList(jio, sort_by);
+      return updateDocumentList(jio, sort_by);
     }).fail(displayError);
   });
 
 
   /**
-   * Initial rendering of the 'task list' page.
+   * Initial rendering of the 'document list' page.
    */
-  $(document).on('pagebeforeshow', '#task-list-page', function () {
+  $(document).on('pagebeforeshow', '#document-list-page', function () {
     jioConnect().then(function (jio) {
       // attempt to fix cosmetic issue with a select menu in the header
-      $('#task-sortby-button').addClass('ui-btn-left');
-      return updateTaskList(jio);
+      $('#document-sortby-button').addClass('ui-btn-left');
+      return updateDocumentList(jio);
     }).fail(displayError);
   });
 
@@ -1308,10 +1308,10 @@ $(document).on('mobileinit', function () {
   var _input_timer = null;
 
   /**
-   * Perform a search and update the task list.
+   * Perform a search and update the document list.
    * A timer is used to avoid querying for each character.
    */
-  $(document).on('input', '#search-tasks', function () {
+  $(document).on('input', '#search-documents', function () {
     var search_string = getSearchString();
 
     // Grammar vs Smart queries will be discriminated by parentheses.
@@ -1330,8 +1330,8 @@ $(document).on('mobileinit', function () {
         _input_timer = null;
       }
       _input_timer = window.setTimeout(function () {
-        updateTaskList(jio); // XXX errors from this promise are not propagated
-                             // and would have to be handled separately.
+        updateDocumentList(jio); // XXX errors from this promise are not propagated
+                                 // and would have to be handled separately.
         _input_timer = 0;
       }, 500);
     }).fail(displayError);
@@ -1339,51 +1339,51 @@ $(document).on('mobileinit', function () {
 
 
   /**
-   * Redirects to the details page for a task, when a task is
-   * clicked in the list.
+   * Redirects to the metadata page for a document, when a document
+   * is selected in the listview.
    * Since we cannot use query parameters (they would not work
    * with the appcache) we temporarily change the url of
    * the target page. It will be restored during the pageshow event.
    */
-  $(document).on('click', '.task-metadata-link', function () {
-    gotoPage('#task-metadata-page', this.hash);
+  $(document).on('click', '.metadata-link', function () {
+    gotoPage('#metadata-page', this.hash);
   });
 
 
   /**
-   * Display the form to edit a single task's details,
-   * or to create a new task.
+   * Display the form to edit a document's metadata details,
+   * or to create a new document.
    * Translation is applied after rendering the template.
    */
-  $(document).on('pagebeforeshow', '#task-metadata-page', function () {
+  $(document).on('pagebeforeshow', '#metadata-page', function () {
     updateMetadataForm();
   });
 
 
-  $(document).on('click', '#task-metadata-popup-trigger', function () {
+  $(document).on('click', '#metadata-popup-trigger', function () {
     updateMetadataForm();
-    $('#task-metadata-popup').popup('open');
+    $('#metadata-popup').popup('open');
   });
 
 
   $(document).on('click', '#metadata-save', function () {
     saveMetadata().
       then(function () {
-        $('#task-metadata-popup').popup('close');
+        $('#metadata-popup').popup('close');
       });
   });
 
 
   /**
-   * Apply changes to the edited task, or create
-   * a new task in the storage.
+   * Apply changes to the edited document, or create
+   * a new document in the storage.
    */
-  $(document).on('click', '#task-save', function () {
+  $(document).on('click', '#document-save', function () {
     saveMetadata().
-      then(function (task_id) {
+      then(function (document_id) {
         if (ATTACHMENT_MODE === 'single') {
-          gotoPage('#task-attachment-page',
-                   { task_id: task_id,
+          gotoPage('#attachment-page',
+                   { document_id: document_id,
                      attachment_name: SINGLE_ATTACHMENT_NAME});
           return;
         }
@@ -1393,15 +1393,15 @@ $(document).on('mobileinit', function () {
 
 
   /**
-   * Delete the currently open task from the storage.
+   * Delete the currently open document from the storage.
    */
-  $(document).on('click', '#task-delete', function () {
-    var task_id = parseHashParams(window.location.hash).task_id;
+  $(document).on('click', '.document-delete', function () {
+    var document_id = parseHashParams(window.location.hash).document_id;
 
     jioConnect().then(function (jio) {
-      return jio.remove({_id: task_id});
+      return jio.remove({_id: document_id});
     }).then(function (response) {
-      Logger.debug('Deleted task %o:', response.id);
+      Logger.debug('Deleted document %o:', response.id);
       Logger.debug('  status %s', response.status);
       parent.history.back();
     }).fail(displayError);
@@ -1413,11 +1413,11 @@ $(document).on('mobileinit', function () {
    */
   $(document).on('click', '#attachment-delete', function () {
     var args = parseHashParams(window.location.hash),
-      task_id = args.task_id,
+      document_id = args.document_id,
       attachment_name = args.attachment_name;
 
     jioConnect().then(function (jio) {
-      return jio.removeAttachment({_id: task_id,
+      return jio.removeAttachment({_id: document_id,
                                    _attachment: attachment_name});
     }).then(function (response) {
       Logger.debug('Deleted attachment %s/%s:', response.id, response.attachment);
@@ -1436,8 +1436,8 @@ $(document).on('mobileinit', function () {
   /**
    * Redirects to the document edit page (for new attachments).
    */
-  $(document).on('click', '#task-add-attachment', function () {
-    var task_id = parseHashParams(window.location.hash).task_id,
+  $(document).on('click', '#add-attachment', function () {
+    var document_id = parseHashParams(window.location.hash).document_id,
       attachment_name = window.prompt('Document name?') || '';
 
     attachment_name = attachment_name.trim();
@@ -1448,8 +1448,8 @@ $(document).on('mobileinit', function () {
 
     // XXX check for duplicate names
 
-    gotoPage('#task-attachment-page',
-             { task_id: task_id,
+    gotoPage('#attachment-page',
+             { document_id: document_id,
                attachment_name: attachment_name});
   });
 
@@ -1457,14 +1457,14 @@ $(document).on('mobileinit', function () {
   /**
    * Redirects to the document edit page (for existing attachments).
    */
-  $(document).on('click', '.task-edit-attachment-link', function () {
-    gotoPage('#task-attachment-page', this.hash);
+  $(document).on('click', '.edit-attachment-link', function () {
+    gotoPage('#attachment-page', this.hash);
   });
 
 
-  $(document).on('pagebeforeshow', '#task-attachment-page', function () {
+  $(document).on('pagebeforeshow', '#attachment-page', function () {
     var args = parseHashParams(window.location.hash),
-      task_id = args.task_id,
+      document_id = args.document_id,
       attachment_name = args.attachment_name;
 
     editor_gadget = null;
@@ -1475,7 +1475,7 @@ $(document).on('mobileinit', function () {
     jioConnect().
       then(function (jio) {
         return jio.getAttachment({
-          _id: task_id,
+          _id: document_id,
           _attachment: attachment_name
         });
       }).
@@ -1513,13 +1513,13 @@ $(document).on('mobileinit', function () {
 
   $(document).on('click', '#attachment-save', function () {
     var args = parseHashParams(window.location.hash),
-      task_id = args.task_id,
+      document_id = args.document_id,
       attachment_name = args.attachment_name;
 
     editor_gadget.getContent().
       then(function (attachment_content) {
         var attachment = {
-          _id: task_id,
+          _id: document_id,
           _attachment: attachment_name,
           _data: new Blob([attachment_content], {type: 'application/octet-stream'})
         };
@@ -1534,7 +1534,7 @@ $(document).on('mobileinit', function () {
   });
 
 
-  $(document).on('pagebeforehide', '#task-attachment-page', function () {
+  $(document).on('pagebeforehide', '#attachment-page', function () {
     $('#attachment iframe').remove();
   });
 
@@ -1551,9 +1551,6 @@ $(document).on('mobileinit', function () {
 
   /**
    * Redirects to the details page for the selected storage.
-   * Since we cannot pass the task id argument as a query
-   * parameter (does not work with the appcache) we store it
-   * in a closure variable.
    */
   $(document).on('click', '#storage-config', function () {
     var storage_id = $('#storage-select').val();
@@ -1885,7 +1882,7 @@ $(document).on('mobileinit', function () {
 
 
   /**
-   * Delete a state. It must have no tasks.
+   * Delete a state. It must have no related documents.
    */
   $(document).on('click', '#settings-del-state', function () {
     jioConnect().then(function (jio) {
@@ -1893,12 +1890,12 @@ $(document).on('mobileinit', function () {
         state = $selected.data('jio-state'),
         state_id = $selected.data('jio-id');
 
-      return countStateTasks(jio, state).
-        then(function (task_count) {
-          if (task_count) {
+      return countStateDocuments(jio, state).
+        then(function (document_count) {
+          if (document_count) {
             return RSVP.reject({
               statusText: 'Cannot remove state',
-              message: task_count + ' tasks are in state "' + state + '"'
+              message: document_count + ' documents are in state "' + state + '"'
             });
           }
           return jio.remove({_id: state_id});
@@ -1953,7 +1950,7 @@ $(document).on('mobileinit', function () {
 
 
   /**
-   * Delete a project. It must have no tasks.
+   * Delete a project. It must have no related documents.
    */
   $(document).on('click', '#settings-del-project', function () {
     jioConnect().then(function (jio) {
@@ -1961,13 +1958,13 @@ $(document).on('mobileinit', function () {
         project = $selected.data('jio-project'),
         project_id = $selected.data('jio-id');
 
-      // query tasks by project name, but query projects by id
-      return countProjectTasks(jio, project).
-        then(function (task_count) {
-          if (task_count) {
+      // query documents by project name, but query projects by id
+      return countProjectDocuments(jio, project).
+        then(function (document_count) {
+          if (document_count) {
             return RSVP.reject({
               statusText: 'Cannot remove project "' + project + '"',
-              message: 'The project contains ' + task_count + ' tasks.'
+              message: 'The project contains ' + document_count + ' documents.'
             });
           }
           return jio.remove({_id: project_id});

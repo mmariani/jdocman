@@ -8,7 +8,7 @@
         "storage": "Configure Storage",
         "back": "后退"
     },
-    "tasks": {
+    "documents": {
       "newtask": "新任务",
       "from": "从",
       "to": "至",
