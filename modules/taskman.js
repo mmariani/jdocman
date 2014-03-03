@@ -1675,13 +1675,54 @@ $(document).on('mobileinit', function () {
    * Export the content of the current storage for backup purposes.
    */
   $(document).on('pagebeforeshow', '#storage-export-page', function () {
-    var $export_container = $('#storage-export-json-container').empty();
+    var $export_container = $('#storage-export-json-container'),
+      // collect evertything here as {'metadata': [...], 'attachment_list': [...]}
+      archive = {},
+      j = null; // jio connection
+
+    // clear now, we might need to display an error
+    $export_container.empty();
 
     jioConnect().then(function (jio) {
-      return jio.allDocs({include_docs: true});
+      j = jio;
+      return j.allDocs({include_docs: true});
     }).then(function (response) {
+      var attachment_promise_list = [];
+
+      archive.metadata_list = response.data.rows;
+      archive.attachment_list = [];
+
+      archive.metadata_list.forEach(function (row) {
+        var attachments = row.doc._attachments || {},
+          attachment_name = '';
+        for (attachment_name in attachments) {
+          if (attachments.hasOwnProperty(attachment_name)) {
+            archive.attachment_list.push({
+              id: row.id,
+              attachment_name: attachment_name
+            });
+            attachment_promise_list.push(
+              j.getAttachment({
+                _id: row.id,
+                _attachment: attachment_name
+              })
+            );
+          }
+        }
+      });
+      return RSVP.all(attachment_promise_list);
+    }).then(function (attachment_resp) {
+      return RSVP.all(attachment_resp.map(function (response) {
+        return jIO.util.readBlobAsBinaryString(response.data);
+      }));
+    }).then(function (attachment_content_resp) {
+      attachment_content_resp.forEach(function (ev, idx) {
+        // encode in base64
+        archive.attachment_list[idx].b64content = window.btoa(ev.target.result);
+      });
+
       var $textarea = $('<textarea id="storage-export-json">'),
-        json = JSON.stringify(response.data, null, 2);
+        json = JSON.stringify(archive, null, 2);
 
       $export_container.
         append('<h3>Storage data</h3>').
@@ -1694,21 +1735,12 @@ $(document).on('mobileinit', function () {
         val(json);
 
       var URL = window.webkitURL || window.URL,
-        $link = $('<a data-role="button">'),
-        blob = null;
-
-      try {
-        // http://caniuse.com/#search=blob
+        $link = $('<a data-role="button">Download</a>'),
         blob = new Blob([json], {type: 'application/json'});
-        $link.
-          attr('href', URL.createObjectURL(blob)).
-          attr('download', 'storage.json');
-      } catch (e) {
-        // fallback, with size limits
-        $link.attr('href', 'data:text/octet-stream;base64,' + window.btoa(json));
-      }
 
-      $link.text('Download');
+      $link.
+        attr('href', URL.createObjectURL(blob)).
+        attr('download', 'storage.json');
 
       $export_container.
         append($link).
@@ -1723,7 +1755,7 @@ $(document).on('mobileinit', function () {
 
 
   /**
-   * Import a previously exported content into the current storage.
+   * Page to import a previously exported content into the current storage.
    */
   $(document).on('pagebeforeshow', '#storage-import-page', function () {
     var $textarea = $('#storage-import-json');
@@ -1771,7 +1803,7 @@ $(document).on('mobileinit', function () {
 
 
   /**
-   * Import a previously exported content into the current storage.
+   * Copy content from an uploaded file into the import textarea.
    */
   $(document).on('change', '#storage-import-upload', function () {
     var $input = $(this),
@@ -1792,13 +1824,14 @@ $(document).on('mobileinit', function () {
   });
 
 
+  /**
+   * Import a previously exported content into the current storage.
+   */
   $(document).on('click', '#storage-import', function () {
     var object_count = 0;
 
     jioConnect().then(function (jio) {
-      var text = $('#storage-import-json').val(),
-        data = null,
-        ins_promise_list = null;
+      var text = $('#storage-import-json').val();
 
       if (!text.trim()) {
         displayError({
@@ -1807,8 +1840,10 @@ $(document).on('mobileinit', function () {
         });
       }
 
+      var archive = null;
+
       try {
-        data = JSON.parse(text);
+        archive = JSON.parse(text);
       } catch (e) {
         displayError({
           statusText: 'Storage import error',
@@ -1819,13 +1854,27 @@ $(document).on('mobileinit', function () {
 
       // XXX should clear the storage first?
 
-      ins_promise_list = data.rows.map(function (obj) {
-        return jio.put(obj.doc).
+      var ins_promise_list = [];
+
+      archive.metadata_list.forEach(function (obj) {
+        ins_promise_list.push(jio.put(obj.doc).
           then(function () {
             object_count += 1;
-          });
-        // XXX post or put & overwrite?
+          }));
         // XXX collect and display list of errors?
+      });
+
+      archive.attachment_list.forEach(function (obj) {
+        var content = window.atob(obj.b64content),
+          promise = jio.putAttachment({
+            _id: obj.id,
+            _attachment: obj.attachment_name,
+            _data: new Blob([content], {type: 'application/octet-stream'})
+          });
+        ins_promise_list.push(promise.
+          then(function () {
+            object_count += 1;
+          }));
       });
 
       return RSVP.all(ins_promise_list);

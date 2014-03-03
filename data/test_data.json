@@ -1,6 +1,5 @@
 {
-  "total_rows": 13,
-  "rows": [
+  "metadata_list": [
     {
       "id": "1d7a2f5e-e925-0aeb-25fd-15fee3ae9788",
       "key": "1d7a2f5e-e925-0aeb-25fd-15fee3ae9788",
@@ -133,7 +132,14 @@
         "state": "Started",
         "description": "task manager app with JQM",
         "modified": "2014-02-25T08:48:39.399Z",
-        "_id": "c3950908-b6e0-b7de-2bd2-6b3fdc6c59eb"
+        "_id": "c3950908-b6e0-b7de-2bd2-6b3fdc6c59eb",
+        "_attachments": {
+          "content": {
+            "content_type": "application/octet-stream",
+            "digest": "sha256-4b97fe528ba69ec5f3eb1fb9b877bb7c3b375592cde779361ebdf6754af19150",
+            "length": 37
+          }
+        }
       },
       "value": {}
     },
@@ -180,5 +186,6 @@
       },
       "value": {}
     }
-  ]
+  ],
+  "attachment_list": []
 }
