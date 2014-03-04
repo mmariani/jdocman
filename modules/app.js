@@ -801,7 +801,6 @@ $(document).on('mobileinit', function () {
       query_function = search_string.charAt(0) === '(' ? grammarQuery : smartQuery,
       options = {
         include_docs: true,
-        wildcard_character: '%',
         sort_on: sort_on,
         query: query_function(search_string)
       };
