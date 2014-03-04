@@ -78,6 +78,18 @@ div.ui-field-contain > label > [class*="ui-"] {
 }
 
 
+
+/*
+ * Form validation
+ */
+
+html body .ui-input-text.invalid,
+html body .ui-select .ui-btn.invalid,
+html body .required.invalid ~ label {
+  border: 1px solid red !important;
+}
+
+
 /*
  * Fix for disappearing textarea issue
  * (https://github.com/jquery/jquery-mobile/issues/6801)

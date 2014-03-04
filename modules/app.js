@@ -68,7 +68,7 @@ $(document).on('mobileinit', function () {
         }
       }
     },
-  }, application_setup = APPLICATION_SETUP_MAP.editor,
+  }, application_setup = APPLICATION_SETUP_MAP.taskman,
     template = {
       // precompile for speed
       'feedback-popup': Handlebars.compile($('#feedback-popup-template').text()),
@@ -1029,9 +1029,10 @@ $(document).on('mobileinit', function () {
             project_list = response_list[1].data.rows,
             state_list = response_list[2].data.rows,
             attachments = metadata_resp.data._attachments || [],
-            page = $.mobile.activePage;
+            $page = $.mobile.activePage,
+            $form = null;
 
-          page.find('.metadata-container').
+          $page.find('.metadata-container').
             html(template.metadata({
               metadata: metadata_resp.data,
               document_id: metadata_resp.id,
@@ -1042,8 +1043,26 @@ $(document).on('mobileinit', function () {
             })).
             trigger('create');
 
-          jqmSetSelected(page.find('[name=project]'), metadata_resp.data.project);
-          jqmSetSelected(page.find('[name=state]'), metadata_resp.data.state);
+          $form = $page.find('.metadata-container form');
+
+          $form.validVal({
+            validate: {
+              onKeyup: "valid",
+              onBlur: "valid"
+            },
+            //customValidations: util.declareJS(),
+            form: {
+              onInvalid: function (error) {
+                debugger;
+//                util.return_out();
+              }
+            }
+          });
+
+          debugger;
+
+          jqmSetSelected($form.find('[name=project]'), metadata_resp.data.project);
+          jqmSetSelected($form.find('[name=state]'), metadata_resp.data.state);
           applyTranslation();
         });
     }).fail(displayError);
@@ -1053,12 +1072,13 @@ $(document).on('mobileinit', function () {
   function saveMetadata() {
     return jioConnect().then(function (jio) {
       var document_id = parseHashParams(window.location.hash).document_id,
-        page = $.mobile.activePage,
-        title = page.find('[name=title]').val(),
-        start = page.find('[name=start]').val(),
-        stop = page.find('[name=stop]').val(),
-        project = page.find('[name=project]').val(),
-        state = page.find('[name=state]').val(),
+        $page = $.mobile.activePage,
+        $form = $page.find('form'),
+        title = $form.find('[name=title]').val(),
+        start = $form.find('[name=start]').val(),
+        stop = $form.find('[name=stop]').val(),
+        project = $form.find('[name=project]').val(),
+        state = $form.find('[name=state]').val(),
         description = $('[name=description]').val(),
         metadata = {},
         update_prom = null;
