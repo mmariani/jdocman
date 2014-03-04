@@ -19,9 +19,12 @@ NETWORK:
 CACHE:
 data/test_data.json
 favicon.png
-i18n/en/translation.json
-i18n/fr/translation.json
-i18n/zh/translation.json
+i18n/en/generic.json
+i18n/en/mode.json
+i18n/fr/generic.json
+i18n/fr/mode.json
+i18n/zh/generic.json
+i18n/zh/mode.json
 index.html
 lib/handlebars/handlebars-v1.1.2.js
 lib/i18next/i18next-1.7.1.js
@@ -47,7 +50,7 @@ lib/jquery/jquery-2.1.0.min.map
 lib/jquery.mobile.datepicker/jquery.mobile.datepicker.css
 lib/jquery.mobile.datepicker/jquery.mobile.datepicker.js
 lib/jquery.mobile.datepicker/jquery.ui.datepicker.js
-lib/js-logger/logger.js
+lib/js-logger/l0gger.js
 lib/moment/moment-2.5.0.js
 lib/sanitize/basic.js
 lib/sanitize/relaxed.js
