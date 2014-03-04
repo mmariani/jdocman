@@ -1,0 +1,15 @@
+{
+    "buttons": {
+      "metadata-page-save": "Save Task"
+    },
+    "header": {
+      "application_name": "Task Manager",
+      "tasks": "Tasks"
+    },
+    "documents": {
+      "newdocument": "New Task"
+    },
+    "navbar": {
+      "tasks": "Tasks"
+    }
+}

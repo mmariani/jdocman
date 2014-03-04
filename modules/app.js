@@ -6,14 +6,69 @@ $(document).on('mobileinit', function () {
 
   var DEBUG = true;
 
-  // Set up logging (as soon as possible) to console
+  // Set up logging, as soon as possible, to console
   Logger.useDefaults();
 
   Logger.setLevel(DEBUG ? Logger.DEBUG : Logger.WARN);
 
-  var ATTACHMENT_MODE = 'none',   // 'none', 'single', 'multiple'
-    SINGLE_ATTACHMENT_NAME = 'content',
-    METADATA_TYPE = 'Task',
+  var APPLICATION_SETUP_MAP = {
+    taskman: {
+      // In taskman mode, there are no attachments
+      // and everything is kept in the metadata.
+      attachment_mode: 'none',
+      metadata_type: 'Task',
+      i18n_namespace: 'taskman'
+    },
+    taskman_attachments: {
+      // In taskman-attachments mode, each metadata (i.e. task)
+      // can contain several HTML attachments.
+      attachment_mode: 'multiple',
+      metadata_type: 'Task',
+      i18n_namespace: 'taskman',
+      gadget: {
+        url: 'lib/officejs/gadget/bootstrap-wysiwyg.html'
+      }
+    },
+    editor: {
+      // In editor mode, metadata is edited before creating
+      // a new document, then it can be modified within a popup
+      // from the full screen editor page.
+      // Clicking on the search list directly opens the attachment.
+      // There can only be an attachment per metadata and its name
+      // is hardcoded.
+      attachment_mode: 'single',
+      single_attachment_name: 'content',
+      metadata_type: 'Task',
+      i18n_namespace: 'editor',
+      gadget: {
+        url: 'lib/officejs/gadget/bootstrap-wysiwyg.html'
+      }
+    },
+    spreadsheet: {
+      // Same as editor with different gadget.
+      attachment_mode: 'single',
+      single_attachment_name: 'content',
+      metadata_type: 'Task',
+      i18n_namespace: 'spreadsheet',
+      gadget: {
+        url: 'lib/officejs/gadget/jqs.html'
+      }
+    },
+    svg: {
+      // Same as editor with different gadget.
+      attachment_mode: 'single',
+      single_attachment_name: 'content',
+      metadata_type: 'Task',
+      i18n_namespace: 'svg',
+      gadget: {
+        url: 'lib/officejs/gadget/svgedit.html',
+        beforeLoad: function () {
+          // Discard the previous data, which is possibly unrelated to the current document.
+          localStorage.removeItem('svgedit-default');
+        }
+      }
+    },
+  }, application_setup = APPLICATION_SETUP_MAP.editor,
     template = {
       // precompile for speed
       'feedback-popup': Handlebars.compile($('#feedback-popup-template').text()),
@@ -29,43 +84,21 @@ $(document).on('mobileinit', function () {
     default_storage_id = 'default_storage',
     root_gadget = null,
     editor_gadget = null,
-    gadget_config_set = {
-      html: {
-        url: 'lib/officejs/gadget/bootstrap-wysiwyg.html'
-      },
-      jqs: {
-        url: 'lib/officejs/gadget/jqs.html'
-      },
-      svg: {
-        url: 'lib/officejs/gadget/svgedit.html',
-        beforeLoad: function () {
-          // Discard the previous data, which is possibly unrelated to the current document.
-          localStorage.removeItem('svgedit-default');
-        }
-      },
-    },
-    gadget_config = gadget_config_set.html,
     _jio = null,
     _jio_promise = null,
     _jio_config = null,
     _jio_config_promise = null;
 
 
-
   if (DEBUG) {
-    switch (window.location.hash) {
-    case '#attachment-none':
-      ATTACHMENT_MODE = 'none';
-      break;
-    case '#attachment-single':
-      ATTACHMENT_MODE = 'single';
-      break;
-    case '#attachment-multiple':
-      ATTACHMENT_MODE = 'multiple';
-      break;
+    if (['#taskman', '#taskman_attachments', '#editor', '#spreadsheet', '#svg'].
+        indexOf(window.location.hash) !== -1) {
+      application_setup = APPLICATION_SETUP_MAP[window.location.hash.substr(1)];
     }
-    Logger.debug('Attachment mode: ', ATTACHMENT_MODE);
+    Logger.debug('Application mode: ', window.location.hash.substr(1));
   }
+
+
 
 
   /**
@@ -613,7 +646,7 @@ $(document).on('mobileinit', function () {
           {
             type: 'simple',
             key: 'type',
-            value: METADATA_TYPE
+            value: application_setup.metadata_type
           }, {
             type: 'simple',
             key: 'state',
@@ -645,7 +678,7 @@ $(document).on('mobileinit', function () {
           {
             type: 'simple',
             key: 'type',
-            value: METADATA_TYPE
+            value: application_setup.metadata_type
           }, {
             type: 'simple',
             key: 'project',
@@ -702,7 +735,7 @@ $(document).on('mobileinit', function () {
    * @return {String} A query string that can be used with allDocs
    */
   function grammarQuery(search_string) {
-    var query = '(type: "' + METADATA_TYPE + '")';
+    var query = '(type: "' + application_setup.metadata_type + '")';
     if (search_string) {
       query += ' AND ' + search_string;
     }
@@ -765,7 +798,7 @@ $(document).on('mobileinit', function () {
     query = {
       type: 'simple',
       key: 'type',
-      value: METADATA_TYPE
+      value: application_setup.metadata_type
     };
 
     if (content_query_list.length) {
@@ -1033,7 +1066,7 @@ $(document).on('mobileinit', function () {
       // XXX validate input
 
       metadata = {
-        type: METADATA_TYPE,
+        type: application_setup.metadata_type,
         title: title,
         start: start,
         stop: stop,
@@ -1073,18 +1106,18 @@ $(document).on('mobileinit', function () {
   Handlebars.registerPartial('document-link', $('#document-link-partial').text());
 
   Handlebars.registerHelper('SINGLE_ATTACHMENT_NAME', function () {
-    return SINGLE_ATTACHMENT_NAME;
+    return application_setup.single_attachment_name;
   });
 
   Handlebars.registerHelper('ATTACHMENT_MODE_SINGLE', function (options) {
-    if (ATTACHMENT_MODE === 'single') {
+    if (application_setup.attachment_mode === 'single') {
       return options.fn(this);
     }
     return options.inverse(this);
   });
 
   Handlebars.registerHelper('ATTACHMENT_MODE_MULTIPLE', function (options) {
-    if (ATTACHMENT_MODE === 'multiple') {
+    if (application_setup.attachment_mode === 'multiple') {
       return options.fn(this);
     }
     return options.inverse(this);
@@ -1243,7 +1276,7 @@ $(document).on('mobileinit', function () {
     jioConnect().then(function (jio) {
       var options = {
         include_docs: true,
-        query: '(type:"Project") OR (type:"' + METADATA_TYPE + '")',
+        query: '(type:"Project") OR (type:"' + application_setup.metadata_type + '")',
         sort_on: [['project', 'ascending']]
       }, document_map = {};
 
@@ -1262,7 +1295,7 @@ $(document).on('mobileinit', function () {
           }
 
           for (i = 0; i < rows.length; i += 1) {
-            if (rows[i].doc.type === METADATA_TYPE) {
+            if (rows[i].doc.type === application_setup.metadata_type) {
               document_map[rows[i].doc.project] = document_map[rows[i].doc.project] || {document_list: [], document_count: 0};
               document_map[rows[i].doc.project].document_list.push(rows[i]);
               document_map[rows[i].doc.project].document_count += 1;
@@ -1365,7 +1398,7 @@ $(document).on('mobileinit', function () {
   });
 
 
-  $(document).on('click', '#metadata-save', function () {
+  $(document).on('click', '#metadata-popup-save', function () {
     saveMetadata().
       then(function () {
         $('#metadata-popup').popup('close');
@@ -1377,13 +1410,13 @@ $(document).on('mobileinit', function () {
    * Apply changes to the edited document, or create
    * a new document in the storage.
    */
-  $(document).on('click', '#document-save', function () {
+  $(document).on('click', '#metadata-page-save', function () {
     saveMetadata().
       then(function (document_id) {
-        if (ATTACHMENT_MODE === 'single') {
+        if (application_setup.attachment_mode === 'single') {
           gotoPage('#attachment-page',
                    { document_id: document_id,
-                     attachment_name: SINGLE_ATTACHMENT_NAME});
+                     attachment_name: application_setup.single_attachment_name});
           return;
         }
         parent.history.back();
@@ -1410,7 +1443,7 @@ $(document).on('mobileinit', function () {
   /**
    * Delete the currently open attachment.
    */
-  $(document).on('click', '#attachment-delete', function () {
+  $(document).on('click', '.attachment-delete', function () {
     var args = parseHashParams(window.location.hash),
       document_id = args.document_id,
       attachment_name = args.attachment_name;
@@ -1437,7 +1470,7 @@ $(document).on('mobileinit', function () {
    */
   $(document).on('click', '#add-attachment', function () {
     var document_id = parseHashParams(window.location.hash).document_id,
-      attachment_name = window.prompt('Document name?') || '';
+      attachment_name = window.prompt('Attachment name?') || '';
 
     attachment_name = attachment_name.trim();
 
@@ -1468,8 +1501,8 @@ $(document).on('mobileinit', function () {
 
     editor_gadget = null;
 
-    if (gadget_config.beforeLoad) {
-      gadget_config.beforeLoad();
+    if (application_setup.gadget.beforeLoad) {
+      application_setup.gadget.beforeLoad();
     }
     jioConnect().
       then(function (jio) {
@@ -1495,7 +1528,7 @@ $(document).on('mobileinit', function () {
           });
       }).
       then(function (attachment_content) {
-        return root_gadget.declareGadget(gadget_config.url,
+        return root_gadget.declareGadget(application_setup.gadget.url,
                                          { sandbox: 'iframe',
                                            element: document.getElementById('attachment')
                                          }).
@@ -2051,12 +2084,12 @@ $(document).on('mobileinit', function () {
     fallbackLng: 'en',
     ns: {
       // load a generic and a mode specific translation
-      namespaces: ['generic', 'mode'],
+      namespaces: ['generic', application_setup.i18n_namespace],
       // default to generic if there is no namespace qualifier
       defaultNs: 'generic'
     },
     // keys missing from generic will be provided by the specific namespace
-    fallbackNS: ['mode'],
+    fallbackNS: [application_setup.i18n_namespace],
     resGetPath: 'i18n/__lng__/__ns__.json',
     load: 'unspecific'
   }, applyTranslation);

@@ -1,0 +1,15 @@
+{
+    "buttons": {
+      "metadata-page-save": "Create Document"
+    },
+    "header": {
+      "application_name": "Editor",
+      "tasks": "Documents"
+    },
+    "documents": {
+      "newdocument": "New Document"
+    },
+    "navbar": {
+      "tasks": "Documents"
+    }
+}

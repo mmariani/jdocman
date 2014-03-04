@@ -231,11 +231,12 @@
           Back
         </a>
         <a href="#" data-role="button"
-          id="document-save"
+          id="metadata-page-save"
           data-icon="check"
           data-mini="true"
+          data-i18n="buttons.metadata-page-save"
           data-inline="true">
-          Save data
+          Save Task / Create Document
         </a>
         {{#if args.document_id}}
         <a href="#" data-role="button"
@@ -270,7 +271,7 @@
           Cancel
         </a>
         <a href="#" data-role="button"
-          id="metadata-save"
+          id="metadata-popup-save"
           data-icon="check"
           data-inline="true"
           data-mini="true"
@@ -298,9 +299,9 @@
         </a>
         <a href="#" data-role="button"
           {{#ATTACHMENT_MODE_SINGLE}}
-          id="document-delete ui-btn-right"
+          class="document-delete ui-btn-right"
           {{else}}
-          id="attachment-delete ui-btn-right"
+          class="attachment-delete ui-btn-right"
           {{/ATTACHMENT_MODE_SINGLE}}
           data-icon="delete"
           data-mini="true"
@@ -578,8 +579,8 @@
 
     <section data-role="dialog" id="about-dialog">
       <header data-role="header">
-        <h2 data-i18n="header.application_name">
-          Task Manager
+        <h2 data-i18n="application_name">
+          Application Name
         </h2>
       </header>
 
