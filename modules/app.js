@@ -438,6 +438,15 @@ $(document).on('mobileinit', function () {
         )
       };
     }
+    if (config.storage_type === 'dropbox') {
+      return {
+        type: 'query',
+        sub_storage: {
+          "type": "dropbox",
+          "access_token": "v43SQLCEoi8AAAAAAAAAAVixCoMfDelgGj3NRPfEnqscAuNGp2LhoS8-GiAaDD4C"
+        }
+      };
+    }
     window.alert('unsupported storage type: ' + config.storage_type);
   }
 
@@ -491,6 +500,14 @@ $(document).on('mobileinit', function () {
             storage_type: 'dav',
             username: 'Admin',
             application_name: 'WebDAV',
+            url: 'http://localhost/',
+            realm: '',
+            auth_type: 'none',
+            password: ''
+          }, {
+            storage_type: 'dropbox',
+            username: 'Admin',
+            application_name: 'DropBox',
             url: 'http://localhost/',
             realm: '',
             auth_type: 'none',
