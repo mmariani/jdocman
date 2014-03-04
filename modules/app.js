@@ -68,7 +68,21 @@ $(document).on('mobileinit', function () {
         }
       }
     },
-  }, application_setup = APPLICATION_SETUP_MAP.editor,
+    presentation: {
+      // Same as editor with different gadget.
+      attachment_mode: 'single',
+      single_attachment_name: 'content',
+      metadata_type: 'Task',
+      i18n_namespace: 'svg',
+      gadget: {
+        url: 'lib/presentation/examples/officejs/presentation-editor/index.html',
+        beforeLoad: function () {
+          // Discard the previous data, which is possibly unrelated to the current document.
+          localStorage.removeItem('svgedit-default');
+        }
+      }
+    }
+  }, application_setup = APPLICATION_SETUP_MAP.presentation,
     template = {
       // precompile for speed
       'feedback-popup': Handlebars.compile($('#feedback-popup-template').text()),
