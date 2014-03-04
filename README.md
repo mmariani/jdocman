@@ -61,6 +61,9 @@ It is recommended that you get familiar with the dependencies:
    searches, with the [JIODate](http://jio.readthedocs.org/en/latest/keys.html#partial-date-time-match) type.
    You can search for year, month, day, hour and so on, with the usual comparison operators.
 
+ * [jquery.validate](http://bassistance.de/jquery-plugins/jquery-plugin-validation/)
+   to check form inputs.
+
  * To avoid "callback hell", jIO uses a [custom version](https://github.com/nexedi/jio/blob/master/lib/rsvp/rsvp-custom.js) of [RSVP.js](https://github.com/tildeio/rsvp.js)
 
    As you can see in TaskMan, promises are also used at the application and UI level.

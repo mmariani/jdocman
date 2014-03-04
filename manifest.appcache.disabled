@@ -50,6 +50,7 @@ lib/jquery/jquery-2.1.0.min.map
 lib/jquery.mobile.datepicker/jquery.mobile.datepicker.css
 lib/jquery.mobile.datepicker/jquery.mobile.datepicker.js
 lib/jquery.mobile.datepicker/jquery.ui.datepicker.js
+lib/jquery-validation/jquery.validate.js
 lib/js-logger/l0gger.js
 lib/moment/moment-2.5.0.js
 lib/sanitize/basic.js

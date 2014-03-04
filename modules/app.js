@@ -996,9 +996,9 @@ $(document).on('mobileinit', function () {
             project_list = response_list[1].data.rows,
             state_list = response_list[2].data.rows,
             attachments = metadata_resp.data._attachments || [],
-            page = $.mobile.activePage;
+            $page = $.mobile.activePage;
 
-          page.find('.metadata-container').
+          $page.find('.metadata-container').
             html(template.metadata({
               metadata: metadata_resp.data,
               document_id: metadata_resp.id,
@@ -1009,8 +1009,8 @@ $(document).on('mobileinit', function () {
             })).
             trigger('create');
 
-          jqmSetSelected(page.find('[name=project]'), metadata_resp.data.project);
-          jqmSetSelected(page.find('[name=state]'), metadata_resp.data.state);
+          jqmSetSelected($page.find('[name=project]'), metadata_resp.data.project);
+          jqmSetSelected($page.find('[name=state]'), metadata_resp.data.state);
           applyTranslation();
         });
     }).fail(displayError);
@@ -1020,12 +1020,12 @@ $(document).on('mobileinit', function () {
   function saveMetadata() {
     return jioConnect().then(function (jio) {
       var document_id = parseHashParams(window.location.hash).document_id,
-        page = $.mobile.activePage,
-        title = page.find('[name=title]').val(),
-        start = page.find('[name=start]').val(),
-        stop = page.find('[name=stop]').val(),
-        project = page.find('[name=project]').val(),
-        state = page.find('[name=state]').val(),
+        $page = $.mobile.activePage,
+        title = $page.find('[name=title]').val(),
+        start = $page.find('[name=start]').val(),
+        stop = $page.find('[name=stop]').val(),
+        project = $page.find('[name=project]').val(),
+        state = $page.find('[name=state]').val(),
         description = $('[name=description]').val(),
         metadata = {},
         update_prom = null;
@@ -1587,22 +1587,35 @@ $(document).on('mobileinit', function () {
   $(document).on('click', '#storage-save', function () {
     jioConfigConnect().then(function (jio_config) {
       var id = $('#storage-id').val(),
-        page = $.mobile.activePage,
-        application_name = page.find('[name=application_name]').val(),
-        storage_type = page.find('[name=storage_type]').val(),
-        url = page.find('[name=storage_url]').val(),
-        auth_type = page.find('[name=auth_type]').val(),
-        realm = page.find('[name=realm]').val(),
-        username = page.find('[name=username]').val(),
-        password = page.find('[name=password]').val(),
+        $form = $.mobile.activePage.find('form'),
+        application_name = $form.find('[name=application_name]').val(),
+        storage_type = $form.find('[name=storage_type]').val(),
+        url = $form.find('[name=storage_url]').val(),
+        auth_type = $form.find('[name=auth_type]').val(),
+        realm = $form.find('[name=realm]').val(),
+        username = $form.find('[name=username]').val(),
+        password = $form.find('[name=password]').val(),
         // something like
         // {"type":"local","username":"Admin","application_name":"Local"}
-        json_description = page.find('[name=json_description]').val(),
+        json_description = $form.find('[name=json_description]').val(),
         config = null,
         metadata = null,
         update_prom = null;
 
-      // XXX validate input
+      $form.validate({
+        rules: {
+          application_name: {
+            required: true
+          },
+          storage_type: {
+            required: true
+          }
+        }
+      });
+
+      if (!$form.valid()) {
+        return;
+      };
 
       config = {
         application_name: application_name,
