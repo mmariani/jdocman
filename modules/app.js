@@ -1590,7 +1590,7 @@ $(document).on('mobileinit', function () {
         page = $.mobile.activePage,
         application_name = page.find('[name=application_name]').val(),
         storage_type = page.find('[name=storage_type]').val(),
-        url = page.find('[name=storage_url]').val(),
+        url = page.find('[name=url]').val(),
         auth_type = page.find('[name=auth_type]').val(),
         realm = page.find('[name=realm]').val(),
         username = page.find('[name=username]').val(),
