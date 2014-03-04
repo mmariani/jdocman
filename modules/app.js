@@ -2050,7 +2050,14 @@ $(document).on('mobileinit', function () {
   $.i18n.init({
     detectLngQS: 'lang',
     fallbackLng: 'en',
-    ns: 'translation',
+    ns: {
+      // load a generic and a mode specific translation
+      namespaces: ['generic', 'mode'],
+      // default to generic if there is no namespace qualifier
+      defaultNs: 'generic'
+    },
+    // keys missing from generic will be provided by the specific namespace
+    fallbackNS: ['mode'],
     resGetPath: 'i18n/__lng__/__ns__.json',
     load: 'unspecific'
   }, applyTranslation);

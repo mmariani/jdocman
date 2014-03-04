@@ -1,0 +1,12 @@
+{
+    "header": {
+      "application_name": "任务管理器",
+      "tasks": "任务"
+    },
+    "documents": {
+      "newdocument": "新任务"
+    },
+    "navbar": {
+      "tasks": "任务"
+    }
+}

@@ -1,0 +1,12 @@
+{
+    "header": {
+      "application_name": "Task Manager",
+      "tasks": "Tasks2"
+    },
+    "documents": {
+      "newdocument": "New Task",
+    },
+    "navbar": {
+      "tasks": "Tasks2"
+    }
+}

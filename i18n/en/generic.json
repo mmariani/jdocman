@@ -1,15 +1,12 @@
 {
     "header": {
-        "task_manager": "Task Manager",
         "projects": "Projects",
-        "tasks": "Tasks",
         "details": "Details",
         "settings": "Settings",
         "storage": "Configure Storage",
         "back": "Back"
     },
     "documents": {
-      "newtask": "New Task",
       "from": "from",
       "to": "to",
       "placeholder": "filter by title, state, date or project",
@@ -45,7 +42,6 @@
     "navbar": {
         "home": "Home",
         "projects": "Projects",
-        "tasks": "Tasks",
         "settings": "Settings"
     },
     "Started": "Started",

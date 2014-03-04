@@ -1,15 +1,12 @@
 {
     "header": {
-        "task_manager": "Gestionnaire de tâches",
         "projects": "Projets",
-        "tasks": "Tâches",
         "details": "Détails",
         "settings": "Paramètres",
         "storage": "Configure Storage",
         "back": "Retour"
     },
     "documents": {
-      "newtask": "Nouvelle tâche",
       "from": "du",
       "to": "au",
       "placeholder": "filtrer par titre, état, dates ou projet",
@@ -45,7 +42,6 @@
     "navbar": {
         "home": "Acceuil",
         "projects": "Projets",
-        "tasks": "Tâches",
         "settings": "Paramètres"
     },
     "Started": "Entamé",
