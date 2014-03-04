@@ -2052,7 +2052,7 @@ $(document).on('mobileinit', function () {
     fallbackLng: 'en',
     ns: 'translation',
     resGetPath: 'i18n/__lng__/__ns__.json',
-    preload: ['en', 'fr', 'zh']
+    load: 'unspecific'
   }, applyTranslation);
 
   renderJS(window).ready(function (gadget) {

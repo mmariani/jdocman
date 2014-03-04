@@ -349,7 +349,7 @@
           </select>
         </label>
 
-        <label for="storage-select" data-inline="true">
+        <label data-inline="true">
           Storage:
           <select id="storage-select" data-role="select" data-mini="true" data-inline="true">
             {{#storage_list}}
@@ -533,7 +533,7 @@
         </div>
 
         <label>
-          <span>JSON Description (overrides previous parameters)</span>
+          <span>You can provide a Storage Description in JSON format here. It will overrides the previous parameters.</span>
           <textarea name="json_description" data-mini="true">{{config.json_description}}</textarea>
         </label>
 
