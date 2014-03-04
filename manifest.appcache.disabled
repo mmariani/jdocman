@@ -27,7 +27,6 @@ lib/handlebars/handlebars-v1.1.2.js
 lib/i18next/i18next-1.7.1.js
 lib/i18next/i18next-1.7.1.min.js
 lib/i18next/i18next.amd.withJQuery-1.7.1.js
-lib/jio/complex_queries.js
 lib/jio/jiodate.js
 lib/jio/jio.js
 lib/jio/rsvp-custom.amd.js

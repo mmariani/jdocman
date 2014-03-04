@@ -1,5 +1,5 @@
 /*jslint indent: 2, nomen: true, vars: true, browser: true */
-/*global $, Logger, RSVP, dav_storage, Handlebars, jiodate, moment, i18n, jIO, Blob, complex_queries, Sanitize, renderJS */
+/*global $, Logger, RSVP, dav_storage, Handlebars, jiodate, moment, i18n, jIO, Blob, Sanitize, renderJS */
 
 $(document).on('mobileinit', function () {
   "use strict";
@@ -694,7 +694,7 @@ $(document).on('mobileinit', function () {
 
   /**
    * Create a query string from the input text, if the
-   * text already complies to the complex_queries grammar.
+   * text already complies to the jIO Query grammar.
    * Basically adds a filter for the document type.
    * XXX nice to have: check grammar
    *
