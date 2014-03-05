@@ -1380,7 +1380,7 @@ $(document).on('mobileinit', function () {
       }).
       then(function () {
         gotoPage('#storage-config-page', {storage_id: storage_id});
-      });
+      }).fail(displayError);
   }
 
 
