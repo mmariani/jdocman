@@ -442,13 +442,26 @@ $(document).on('mobileinit', function () {
       return {
         type: 'query',
         sub_storage: {
-          "type": "dropbox",
-          "access_token": "v43SQLCEoi8AAAAAAAAAAVixCoMfDelgGj3NRPfEnqscAuNGp2LhoS8-GiAaDD4C"
+          type: 'dropbox',
+          access_token: config.access_token
         }
       };
     }
     window.alert('unsupported storage type: ' + config.storage_type);
   }
+
+
+  $(document).on('click', '#dropbox-login', function () {
+    var dropbox_base_url = 'https://www.dropbox.com/1/',
+      auth_path = 'oauth2/authorize',
+      response_type = 'token',
+      client_id = 'e0w2k12133ao0bu',
+      redirect_uri = 'http://localhost/taskman/index.html';
+    $('#dropbox-login').attr('href', dropbox_base_url + auth_path +
+                            '?response_type=' + response_type +
+                            '&client_id=' + client_id +
+                            '&redirect_uri=' + redirect_uri);
+  });
 
 
   /**
@@ -1342,10 +1355,45 @@ $(document).on('mobileinit', function () {
   });
 
 
+  function setCurrentStorageToken() {
+    var args = parseHashParams('#?' + window.location.hash.substr(1)),
+      storage_id = getSelectedStorage(),
+      jc = null;
+
+    jioConfigConnect().
+      then(function (jio_config) {
+        jc = jio_config;
+        return jc.getAttachment({_id: storage_id, _attachment: 'config'});
+      }).
+      then(function (response) {
+        return jIO.util.readBlobAsText(response.data);
+      }).
+      then(function (ev) {
+        console.log(args);
+        var config = JSON.parse(ev.target.result);
+        config.access_token = args.access_token;
+        var attachment = {
+          _id: storage_id,
+          _attachment: 'config',
+          _data: new Blob([JSON.stringify(config)], {type: 'application/octet-stream'})
+        };
+        return jc.putAttachment(attachment);
+      }).
+      then(function () {
+        gotoPage('#storage-config-page', {storage_id: storage_id});
+      });
+  }
+
+
   /**
    * Initial rendering of the 'document list' page.
    */
   $(document).on('pagebeforeshow', '#document-list-page', function () {
+
+    if (window.location.hash.indexOf('#access_token') === 0) {
+      setCurrentStorageToken();
+    }
+
     jioConnect().then(function (jio) {
       // attempt to fix cosmetic issue with a select menu in the header
       $('#document-sortby-button').addClass('ui-btn-left');
@@ -1645,6 +1693,7 @@ $(document).on('mobileinit', function () {
         realm = page.find('[name=realm]').val(),
         username = page.find('[name=username]').val(),
         password = page.find('[name=password]').val(),
+        access_token = page.find('[name=access_token]').val(),
         // something like
         // {"type":"local","username":"Admin","application_name":"Local"}
         json_description = page.find('[name=json_description]').val(),
@@ -1662,6 +1711,7 @@ $(document).on('mobileinit', function () {
         realm: realm,
         username: username,
         password: password,
+        access_token: access_token,
         json_description: json_description
       };
 

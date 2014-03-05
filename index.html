@@ -533,6 +533,13 @@
           </label>
         </div>
 
+        <div class="ui-field-contain">
+          <label>
+            <span><a id="dropbox-login" href='#'>Access Token</a></span>
+            <input type="text" name="access_token" value="{{config.access_token}}" data-mini="true" />
+          </label>
+        </div>
+
         <label>
           <span>You can provide a Storage Description in JSON format here. It will overrides the previous parameters.</span>
           <textarea name="json_description" data-mini="true">{{config.json_description}}</textarea>
