@@ -313,11 +313,11 @@ $(document).on('mobileinit', function () {
    * @param {Object|String} params the parameters to encode, or a fragment
    * identifier which is already encoded. Optional.
    */
-  function gotoPage(page, params) {
+  function gotoPage(page_selector, params) {
     // here '#' has double meaning: CSS selector and fragment separator
-    var url = (typeof params === 'string') ? params : encodeHashParams(page, params);
-    $(page).jqmData('url', url);
-    $.mobile.changePage(page);
+    var url = (typeof params === 'string') ? params : encodeHashParams(page_selector, params);
+    $(page_selector).jqmData('url', url);
+    $.mobile.changePage(page_selector);
   }
 
 
@@ -1029,9 +1029,9 @@ $(document).on('mobileinit', function () {
             project_list = response_list[1].data.rows,
             state_list = response_list[2].data.rows,
             attachments = metadata_resp.data._attachments || [],
-            page = $.mobile.activePage;
+            $page = $.mobile.activePage;
 
-          page.find('.metadata-container').
+          $page.find('.metadata-container').
             html(template.metadata({
               metadata: metadata_resp.data,
               document_id: metadata_resp.id,
@@ -1042,8 +1042,8 @@ $(document).on('mobileinit', function () {
             })).
             trigger('create');
 
-          jqmSetSelected(page.find('[name=project]'), metadata_resp.data.project);
-          jqmSetSelected(page.find('[name=state]'), metadata_resp.data.state);
+          jqmSetSelected($page.find('[name=project]'), metadata_resp.data.project);
+          jqmSetSelected($page.find('[name=state]'), metadata_resp.data.state);
           applyTranslation();
         });
     }).fail(displayError);
@@ -1053,13 +1053,13 @@ $(document).on('mobileinit', function () {
   function saveMetadata() {
     return jioConnect().then(function (jio) {
       var document_id = parseHashParams(window.location.hash).document_id,
-        page = $.mobile.activePage,
-        title = page.find('[name=title]').val(),
-        start = page.find('[name=start]').val(),
-        stop = page.find('[name=stop]').val(),
-        project = page.find('[name=project]').val(),
-        state = page.find('[name=state]').val(),
-        description = $('[name=description]').val(),
+        $page = $.mobile.activePage,
+        title = $page.find('[name=title]').val(),
+        start = $page.find('[name=start]').val(),
+        stop = $page.find('[name=stop]').val(),
+        project = $page.find('[name=project]').val(),
+        state = $page.find('[name=state]').val(),
+        description = $page.find('[name=description]').val(),
         metadata = {},
         update_prom = null;
 
@@ -1608,6 +1608,9 @@ $(document).on('mobileinit', function () {
             })).
             trigger('create');
           applyTranslation();
+
+          var $form = $('#storage-config-container form');
+          jqmSetSelected($form.find('[name=storage_type]'), config.storage_type);
         });
     }).fail(displayError);
   });
@@ -1620,17 +1623,17 @@ $(document).on('mobileinit', function () {
   $(document).on('click', '#storage-save', function () {
     jioConfigConnect().then(function (jio_config) {
       var id = $('#storage-id').val(),
-        page = $.mobile.activePage,
-        application_name = page.find('[name=application_name]').val(),
-        storage_type = page.find('[name=storage_type]').val(),
-        url = page.find('[name=url]').val(),
-        auth_type = page.find('[name=auth_type]').val(),
-        realm = page.find('[name=realm]').val(),
-        username = page.find('[name=username]').val(),
-        password = page.find('[name=password]').val(),
+        $page = $.mobile.activePage,
+        application_name = $page.find('[name=application_name]').val(),
+        storage_type = $page.find('[name=storage_type]').val(),
+        url = $page.find('[name=url]').val(),
+        auth_type = $page.find('[name=auth_type]').val(),
+        realm = $page.find('[name=realm]').val(),
+        username = $page.find('[name=username]').val(),
+        password = $page.find('[name=password]').val(),
         // something like
         // {"type":"local","username":"Admin","application_name":"Local"}
-        json_description = page.find('[name=json_description]').val(),
+        json_description = $page.find('[name=json_description]').val(),
         config = null,
         metadata = null,
         update_prom = null;

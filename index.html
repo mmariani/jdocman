@@ -52,7 +52,7 @@
 
     <section data-role="page" id="document-list-page">
       <header data-role="header">
-        <select id="document-sortby" data-role="select" data-mini="true">
+        <select id="document-sortby" data-mini="true">
           <option value="" data-i18n="documents.sortby.#">Sort by</option>
           <option value="title" data-i18n="documents.sortby.title">Title</option>
           <option value="start" data-i18n="documents.sortby.start">Begin Date</option>
@@ -174,7 +174,7 @@
 
         <label>
           <span data-i18n="details.project">Project:</span>
-          <select name="project" data-role="select" data-inline="true" data-mini="true">
+          <select name="project" data-inline="true" data-mini="true">
             <option value="">--</option>
             {{#project_list}}
             <option value="{{this.doc.project}}">{{this.doc.project}}</option>
@@ -184,7 +184,7 @@
 
         <label>
           <span data-i18n="details.state">State:</span>
-          <select name="state" data-role="select" data-inline="true" data-mini="true">
+          <select name="state" data-inline="true" data-mini="true">
             <option value="">--</option>
             {{#state_list}}
             <option value="{{this.doc.state}}">{{t this.doc.state}}</option>
@@ -288,14 +288,14 @@
           data-i18n="header.back">
           Back
         </a>
-        <a href="#" id="attachment-save" data-role="button"
-          data-icon="check" data-mini="true">
-          Save document
-        </a>
         <a data-role="button"
           id="metadata-popup-trigger"
           data-mini="true">
           Metadata
+        </a>
+        <a href="#" id="attachment-save" data-role="button"
+          data-icon="check" data-mini="true">
+          Save document
         </a>
         <a href="#" data-role="button"
           {{#ATTACHMENT_MODE_SINGLE}}
@@ -352,7 +352,7 @@
 
         <label data-inline="true">
           Storage:
-          <select id="storage-select" data-role="select" data-mini="true" data-inline="true">
+          <select id="storage-select" data-mini="true" data-inline="true">
             {{#storage_list}}
             <option value="{{this.id}}">{{this.config.application_name}} ({{this.config.storage_type}})</option>
             {{/storage_list}}
@@ -484,17 +484,18 @@
       <form action="javascript:void(0);">
         <input type="hidden" id="storage-id" value="{{id}}" />
 
+        <label>
+          <span data-i18n="i18n.todo">Type:</span>
+          <select name="storage_type" data-mini="true" data-inline="true">
+            <option value="local">Local</option>
+            <option value="dav">Dav</option>
+          </select>
+        </label>
+
         <div class="ui-field-contain">
           <label>
             <span data-i18n="i18n.todo">Name:</span>
             <input type="text" name="application_name" value="{{config.application_name}}" data-mini="true" />
-          </label>
-        </div>
-
-        <div class="ui-field-contain">
-          <label>
-            <span data-i18n="i18n.todo">Type:</span>
-            <input type="text" name="storage_type" value="{{config.storage_type}}" data-mini="true" />
           </label>
         </div>
 
@@ -539,10 +540,19 @@
         </label>
 
         <div class="ui-field-contain">
+          <a href="#storage-config-page" data-role="button"
+            data-rel="back"
+            data-inline="true"
+            data-mini="true"
+            data-i18n="details.cancel">
+            Cancel
+          </a>
+
           {{#if id}}
           {{#ifCond id '!==' default_storage_id}}
           <a href="#" data-role="button"
             id="storage-delete"
+             class="ui-btn-right"
             data-icon="delete"
             data-inline="true"
             data-mini="true"
@@ -551,14 +561,6 @@
           </a>
           {{/ifCond}}
           {{/if}}
-
-          <a href="#storage-config-page" data-role="button"
-            data-rel="back"
-            data-inline="true"
-            data-mini="true"
-            data-i18n="details.cancel">
-            Cancel
-          </a>
 
           <a href="#" data-role="button"
             id="storage-save"
@@ -579,7 +581,7 @@
 
     <section data-role="dialog" id="about-dialog">
       <header data-role="header">
-        <h2 data-i18n="application_name">
+        <h2 data-i18n="header.application_name">
           Application Name
         </h2>
       </header>
