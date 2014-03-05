@@ -1369,7 +1369,6 @@ $(document).on('mobileinit', function () {
         return jIO.util.readBlobAsText(response.data);
       }).
       then(function (ev) {
-        console.log(args);
         var config = JSON.parse(ev.target.result);
         config.access_token = args.access_token;
         var attachment = {
