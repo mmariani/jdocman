@@ -35,10 +35,8 @@ i18n/zh/taskman.json
 i18n/zh/svg.json
 i18n/zh/spreadsheet.json
 index.html
-lib/handlebars/handlebars-v1.1.2.js
-lib/i18next/i18next-1.7.1.js
-lib/i18next/i18next-1.7.1.min.js
-lib/i18next/i18next.amd.withJQuery-1.7.1.js
+lib/handlebars/handlebars-v1.3.0.js
+lib/i18next/i18next-1.7.2.js
 lib/jio/jiodate.js
 lib/jio/jio.js
 lib/jio/rsvp-custom.amd.js
@@ -50,9 +48,8 @@ lib/jio/storage/gidstorage.js
 lib/jio/storage/localstorage.js
 lib/jio/storage/querystorage.js
 lib/jio/storage/replicatestorage.js
-lib/jqm/jquery.mobile-1.4.1.min.js
-lib/jqm/jquery.mobile-1.4.1.min.map
-lib/jqm/jquery.mobile.structure-1.4.1.min.css
+lib/jqm/jquery.mobile-1.4.2.js
+lib/jqm/jquery.mobile.structure-1.4.2.css
 lib/jquery/jquery-2.1.0.js
 lib/jquery/jquery-2.1.0.min.js
 lib/jquery/jquery-2.1.0.min.map
@@ -60,7 +57,7 @@ lib/jquery.mobile.datepicker/jquery.mobile.datepicker.css
 lib/jquery.mobile.datepicker/jquery.mobile.datepicker.js
 lib/jquery.mobile.datepicker/jquery.ui.datepicker.js
 lib/js-logger/l0gger.js
-lib/moment/moment-2.5.0.js
+lib/moment/moment-2.5.1.js
 lib/sanitize/basic.js
 lib/sanitize/relaxed.js
 lib/sanitize/restricted.js
