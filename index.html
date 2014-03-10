@@ -20,11 +20,11 @@
 
     <script id="document-link-partial" type="text/x-handlebars-template">
       <a data-role="button"
-        {{#ATTACHMENT_MODE_SINGLE}}
+        {{#IF_ATTACHMENT_MODE_SINGLE}}
         href="#attachment-page?document_id={{this.id}}&attachment_name={{SINGLE_ATTACHMENT_NAME}}" class="edit-attachment-link"
         {{else}}
         href="#metadata-page?document_id={{this.id}}" class="metadata-link"
-        {{/ATTACHMENT_MODE_SINGLE}}
+        {{/IF_ATTACHMENT_MODE_SINGLE}}
         >
         {{this.doc.title}}
         <p class="description">{{sanitize this.doc.description 100}}</p>
@@ -35,13 +35,13 @@
           {{t "documents.to"}}
           <span class="to-date">{{asYMD this.doc.stop}}</span>
         </p>
-        {{#ATTACHMENT_MODE_MULTIPLE}}
+        {{#IF_ATTACHMENT_MODE_MULTIPLE}}
         {{#if this.doc._attachments}}
         <p>
           attachments: {{#each this.doc._attachments}}<span class="attachment">{{@key}}</span>{{/each}}
         </p>
         {{/if}}
-        {{/ATTACHMENT_MODE_MULTIPLE}}
+        {{/IF_ATTACHMENT_MODE_MULTIPLE}}
       </a>
     </script><!-- /document-link-partial -->
 
@@ -197,7 +197,7 @@
           <textarea name="description">{{metadata.description}}</textarea>
         </label>
 
-        {{#ATTACHMENT_MODE_MULTIPLE}}
+        {{#IF_ATTACHMENT_MODE_MULTIPLE}}
         {{#if document_id}}
         <ul data-role="listview" data-inset="true">
           {{#if attachments}}
@@ -219,7 +219,7 @@
           New attachment
         </a>
         {{/if}}
-        {{/ATTACHMENT_MODE_MULTIPLE}}
+        {{/IF_ATTACHMENT_MODE_MULTIPLE}}
       </form>
     </script><!-- /metadata-template -->
 
@@ -298,11 +298,11 @@
           Save document
         </a>
         <a href="#" data-role="button"
-          {{#ATTACHMENT_MODE_SINGLE}}
+          {{#IF_ATTACHMENT_MODE_SINGLE}}
           class="document-delete ui-btn-right"
           {{else}}
           class="attachment-delete ui-btn-right"
-          {{/ATTACHMENT_MODE_SINGLE}}
+          {{/IF_ATTACHMENT_MODE_SINGLE}}
           data-icon="delete"
           data-mini="true"
           data-i18n="details.delete">
@@ -385,14 +385,25 @@
         <fieldset data-role="controlgroup" data-mini="true">
           <legend data-i18n="settings.projects">Projects:</legend>
           {{#project_list}}
-          <label data-i18n="{{this.doc.project}}"><input type="radio" name="project-radio" data-jio-project="{{this.doc.project}}" data-jio-id="{{this.id}}" />{{this.doc.project}}</label>
+          <label data-i18n="{{this.doc.project}}">
+            <input type="radio" name="project-radio"
+                   data-jio-project="{{this.doc.project}}"
+                   data-jio-id="{{this.id}}" />
+              {{this.doc.project}}
+            </label>
           {{/project_list}}
         </fieldset>
         <fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
           {{#if project_list}}
-          <a href="#" id="settings-del-project" data-role="button" data-icon="delete" data-inline="true">Delete</a>
+          <a href="#" id="settings-del-project"
+             data-role="button" data-icon="delete" data-inline="true">
+            Delete
+          </a>
           {{/if}}
-          <a href="#" id="settings-add-project" data-role="button" data-icon="plus" data-inline="true">New Project</a>
+          <a href="#" id="settings-add-project"
+             data-role="button" data-icon="plus" data-inline="true">
+            New Project
+          </a>
         </fieldset>
         {{/if}}
       </form>

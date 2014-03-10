@@ -61,7 +61,7 @@ It is recommended that you get familiar with the dependencies:
    searches, with the [JIODate](http://jio.readthedocs.org/en/latest/keys.html#partial-date-time-match) type.
    You can search for year, month, day, hour and so on, with the usual comparison operators.
 
- * To avoid "callback hell", jIO uses a [custom version](https://github.com/nexedi/jio/blob/master/lib/rsvp/rsvp-custom.js) of [RSVP.js](https://github.com/tildeio/rsvp.js)
+ * To avoid "callback hell", jIO uses a [customized version](https://github.com/nexedi/jio/blob/master/lib/rsvp/rsvp-custom.js) of [RSVP.js](https://github.com/tildeio/rsvp.js)
 
    As you can see in TaskMan, promises are also used at the application and UI level.
    If you are not familiar with them, these are useful talks and slides:
@@ -69,8 +69,7 @@ It is recommended that you get familiar with the dependencies:
    - [Promises, promises - an exploration of promises/A+ using rsvp.js](http://bantic.github.io/talks-promises/)
      ([video](http://www.youtube.com/watch?v=L1arcjb3Es8) and [sample code](http://jsbin.com/OqUWagu/24))
    - [Cleaning Up JavaScript Callbacks With Promises](http://www.youtube.com/watch?v=HWGfPx9yxEA)
-   - [Callbacks are imperative, promises are functional: Node’s biggest missed opportunity]
-     (https://blog.jcoglan.com/2013/03/30/callbacks-are-imperative-promises-are-functional-nodes-biggest-missed-opportunity/)
+   - [Callbacks are imperative, promises are functional: Node’s biggest missed opportunity](https://blog.jcoglan.com/2013/03/30/callbacks-are-imperative-promises-are-functional-nodes-biggest-missed-opportunity/)
    - [Five Patterns to Help You Tame Asynchronous JavaScript](http://tech.pro/blog/1402/five-patterns-to-help-you-tame-asynchronous-javascript)
 
    Also, recent versions of Firefox and Chrome have a native Promise implementation similar to RSVP:

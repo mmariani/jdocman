@@ -482,11 +482,7 @@ $(document).on('mobileinit', function () {
           {
             storage_type: 'local',
             username: 'Admin',
-            application_name: 'Local',
-            url: '',
-            realm: '',
-            auth_type: '',
-            password: ''
+            application_name: 'Local'
           }, {
             storage_type: 'dav',
             username: 'Admin',
@@ -729,7 +725,6 @@ $(document).on('mobileinit', function () {
    * Create a query string from the input text, if the
    * text already complies to the jIO Query grammar.
    * Basically adds a filter for the document type.
-   * XXX nice to have: check grammar
    *
    * @param {Object} input_text a grammar-complying query string
    * @return {String} A query string that can be used with allDocs
@@ -1109,14 +1104,14 @@ $(document).on('mobileinit', function () {
     return application_setup.single_attachment_name;
   });
 
-  Handlebars.registerHelper('ATTACHMENT_MODE_SINGLE', function (options) {
+  Handlebars.registerHelper('IF_ATTACHMENT_MODE_SINGLE', function (options) {
     if (application_setup.attachment_mode === 'single') {
       return options.fn(this);
     }
     return options.inverse(this);
   });
 
-  Handlebars.registerHelper('ATTACHMENT_MODE_MULTIPLE', function (options) {
+  Handlebars.registerHelper('IF_ATTACHMENT_MODE_MULTIPLE', function (options) {
     if (application_setup.attachment_mode === 'multiple') {
       return options.fn(this);
     }
@@ -1307,7 +1302,7 @@ $(document).on('mobileinit', function () {
               project_count: rows.length,
               document_map: document_map
             })).
-            trigger('create'); // notify jqm of the changes we made
+            trigger('create');
           applyTranslation();
         });
     }).fail(displayError);
@@ -1478,7 +1473,7 @@ $(document).on('mobileinit', function () {
       return;
     }
 
-    // XXX check for duplicate names
+    // XXX check for duplicate names, allow rename
 
     gotoPage('#attachment-page',
              { document_id: document_id,
@@ -1624,8 +1619,8 @@ $(document).on('mobileinit', function () {
     jioConfigConnect().then(function (jio_config) {
       var id = $('#storage-id').val(),
         $page = $.mobile.activePage,
-        application_name = $page.find('[name=application_name]').val(),
         storage_type = $page.find('[name=storage_type]').val(),
+        application_name = $page.find('[name=application_name]').val(),
         url = $page.find('[name=url]').val(),
         auth_type = $page.find('[name=auth_type]').val(),
         realm = $page.find('[name=realm]').val(),
@@ -1883,8 +1878,6 @@ $(document).on('mobileinit', function () {
         });
         return;
       }
-
-      // XXX should clear the storage first?
 
       var ins_promise_list = [];
 
