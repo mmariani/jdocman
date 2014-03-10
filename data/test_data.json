@@ -5,8 +5,7 @@
       "key": "1d7a2f5e-e925-0aeb-25fd-15fee3ae9788",
       "doc": {
         "type": "Project",
-        "project": "Default Project",
-        "project_i18n": "settings.content.default",
+        "title": "Default Project",
         "modified": "2014-02-25T08:48:39.338Z",
         "_id": "1d7a2f5e-e925-0aeb-25fd-15fee3ae9788"
       },
@@ -17,7 +16,7 @@
       "key": "1ec89764-a178-20b0-ad43-c4811d6fbbca",
       "doc": {
         "type": "State",
-        "state": "Confirmed",
+        "title": "Confirmed",
         "modified": "2014-02-25T08:48:39.369Z",
         "_id": "1ec89764-a178-20b0-ad43-c4811d6fbbca"
       },
@@ -44,7 +43,7 @@
       "key": "55c77352-2a7b-9178-873e-f55fe1910faa",
       "doc": {
         "type": "State",
-        "state": "Started",
+        "title": "Started",
         "modified": "2014-02-25T08:48:39.353Z",
         "_id": "55c77352-2a7b-9178-873e-f55fe1910faa"
       },
@@ -71,7 +70,7 @@
       "key": "651b27bb-549b-3635-fb72-335058ab7ae1",
       "doc": {
         "type": "Project",
-        "project": "Events",
+        "title": "Events",
         "modified": "2014-02-25T08:48:39.343Z",
         "_id": "651b27bb-549b-3635-fb72-335058ab7ae1"
       },
@@ -82,7 +81,7 @@
       "key": "75c4c002-c16f-65e9-b54e-f0f852ff46d5",
       "doc": {
         "type": "Project",
-        "project": "Market Garden",
+        "title": "Market Garden",
         "modified": "2014-02-25T08:48:39.347Z",
         "_id": "75c4c002-c16f-65e9-b54e-f0f852ff46d5"
       },
@@ -164,7 +163,7 @@
       "key": "f176e7ca-2d81-da6f-eb97-6c967926f673",
       "doc": {
         "type": "State",
-        "state": "Completed",
+        "title": "Completed",
         "modified": "2014-02-25T08:48:39.378Z",
         "_id": "f176e7ca-2d81-da6f-eb97-6c967926f673"
       },
