@@ -87,7 +87,9 @@ $(document).on('mobileinit', function () {
     _jio = null,
     _jio_promise = null,
     _jio_config = null,
-    _jio_config_promise = null;
+    _jio_config_promise = null,
+    // are we creating a document from document list page, or from project list page?
+    goto_page_after_document_save = null;
 
 
   if (DEBUG) {
@@ -1268,6 +1270,7 @@ $(document).on('mobileinit', function () {
    * Translation is applied after rendering the template.
    */
   $(document).on('pagebeforeshow', '#project-list-page', function () {
+    goto_page_after_document_save = '#' + $.mobile.activePage.attr('id');
     jioConnect().then(function (jio) {
       var options = {
         include_docs: true,
@@ -1324,6 +1327,7 @@ $(document).on('mobileinit', function () {
    * Initial rendering of the 'document list' page.
    */
   $(document).on('pagebeforeshow', '#document-list-page', function () {
+    goto_page_after_document_save = '#' + $.mobile.activePage.attr('id');
     jioConnect().then(function (jio) {
       // attempt to fix cosmetic issue with a select menu in the header
       $('#document-sortby-button').addClass('ui-btn-left');
@@ -1554,7 +1558,7 @@ $(document).on('mobileinit', function () {
           then(function (jio) {
             return jio.putAttachment(attachment);
           }).then(function () {
-            parent.history.back();
+            gotoPage(goto_page_after_document_save);
           });
       }).
       fail(displayError);
