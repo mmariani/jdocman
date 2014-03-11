@@ -24,7 +24,7 @@ $(document).on('mobileinit', function () {
       // In taskman-attachments mode, each metadata (i.e. task)
       // can contain several HTML attachments.
       attachment_mode: 'multiple',
-      attachment_content_type: 'text/html',
+      attachment_content_type: 'text/html; charset=utf8',
       jio_type: 'Task',
       i18n_namespace: 'taskman',
       test_data_url: 'app/data/test_data_taskman.json',
@@ -41,7 +41,7 @@ $(document).on('mobileinit', function () {
       // is hardcoded.
       attachment_mode: 'single',
       single_attachment_name: 'content',
-      attachment_content_type: 'text/html',
+      attachment_content_type: 'text/html; charset=utf8',
       jio_type: 'Web Page',
       i18n_namespace: 'editor',
       test_data_url: 'app/data/test_data_editor.json',
@@ -77,7 +77,7 @@ $(document).on('mobileinit', function () {
         }
       }
     },
-  }, application_setup = APPLICATION_SETUP_MAP.taskman,
+  }, application_setup = APPLICATION_SETUP_MAP.svg,
     template = {
       // precompile for speed
       'feedback-popup': Handlebars.compile($('#feedback-popup-template').text()),
@@ -1761,12 +1761,12 @@ $(document).on('mobileinit', function () {
     }).then(function (attachment_resp) {
       return RSVP.all(attachment_resp.map(function (response, idx) {
         archive.attachment_list[idx].content_type = response.data.type;
-        return jIO.util.readBlobAsBinaryString(response.data);
+        return jIO.util.readBlobAsText(response.data);
       }));
     }).then(function (attachment_content_resp) {
       attachment_content_resp.forEach(function (ev, idx) {
         // encode in base64
-        archive.attachment_list[idx].b64content = window.btoa(ev.target.result);
+        archive.attachment_list[idx].content = ev.target.result;
       });
 
       var $textarea = $('<textarea id="storage-export-json">'),
@@ -1911,7 +1911,7 @@ $(document).on('mobileinit', function () {
       });
 
       archive.attachment_list.forEach(function (obj) {
-        var content = window.atob(obj.b64content),
+        var content = obj.content,
           promise = jio.putAttachment({
             _id: obj.id,
             _attachment: obj.attachment_name,

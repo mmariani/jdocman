@@ -1,190 +1,224 @@
 {
   "metadata_list": [
     {
-      "id": "1d7a2f5e-e925-0aeb-25fd-15fee3ae9788",
-      "key": "1d7a2f5e-e925-0aeb-25fd-15fee3ae9788",
-      "doc": {
-        "type": "Project",
-        "title": "Default Project",
-        "modified": "2014-02-25T08:48:39.338Z",
-        "_id": "1d7a2f5e-e925-0aeb-25fd-15fee3ae9788"
-      },
-      "value": {}
-    },
-    {
-      "id": "1ec89764-a178-20b0-ad43-c4811d6fbbca",
-      "key": "1ec89764-a178-20b0-ad43-c4811d6fbbca",
-      "doc": {
-        "type": "State",
-        "title": "Confirmed",
-        "modified": "2014-02-25T08:48:39.369Z",
-        "_id": "1ec89764-a178-20b0-ad43-c4811d6fbbca"
-      },
-      "value": {}
-    },
-    {
-      "id": "42ade216-f340-3af1-2eef-ec7522e2f209",
-      "key": "42ade216-f340-3af1-2eef-ec7522e2f209",
+      "id": "283e4342-5fb3-3dab-7a69-f8c1186aa425",
+      "key": "283e4342-5fb3-3dab-7a69-f8c1186aa425",
       "doc": {
         "type": "Web Page",
-        "title": "Other stuff",
-        "project": "Default Project",
-        "start": "2013-05-14T23:00:00.000Z",
-        "stop": "2014-10-29T23:00:00.000Z",
-        "state": "Confirmed",
-        "description": "some description",
-        "modified": "2014-02-25T08:48:39.411Z",
-        "_id": "42ade216-f340-3af1-2eef-ec7522e2f209"
-      },
-      "value": {}
-    },
-    {
-      "id": "55c77352-2a7b-9178-873e-f55fe1910faa",
-      "key": "55c77352-2a7b-9178-873e-f55fe1910faa",
-      "doc": {
-        "type": "State",
-        "title": "Started",
-        "modified": "2014-02-25T08:48:39.353Z",
-        "_id": "55c77352-2a7b-9178-873e-f55fe1910faa"
-      },
-      "value": {}
-    },
-    {
-      "id": "5cc3a3df-3122-3995-7fb6-8a54ee5eb85a",
-      "key": "5cc3a3df-3122-3995-7fb6-8a54ee5eb85a",
-      "doc": {
-        "type": "Web Page",
-        "title": "Winter Olympics",
-        "project": "Events",
-        "start": "2014-02-07",
-        "stop": "2014-02-23",
-        "state": "Confirmed",
-        "description": "2014 Winter Olympics held in Sochi, Russia.",
-        "modified": "2014-02-25T08:48:39.445Z",
-        "_id": "5cc3a3df-3122-3995-7fb6-8a54ee5eb85a"
-      },
-      "value": {}
-    },
-    {
-      "id": "651b27bb-549b-3635-fb72-335058ab7ae1",
-      "key": "651b27bb-549b-3635-fb72-335058ab7ae1",
-      "doc": {
-        "type": "Project",
-        "title": "Events",
-        "modified": "2014-02-25T08:48:39.343Z",
-        "_id": "651b27bb-549b-3635-fb72-335058ab7ae1"
-      },
-      "value": {}
-    },
-    {
-      "id": "75c4c002-c16f-65e9-b54e-f0f852ff46d5",
-      "key": "75c4c002-c16f-65e9-b54e-f0f852ff46d5",
-      "doc": {
-        "type": "Project",
-        "title": "Market Garden",
-        "modified": "2014-02-25T08:48:39.347Z",
-        "_id": "75c4c002-c16f-65e9-b54e-f0f852ff46d5"
-      },
-      "value": {}
-    },
-    {
-      "id": "86e70bca-7f77-c902-452b-560e7a74346a",
-      "key": "86e70bca-7f77-c902-452b-560e7a74346a",
-      "doc": {
-        "type": "Web Page",
-        "title": "Solar eclipse",
-        "project": "Events",
-        "start": "2014-04-29",
-        "stop": "2014-04-29",
-        "state": "Confirmed",
-        "description": "",
-        "modified": "2014-02-25T08:48:39.459Z",
-        "_id": "86e70bca-7f77-c902-452b-560e7a74346a"
-      },
-      "value": {}
-    },
-    {
-      "id": "a85a4f4c-f139-6805-2f8d-18bdc6092eb6",
-      "key": "a85a4f4c-f139-6805-2f8d-18bdc6092eb6",
-      "doc": {
-        "type": "Web Page",
-        "title": "Jquery mobile in action",
-        "project": "Default Project",
-        "start": "2013-05-19T22:00:00.000Z",
-        "stop": "2013-11-01T23:00:00.000Z",
-        "state": "Completed",
-        "description": "some description coming soon",
-        "modified": "2014-02-25T08:48:39.388Z",
-        "_id": "a85a4f4c-f139-6805-2f8d-18bdc6092eb6"
-      },
-      "value": {}
-    },
-    {
-      "id": "c3950908-b6e0-b7de-2bd2-6b3fdc6c59eb",
-      "key": "c3950908-b6e0-b7de-2bd2-6b3fdc6c59eb",
-      "doc": {
-        "type": "Web Page",
-        "title": "HTML5 and CSS3 overview",
-        "project": "Default Project",
-        "start": "2013-01-14T23:00:00.000Z",
-        "stop": "2014-10-29T23:00:00.000Z",
-        "state": "Started",
-        "description": "task manager app with JQM",
-        "modified": "2014-02-25T08:48:39.399Z",
-        "_id": "c3950908-b6e0-b7de-2bd2-6b3fdc6c59eb",
+        "title": "Русский язык (Russian)",
+        "start": "2014-03-11",
+        "stop": "2014-03-11",
+        "project": "Language",
+        "state": "Draft",
+        "description": "http://ru.wikipedia.org/wiki/%D0%A0%D1%83%D1%81%D1%81%D0%BA%D0%B8%D0%B9_%D1%8F%D0%B7%D1%8B%D0%BA",
+        "modified": "2014-03-11T15:06:42.843Z",
+        "_id": "283e4342-5fb3-3dab-7a69-f8c1186aa425",
         "_attachments": {
           "content": {
-            "content_type": "application/octet-stream",
-            "digest": "sha256-4b97fe528ba69ec5f3eb1fb9b877bb7c3b375592cde779361ebdf6754af19150",
-            "length": 37
+            "content_type": "text/html; charset=utf8",
+            "digest": "sha256-8c0fe0b9811f3c3995a3ae814663dd1c2028874b7a44b2f1590daa94850df33c",
+            "length": 9211
           }
         }
       },
       "value": {}
     },
     {
-      "id": "ef61d6de-96e3-2a7a-9b62-882354fdc7e9",
-      "key": "ef61d6de-96e3-2a7a-9b62-882354fdc7e9",
+      "id": "3c91c8db-bdcf-129d-5081-6c78deb28eee",
+      "key": "3c91c8db-bdcf-129d-5081-6c78deb28eee",
       "doc": {
         "type": "Web Page",
-        "title": "Vintage",
-        "project": "Market Garden",
-        "start": "2014-09-15",
-        "stop": "2014-10-01",
-        "state": "Confirmed",
-        "description": "La vendange est la récolte du raisin destiné à la production du vin",
-        "modified": "2014-02-25T08:48:39.431Z",
-        "_id": "ef61d6de-96e3-2a7a-9b62-882354fdc7e9"
+        "title": "汉语 (chinese)",
+        "start": "2014-03-11",
+        "stop": "2014-03-11",
+        "project": "Language",
+        "state": "Draft",
+        "description": "http://zh.wikipedia.org/wiki/%E6%B1%89%E8%AF%AD",
+        "modified": "2014-03-11T15:07:13.130Z",
+        "_id": "3c91c8db-bdcf-129d-5081-6c78deb28eee",
+        "_attachments": {
+          "content": {
+            "content_type": "text/html; charset=utf8",
+            "digest": "sha256-5c305651573fd51edfaa05655d981d009c6cb1688216e9f40234648be2409970",
+            "length": 14753
+          }
+        }
       },
       "value": {}
     },
     {
-      "id": "f176e7ca-2d81-da6f-eb97-6c967926f673",
-      "key": "f176e7ca-2d81-da6f-eb97-6c967926f673",
+      "id": "3cba68ad-3ff3-87bd-719f-a1080595d911",
+      "key": "3cba68ad-3ff3-87bd-719f-a1080595d911",
+      "doc": {
+        "type": "Web Page",
+        "title": "日本語 (japanese)",
+        "start": "2014-03-11",
+        "stop": "2014-03-11",
+        "project": "Language",
+        "state": "Draft",
+        "description": "http://ja.wikipedia.org/wiki/%E6%97%A5%E6%9C%AC%E8%AA%9E",
+        "modified": "2014-03-11T15:07:27.254Z",
+        "_id": "3cba68ad-3ff3-87bd-719f-a1080595d911",
+        "_attachments": {
+          "content": {
+            "content_type": "text/html; charset=utf8",
+            "digest": "sha256-f35655bb3c86aa116c26d20153cb798fd807b6e915cb3393cb3d6cfc88614365",
+            "length": 6366
+          }
+        }
+      },
+      "value": {}
+    },
+    {
+      "id": "3e17ffed-40d4-9f66-b2f7-c781302dbe25",
+      "key": "3e17ffed-40d4-9f66-b2f7-c781302dbe25",
       "doc": {
         "type": "State",
-        "title": "Completed",
-        "modified": "2014-02-25T08:48:39.378Z",
-        "_id": "f176e7ca-2d81-da6f-eb97-6c967926f673"
+        "title": "Published",
+        "modified": "2014-03-11T15:08:49.084Z",
+        "_id": "3e17ffed-40d4-9f66-b2f7-c781302dbe25"
       },
       "value": {}
     },
     {
-      "id": "f93e97e1-a6e8-d530-3e59-1f1b93532a97",
-      "key": "f93e97e1-a6e8-d530-3e59-1f1b93532a97",
+      "id": "509c8503-7867-f79c-7ddd-d16bfe90cd1c",
+      "key": "509c8503-7867-f79c-7ddd-d16bfe90cd1c",
       "doc": {
         "type": "Web Page",
-        "title": "Soccer World Cup",
-        "project": "Events",
-        "start": "2014-06-12",
-        "stop": "2014-07-13",
-        "state": "Confirmed",
-        "description": "2014 FIFA World Cup held in Brazil.",
-        "modified": "2014-02-25T08:48:39.475Z",
-        "_id": "f93e97e1-a6e8-d530-3e59-1f1b93532a97"
+        "title": "English",
+        "start": "2014-03-11",
+        "stop": "2014-03-11",
+        "project": "Language",
+        "state": "Draft",
+        "description": "http://en.wikipedia.org/wiki/English_language",
+        "modified": "2014-03-11T15:07:34.506Z",
+        "_id": "509c8503-7867-f79c-7ddd-d16bfe90cd1c",
+        "_attachments": {
+          "content": {
+            "content_type": "text/html; charset=utf8",
+            "digest": "sha256-933eb58a1e000a6cbcedfb892d3e08a458dc5a3f898d4e9627db921e3625b97a",
+            "length": 8374
+          }
+        }
+      },
+      "value": {}
+    },
+    {
+      "id": "6fce9060-f9bb-fd23-193b-156ebfbdf6fe",
+      "key": "6fce9060-f9bb-fd23-193b-156ebfbdf6fe",
+      "doc": {
+        "type": "Web Page",
+        "title": "ᐃᓄᒃᑎᑐᑦ (Inuktitut)",
+        "start": "2014-03-11",
+        "stop": "2014-03-11",
+        "project": "Language",
+        "state": "Draft",
+        "description": "http://iu.wikipedia.org/wiki/%E1%90%83%E1%93%84%E1%92%83%E1%91%8E%E1%91%90%E1%91%A6",
+        "modified": "2014-03-11T15:07:41.027Z",
+        "_id": "6fce9060-f9bb-fd23-193b-156ebfbdf6fe",
+        "_attachments": {
+          "content": {
+            "content_type": "text/html; charset=utf8",
+            "digest": "sha256-8642ca8ddbb18d7086b34223d4633ce680eae2ec9f8ad9e4d6702358b8a33c12",
+            "length": 678
+          }
+        }
+      },
+      "value": {}
+    },
+    {
+      "id": "8533d225-a791-63e0-c914-f4befe15eac1",
+      "key": "8533d225-a791-63e0-c914-f4befe15eac1",
+      "doc": {
+        "type": "State",
+        "title": "Private",
+        "modified": "2014-03-11T15:08:52.000Z",
+        "_id": "8533d225-a791-63e0-c914-f4befe15eac1"
+      },
+      "value": {}
+    },
+    {
+      "id": "963de44b-f305-56f2-a865-a538ad7a3f4e",
+      "key": "963de44b-f305-56f2-a865-a538ad7a3f4e",
+      "doc": {
+        "type": "Web Page",
+        "title": "Français",
+        "start": "2014-03-11",
+        "stop": "2014-03-11",
+        "project": "Language",
+        "state": "Draft",
+        "description": "http://fr.wikipedia.org/wiki/Fran%C3%A7ais",
+        "modified": "2014-03-11T15:08:19.810Z",
+        "_id": "963de44b-f305-56f2-a865-a538ad7a3f4e",
+        "_attachments": {
+          "content": {
+            "content_type": "text/html; charset=utf8",
+            "digest": "sha256-fc30c877929b9b9dce56ce7b013ca67b68a44258ccd47d54ae7f0bdd961b7d26",
+            "length": 8035
+          }
+        }
+      },
+      "value": {}
+    },
+    {
+      "id": "992500f8-7a8a-c21d-8f17-ae3c2cf1c785",
+      "key": "992500f8-7a8a-c21d-8f17-ae3c2cf1c785",
+      "doc": {
+        "type": "State",
+        "title": "Draft",
+        "modified": "2014-03-11T14:54:47.296Z",
+        "_id": "992500f8-7a8a-c21d-8f17-ae3c2cf1c785"
+      },
+      "value": {}
+    },
+    {
+      "id": "bba00a85-de2e-db27-295d-90a8764934b3",
+      "key": "bba00a85-de2e-db27-295d-90a8764934b3",
+      "doc": {
+        "type": "Project",
+        "title": "Language",
+        "modified": "2014-03-11T14:55:25.769Z",
+        "_id": "bba00a85-de2e-db27-295d-90a8764934b3"
       },
       "value": {}
     }
   ],
-  "attachment_list": []
+  "attachment_list": [
+    {
+      "id": "283e4342-5fb3-3dab-7a69-f8c1186aa425",
+      "attachment_name": "content",
+      "content_type": "text/html; charset=utf8",
+      "content": "<b style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 13px; line-height: 19.200000762939453px;\">Ру́сский язы́к</b><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 13px; line-height: 19.200000762939453px;\">&nbsp;относится к&nbsp;</span><a href=\"http://ru.wikipedia.org/wiki/%D0%92%D0%BE%D1%81%D1%82%D0%BE%D1%87%D0%BD%D0%BE%D1%81%D0%BB%D0%B0%D0%B2%D1%8F%D0%BD%D1%81%D0%BA%D0%B8%D0%B5_%D1%8F%D0%B7%D1%8B%D0%BA%D0%B8\" title=\"Восточнославянские языки\" style=\"color: rgb(11, 0, 128); background-image: none; font-family: sans-serif; font-size: 13px; line-height: 19.200000762939453px;\">восточной группе</a><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 13px; line-height: 19.200000762939453px;\">&nbsp;</span><a href=\"http://ru.wikipedia.org/wiki/%D0%A1%D0%BB%D0%B0%D0%B2%D1%8F%D0%BD%D1%81%D0%BA%D0%B8%D0%B5_%D1%8F%D0%B7%D1%8B%D0%BA%D0%B8\" title=\"Славянские языки\" style=\"color: rgb(11, 0, 128); background-image: none; font-family: sans-serif; font-size: 13px; line-height: 19.200000762939453px;\">славянских языков</a><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 13px; line-height: 19.200000762939453px;\">, принадлежащих&nbsp;</span><a href=\"http://ru.wikipedia.org/wiki/%D0%98%D0%BD%D0%B4%D0%BE%D0%B5%D0%B2%D1%80%D0%BE%D0%BF%D0%B5%D0%B9%D1%81%D0%BA%D0%B8%D0%B5_%D1%8F%D0%B7%D1%8B%D0%BA%D0%B8\" title=\"Индоевропейские языки\" style=\"color: rgb(11, 0, 128); background-image: none; font-family: sans-serif; font-size: 13px; line-height: 19.200000762939453px;\">индоевропейской семье</a><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 13px; line-height: 19.200000762939453px;\">&nbsp;</span><a href=\"http://ru.wikipedia.org/wiki/%D0%AF%D0%B7%D1%8B%D0%BA\" title=\"Язык\" style=\"color: rgb(11, 0, 128); background-image: none; font-family: sans-serif; font-size: 13px; line-height: 19.200000762939453px;\">языков</a><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 13px; line-height: 19.200000762939453px;\">. Он является&nbsp;</span><a href=\"http://ru.wikipedia.org/wiki/%D0%A1%D0%BF%D0%B8%D1%81%D0%BE%D0%BA_%D1%8F%D0%B7%D1%8B%D0%BA%D0%BE%D0%B2_%D0%BF%D0%BE_%D1%87%D0%B8%D1%81%D0%BB%D0%B5%D0%BD%D0%BD%D0%BE%D1%81%D1%82%D0%B8_%D0%B3%D0%BE%D0%B2%D0%BE%D1%80%D1%8F%D1%89%D0%B8%D1%85\" title=\"Список языков по численности говорящих\" class=\"mw-redirect\" style=\"color: rgb(11, 0, 128); background-image: none; font-family: sans-serif; font-size: 13px; line-height: 19.200000762939453px;\">восьмым языком в мире по численности владеющих им как родным</a><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 13px; line-height: 19.200000762939453px;\">&nbsp;и пятым языком в мире по общей численности говорящих</span><sup id=\"cite_ref-20\" class=\"reference\" style=\"line-height: 1em; unicode-bidi: -webkit-isolate; color: rgb(0, 0, 0); font-family: sans-serif;\"><a href=\"http://ru.wikipedia.org/wiki/%D0%A0%D1%83%D1%81%D1%81%D0%BA%D0%B8%D0%B9_%D1%8F%D0%B7%D1%8B%D0%BA#cite_note-20\" style=\"color: rgb(11, 0, 128); background-image: none;\">[20]</a></sup><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 13px; line-height: 19.200000762939453px;\">. Русский язык&nbsp;—&nbsp;</span><a href=\"http://ru.wikipedia.org/wiki/%D0%9D%D0%B0%D1%86%D0%B8%D0%BE%D0%BD%D0%B0%D0%BB%D1%8C%D0%BD%D1%8B%D0%B9_%D1%8F%D0%B7%D1%8B%D0%BA\" title=\"Национальный язык\" style=\"color: rgb(11, 0, 128); background-image: none; font-family: sans-serif; font-size: 13px; line-height: 19.200000762939453px;\">национальный язык</a><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 13px; line-height: 19.200000762939453px;\">&nbsp;</span><a href=\"http://ru.wikipedia.org/wiki/%D0%A0%D1%83%D1%81%D1%81%D0%BA%D0%B8%D0%B5\" title=\"Русские\" style=\"color: rgb(11, 0, 128); background-image: none; font-family: sans-serif; font-size: 13px; line-height: 19.200000762939453px;\">русского народа</a><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 13px; line-height: 19.200000762939453px;\">, основной язык международного общения в центральной&nbsp;</span><a href=\"http://ru.wikipedia.org/wiki/%D0%95%D0%B2%D1%80%D0%B0%D0%B7%D0%B8%D1%8F\" title=\"Евразия\" style=\"color: rgb(11, 0, 128); background-image: none; font-family: sans-serif; font-size: 13px; line-height: 19.200000762939453px;\">Евразии</a><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 13px; line-height: 19.200000762939453px;\">, в&nbsp;</span><a href=\"http://ru.wikipedia.org/wiki/%D0%92%D0%BE%D1%81%D1%82%D0%BE%D1%87%D0%BD%D0%B0%D1%8F_%D0%95%D0%B2%D1%80%D0%BE%D0%BF%D0%B0\" title=\"Восточная Европа\" style=\"color: rgb(11, 0, 128); background-image: none; font-family: sans-serif; font-size: 13px; line-height: 19.200000762939453px;\">Восточной Европе</a><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 13px; line-height: 19.200000762939453px;\">, в странах бывшего&nbsp;</span><a href=\"http://ru.wikipedia.org/wiki/%D0%A1%D0%A1%D0%A1%D0%A0\" title=\"СССР\" class=\"mw-redirect\" style=\"color: rgb(11, 0, 128); background-image: none; font-family: sans-serif; font-size: 13px; line-height: 19.200000762939453px;\">Советского Союза</a><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 13px; line-height: 19.200000762939453px;\">, один из рабочих языков&nbsp;</span><a href=\"http://ru.wikipedia.org/wiki/%D0%9E%D0%9E%D0%9D\" title=\"ООН\" class=\"mw-redirect\" style=\"color: rgb(11, 0, 128); background-image: none; font-family: sans-serif; font-size: 13px; line-height: 19.200000762939453px;\">ООН</a><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 13px; line-height: 19.200000762939453px;\">. Он является наиболее распространённым&nbsp;</span><a href=\"http://ru.wikipedia.org/wiki/%D0%A1%D0%BB%D0%B0%D0%B2%D1%8F%D0%BD%D1%81%D0%BA%D0%B8%D0%B5_%D1%8F%D0%B7%D1%8B%D0%BA%D0%B8\" title=\"Славянские языки\" style=\"color: rgb(11, 0, 128); background-image: none; font-family: sans-serif; font-size: 13px; line-height: 19.200000762939453px;\">славянским языком</a><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 13px; line-height: 19.200000762939453px;\">&nbsp;и самым распространённым языком в&nbsp;</span><a href=\"http://ru.wikipedia.org/wiki/%D0%95%D0%B2%D1%80%D0%BE%D0%BF%D0%B0\" title=\"Европа\" style=\"color: rgb(11, 0, 128); background-image: none; font-family: sans-serif; font-size: 13px; line-height: 19.200000762939453px;\">Европе</a><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 13px; line-height: 19.200000762939453px;\">&nbsp;— географически и по числу носителей языка как родного. Занимает четвёртое место среди самых переводимых языков, а также&nbsp;— седьмое место среди языков, на которые переводится большинство книг.</span><sup id=\"cite_ref-cybersecurity__21-0\" class=\"reference\" style=\"line-height: 1em; unicode-bidi: -webkit-isolate; color: rgb(0, 0, 0); font-family: sans-serif;\"><a href=\"http://ru.wikipedia.org/wiki/%D0%A0%D1%83%D1%81%D1%81%D0%BA%D0%B8%D0%B9_%D1%8F%D0%B7%D1%8B%D0%BA#cite_note-cybersecurity_-21\" style=\"color: rgb(11, 0, 128); background-image: none;\">[21]</a></sup><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 13px; line-height: 19.200000762939453px;\">&nbsp;В&nbsp;</span><a href=\"http://ru.wikipedia.org/wiki/2013_%D0%B3%D0%BE%D0%B4\" title=\"2013 год\" style=\"color: rgb(11, 0, 128); background-image: none; font-family: sans-serif; font-size: 13px; line-height: 19.200000762939453px;\">2013&nbsp;году</a><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 13px; line-height: 19.200000762939453px;\">&nbsp;русский язык вышел на второе место среди самых популярных языков&nbsp;</span><a href=\"http://ru.wikipedia.org/wiki/%D0%98%D0%BD%D1%82%D0%B5%D1%80%D0%BD%D0%B5%D1%82\" title=\"Интернет\" style=\"color: rgb(11, 0, 128); background-image: none; font-family: sans-serif; font-size: 13px; line-height: 19.200000762939453px;\">Интернета</a><sup id=\"cite_ref-22\" class=\"reference\" style=\"line-height: 1em; unicode-bidi: -webkit-isolate; color: rgb(0, 0, 0); font-family: sans-serif;\"><a href=\"http://ru.wikipedia.org/wiki/%D0%A0%D1%83%D1%81%D1%81%D0%BA%D0%B8%D0%B9_%D1%8F%D0%B7%D1%8B%D0%BA#cite_note-22\" style=\"color: rgb(11, 0, 128); background-image: none;\">[22]</a></sup><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 13px; line-height: 19.200000762939453px;\">.</span><br>"
+    },
+    {
+      "id": "3c91c8db-bdcf-129d-5081-6c78deb28eee",
+      "attachment_name": "content",
+      "content_type": "text/html; charset=utf8",
+      "content": "<b style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">漢語</b><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">，又称</span><b style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">中文</b><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">（</span><a href=\"http://zh.wikipedia.org/wiki/%E4%B8%AD%E5%9B%BD%E5%AE%98%E6%96%B9%E8%AF%AD%E8%A8%80\" title=\"中国官方语言\" class=\"mw-redirect\" style=\"color: rgb(11, 0, 128); background-image: none; font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">中國官方語言</a><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">）、</span><b style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">华语</b><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">（</span><a href=\"http://zh.wikipedia.org/wiki/%E4%B8%9C%E5%8D%97%E4%BA%9A\" title=\"东南亚\" style=\"color: rgb(11, 0, 128); background-image: none; font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">东南亚</a><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">）、</span><b style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">国语</b><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">（</span><a href=\"http://zh.wikipedia.org/wiki/%E4%B8%AD%E8%8F%AF%E6%B0%91%E5%9C%8B%E5%9C%8B%E8%AA%9E\" title=\"中華民國國語\" style=\"color: rgb(11, 0, 128); background-image: none; font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">中華民國國語</a><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">）、</span><b style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">中國語</b><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">（日本、韩国等），其他名稱有</span><b style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">汉文</b><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">（通常指</span><a href=\"http://zh.wikipedia.org/wiki/%E6%96%87%E8%A8%80%E6%96%87\" title=\"文言文\" style=\"color: rgb(11, 0, 128); background-image: none; font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">文言文</a><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">）、</span><b style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">华文</b><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">、</span><b style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">唐文</b><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">、</span><b style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">唐話</b><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">、</span><b style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">中國話</b><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">等</span><sup id=\"cite_ref-1\" class=\"reference\" style=\"line-height: 1em; unicode-bidi: -webkit-isolate; color: rgb(0, 0, 0); font-family: sans-serif;\"><a href=\"http://zh.wikipedia.org/wiki/%E6%B1%89%E8%AF%AD#cite_note-1\" style=\"color: rgb(11, 0, 128); background-image: none; white-space: nowrap;\">[1]</a></sup><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">，是属</span><a href=\"http://zh.wikipedia.org/wiki/%E6%B1%89%E8%97%8F%E8%AF%AD%E7%B3%BB\" title=\"汉藏语系\" style=\"color: rgb(11, 0, 128); background-image: none; font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">汉藏语系</a><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">的</span><a href=\"http://zh.wikipedia.org/wiki/%E5%88%86%E6%9E%90%E8%AF%AD\" title=\"分析语\" style=\"color: rgb(11, 0, 128); background-image: none; font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">分析语</a><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">，具有</span><a href=\"http://zh.wikipedia.org/wiki/%E5%A3%B0%E8%B0%83\" title=\"声调\" class=\"mw-redirect\" style=\"color: rgb(11, 0, 128); background-image: none; font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">声调</a><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">。汉语的</span><a href=\"http://zh.wikipedia.org/wiki/%E6%96%87%E5%AD%97\" title=\"文字\" style=\"color: rgb(11, 0, 128); background-image: none; font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">文字</a><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">系统——</span><a href=\"http://zh.wikipedia.org/wiki/%E6%B1%89%E5%AD%97\" title=\"汉字\" style=\"color: rgb(11, 0, 128); background-image: none; font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">汉字</a><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">是一种</span><a href=\"http://zh.wikipedia.org/wiki/%E6%84%8F%E9%9F%B3%E6%96%87%E5%AD%97\" title=\"意音文字\" class=\"mw-redirect\" style=\"color: rgb(11, 0, 128); background-image: none; font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">意音文字</a><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">，表意的同時也具一定的表音功能。漢語包含</span><a href=\"http://zh.wikipedia.org/wiki/%E6%9B%B8%E9%9D%A2%E8%AA%9E\" title=\"書面語\" class=\"mw-redirect\" style=\"color: rgb(11, 0, 128); background-image: none; font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">書面語</a><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">以及</span><a href=\"http://zh.wikipedia.org/wiki/%E5%8F%A3%E8%AA%9E\" title=\"口語\" class=\"mw-redirect\" style=\"color: rgb(11, 0, 128); background-image: none; font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">口語</a><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">兩部分，古代書面汉语称为</span><a href=\"http://zh.wikipedia.org/wiki/%E6%96%87%E8%A8%80%E6%96%87\" title=\"文言文\" style=\"color: rgb(11, 0, 128); background-image: none; font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">文言文</a><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">，现代书面汉语一般指使用</span><a href=\"http://zh.wikipedia.org/wiki/%E7%8F%BE%E4%BB%A3%E6%A8%99%E6%BA%96%E6%BC%A2%E8%AA%9E\" title=\"現代標準漢語\" style=\"color: rgb(11, 0, 128); background-image: none; font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">現代標準漢語</a><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">語法，詞彙的中文通行文体。目前全球有六分之一人口使用漢語作為</span><a href=\"http://zh.wikipedia.org/wiki/%E6%AF%8D%E8%AA%9E\" title=\"母語\" style=\"color: rgb(11, 0, 128); background-image: none; font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">母語</a><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">。現代漢語書面語高度統一，口語則有</span><a href=\"http://zh.wikipedia.org/wiki/%E5%AE%98%E8%A9%B1\" title=\"官話\" class=\"mw-redirect\" style=\"color: rgb(11, 0, 128); background-image: none; font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">官話</a><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">、</span><a href=\"http://zh.wikipedia.org/wiki/%E7%B2%B5%E8%AA%9E\" title=\"粵語\" class=\"mw-redirect\" style=\"color: rgb(11, 0, 128); background-image: none; font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">粵語</a><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">、</span><a href=\"http://zh.wikipedia.org/wiki/%E5%90%B3%E8%AA%9E\" title=\"吳語\" class=\"mw-redirect\" style=\"color: rgb(11, 0, 128); background-image: none; font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">吳語</a><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">、</span><a href=\"http://zh.wikipedia.org/wiki/%E6%B9%98%E8%AA%9E\" title=\"湘語\" class=\"mw-redirect\" style=\"color: rgb(11, 0, 128); background-image: none; font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">湘語</a><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">、</span><a href=\"http://zh.wikipedia.org/wiki/%E8%B4%9B%E8%AA%9E\" title=\"贛語\" style=\"color: rgb(11, 0, 128); background-image: none; font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">贛語</a><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">、</span><a href=\"http://zh.wikipedia.org/wiki/%E5%AE%A2%E5%AE%B6%E8%AA%9E\" title=\"客家語\" class=\"mw-redirect\" style=\"color: rgb(11, 0, 128); background-image: none; font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">客家語</a><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">、</span><a href=\"http://zh.wikipedia.org/wiki/%E9%96%A9%E8%AA%9E\" title=\"閩語\" class=\"mw-redirect\" style=\"color: rgb(11, 0, 128); background-image: none; font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">閩語</a><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">等七種主要漢語言（也有人认为</span><a href=\"http://zh.wikipedia.org/wiki/%E6%99%8B%E8%AF%AD\" title=\"晋语\" style=\"color: rgb(11, 0, 128); background-image: none; font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">晋语</a><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">和（或）</span><a href=\"http://zh.wikipedia.org/wiki/%E5%BE%BD%E8%AF%AD\" title=\"徽语\" style=\"color: rgb(11, 0, 128); background-image: none; font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">徽語</a><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">和（或）平話（</span><a href=\"http://zh.wikipedia.org/wiki/%E5%BB%A3%E8%A5%BF%E5%B9%B3%E8%A9%B1\" title=\"廣西平話\" style=\"color: rgb(11, 0, 128); background-image: none; font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">廣西平話</a><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">）也应为独立漢語言，也有其他人認為閩語其實是一個</span><a href=\"http://zh.wikipedia.org/wiki/%E8%AA%9E%E6%97%8F\" title=\"語族\" class=\"mw-redirect\" style=\"color: rgb(11, 0, 128); background-image: none; font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">語族</a><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">，下轄</span><a href=\"http://zh.wikipedia.org/wiki/%E9%96%A9%E5%8D%97%E8%AA%9E\" title=\"閩南語\" class=\"mw-redirect\" style=\"color: rgb(11, 0, 128); background-image: none; font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">閩南語</a><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">、</span><a href=\"http://zh.wikipedia.org/wiki/%E9%96%A9%E6%9D%B1%E8%AA%9E\" title=\"閩東語\" style=\"color: rgb(11, 0, 128); background-image: none; font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">閩東語</a><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">、</span><a href=\"http://zh.wikipedia.org/wiki/%E9%96%A9%E4%B8%AD%E8%AA%9E\" title=\"閩中語\" class=\"mw-redirect\" style=\"color: rgb(11, 0, 128); background-image: none; font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">閩中語</a><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">以及</span><a href=\"http://zh.wikipedia.org/wiki/%E8%8E%86%E4%BB%99%E8%AF%AD\" title=\"莆仙语\" class=\"mw-redirect\" style=\"color: rgb(11, 0, 128); background-image: none; font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">莆仙語</a><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">，</span><a href=\"http://zh.wikipedia.org/wiki/%E5%9C%8B%E9%9A%9B%E6%A8%99%E6%BA%96%E5%8C%96%E7%B5%84%E7%B9%94\" title=\"國際標準化組織\" style=\"color: rgb(11, 0, 128); background-image: none; font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">國際標準化組織</a><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 15px; line-height: 22.079999923706055px;\">即持此觀點，部分資料將其中的一至六種也算成單獨的漢語言，這就是八至十三種漢語言的由來）。</span><br>"
+    },
+    {
+      "id": "3cba68ad-3ff3-87bd-719f-a1080595d911",
+      "attachment_name": "content",
+      "content_type": "text/html; charset=utf8",
+      "content": "<p style=\"margin-top: 0.4em; margin-bottom: 0.5em; line-height: 22.6560001373291px; color: rgb(0, 0, 0); font-family: sans-serif; font-size: 15px;\"><b>日本語</b>（にほんご、にっぽんご）とは、主に<a href=\"http://ja.wikipedia.org/wiki/%E6%97%A5%E6%9C%AC\" title=\"日本\" style=\"color: rgb(11, 0, 128); background-image: none;\">日本</a>国内や<a href=\"http://ja.wikipedia.org/wiki/%E6%97%A5%E6%9C%AC%E4%BA%BA\" title=\"日本人\" style=\"color: rgb(11, 0, 128); background-image: none;\">日本人</a>同士の間で使われている<a href=\"http://ja.wikipedia.org/wiki/%E8%A8%80%E8%AA%9E\" title=\"言語\" style=\"color: rgb(11, 0, 128); background-image: none;\">言語</a>である。日本では、<a href=\"http://ja.wikipedia.org/wiki/%E6%B3%95%E4%BB%A4\" title=\"法令\" style=\"color: rgb(11, 0, 128); background-image: none;\">法令</a>によって「<a href=\"http://ja.wikipedia.org/wiki/%E5%85%AC%E7%94%A8%E8%AA%9E\" title=\"公用語\" style=\"color: rgb(11, 0, 128); background-image: none;\">公用語</a>」として規定されているわけではないが、<a href=\"http://ja.wikipedia.org/wiki/%E6%B3%95%E4%BB%A4\" title=\"法令\" style=\"color: rgb(11, 0, 128); background-image: none;\">法令</a>その他の公用文は日本語で記述され、各種法令（<a href=\"http://ja.wikipedia.org/wiki/%E8%A3%81%E5%88%A4%E6%89%80%E6%B3%95\" title=\"裁判所法\" style=\"color: rgb(11, 0, 128); background-image: none;\">裁判所法</a>第74条、会社計算規則第57条、特許法施行規則第2条など）において日本語を用いることが定められるなど事実上の公用語となっており、<a href=\"http://ja.wikipedia.org/wiki/%E5%AD%A6%E6%A0%A1%E6%95%99%E8%82%B2\" title=\"学校教育\" style=\"color: rgb(11, 0, 128); background-image: none;\">学校教育</a>の「<a href=\"http://ja.wikipedia.org/wiki/%E5%9B%BD%E8%AA%9E_(%E6%95%99%E7%A7%91)\" title=\"国語 (教科)\" style=\"color: rgb(11, 0, 128); background-image: none;\">国語</a>」でも教えられる。</p><p style=\"margin-top: 0.4em; margin-bottom: 0.5em; line-height: 22.6560001373291px; color: rgb(0, 0, 0); font-family: sans-serif; font-size: 15px;\">使用<a href=\"http://ja.wikipedia.org/wiki/%E4%BA%BA%E5%8F%A3\" title=\"人口\" style=\"color: rgb(11, 0, 128); background-image: none;\">人口</a>について正確な<a href=\"http://ja.wikipedia.org/wiki/%E7%B5%B1%E8%A8%88\" title=\"統計\" style=\"color: rgb(11, 0, 128); background-image: none;\">統計</a>はないが、日本国内の人口、および日本国外に住む<a href=\"http://ja.wikipedia.org/wiki/%E6%97%A5%E6%9C%AC%E4%BA%BA\" title=\"日本人\" style=\"color: rgb(11, 0, 128); background-image: none;\">日本人</a>や<a href=\"http://ja.wikipedia.org/wiki/%E6%97%A5%E7%B3%BB%E4%BA%BA\" title=\"日系人\" style=\"color: rgb(11, 0, 128); background-image: none;\">日系人</a>、日本がかつて統治した地域の一部の住民など、約1億3千万人以上と考えられる<sup id=\"cite_ref-1\" class=\"reference\" style=\"line-height: 1em; unicode-bidi: -webkit-isolate;\"><a href=\"http://ja.wikipedia.org/wiki/%E6%97%A5%E6%9C%AC%E8%AA%9E#cite_note-1\" style=\"color: rgb(11, 0, 128); background-image: none; white-space: nowrap;\">[1]</a></sup>。統計によって前後する可能性はあるが、この数は<a href=\"http://ja.wikipedia.org/wiki/%E3%83%8D%E3%82%A4%E3%83%86%E3%82%A3%E3%83%96%E3%82%B9%E3%83%94%E3%83%BC%E3%82%AB%E3%83%BC%E3%81%AE%E6%95%B0%E3%81%8C%E5%A4%9A%E3%81%84%E8%A8%80%E8%AA%9E%E3%81%AE%E4%B8%80%E8%A6%A7\" title=\"ネイティブスピーカーの数が多い言語の一覧\" style=\"color: rgb(11, 0, 128); background-image: none;\">世界の母語話者数</a>で上位10位以内に入る人数である。</p><p style=\"margin-top: 0.4em; margin-bottom: 0.5em; line-height: 22.6560001373291px; color: rgb(0, 0, 0); font-family: sans-serif; font-size: 15px;\">日本で生まれ育ったほとんどの人は、日本語を<a href=\"http://ja.wikipedia.org/wiki/%E6%AF%8D%E8%AA%9E\" title=\"母語\" style=\"color: rgb(11, 0, 128); background-image: none;\">母語</a>とする<sup id=\"cite_ref-2\" class=\"reference\" style=\"line-height: 1em; unicode-bidi: -webkit-isolate;\"><a href=\"http://ja.wikipedia.org/wiki/%E6%97%A5%E6%9C%AC%E8%AA%9E#cite_note-2\" style=\"color: rgb(11, 0, 128); background-image: none; white-space: nowrap;\">[2]</a></sup>。日本語の<a href=\"http://ja.wikipedia.org/wiki/%E6%96%87%E6%B3%95\" title=\"文法\" style=\"color: rgb(11, 0, 128); background-image: none;\">文法</a>体系や<a href=\"http://ja.wikipedia.org/wiki/%E9%9F%B3%E9%9F%BB\" title=\"音韻\" style=\"color: rgb(11, 0, 128); background-image: none;\">音韻</a>体系を反映する<a href=\"http://ja.wikipedia.org/wiki/%E6%89%8B%E8%A9%B1\" title=\"手話\" style=\"color: rgb(11, 0, 128); background-image: none;\">手話</a>として<a href=\"http://ja.wikipedia.org/wiki/%E6%97%A5%E6%9C%AC%E8%AA%9E%E5%AF%BE%E5%BF%9C%E6%89%8B%E8%A9%B1\" title=\"日本語対応手話\" style=\"color: rgb(11, 0, 128); background-image: none;\">日本語対応手話</a>がある。</p><p style=\"margin-top: 0.4em; margin-bottom: 0.5em; line-height: 22.6560001373291px; color: rgb(0, 0, 0); font-family: sans-serif; font-size: 15px;\">2013年1月現在、<a href=\"http://ja.wikipedia.org/wiki/%E3%82%A4%E3%83%B3%E3%82%BF%E3%83%BC%E3%83%8D%E3%83%83%E3%83%88\" title=\"インターネット\" style=\"color: rgb(11, 0, 128); background-image: none;\">インターネット</a>上の<a href=\"http://ja.wikipedia.org/wiki/%E8%A8%80%E8%AA%9E\" title=\"言語\" style=\"color: rgb(11, 0, 128); background-image: none;\">言語</a>使用者数は、<a href=\"http://ja.wikipedia.org/wiki/%E8%8B%B1%E8%AA%9E\" title=\"英語\" style=\"color: rgb(11, 0, 128); background-image: none;\">英語</a>、<a href=\"http://ja.wikipedia.org/wiki/%E4%B8%AD%E5%9B%BD%E8%AA%9E\" title=\"中国語\" style=\"color: rgb(11, 0, 128); background-image: none;\">中国語</a>、<a href=\"http://ja.wikipedia.org/wiki/%E3%82%B9%E3%83%9A%E3%82%A4%E3%83%B3%E8%AA%9E\" title=\"スペイン語\" style=\"color: rgb(11, 0, 128); background-image: none;\">スペイン語</a>に次ぐ第4の人数である<sup id=\"cite_ref-3\" class=\"reference\" style=\"line-height: 1em; unicode-bidi: -webkit-isolate;\"><a href=\"http://ja.wikipedia.org/wiki/%E6%97%A5%E6%9C%AC%E8%AA%9E#cite_note-3\" style=\"color: rgb(11, 0, 128); background-image: none; white-space: nowrap;\">[3]</a></sup>。</p>"
+    },
+    {
+      "id": "509c8503-7867-f79c-7ddd-d16bfe90cd1c",
+      "attachment_name": "content",
+      "content_type": "text/html; charset=utf8",
+      "content": "<b style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 12.666666984558105px; line-height: 19.200000762939453px;\">English</b><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 12.666666984558105px; line-height: 19.200000762939453px;\">&nbsp;is a&nbsp;</span><a href=\"http://en.wikipedia.org/wiki/West_Germanic_languages\" title=\"West Germanic languages\" style=\"color: rgb(11, 0, 128); background-image: none; font-family: sans-serif; font-size: 12.666666984558105px; line-height: 19.200000762939453px;\">West Germanic language</a><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 12.666666984558105px; line-height: 19.200000762939453px;\">&nbsp;that was first spoken in&nbsp;</span><a href=\"http://en.wikipedia.org/wiki/Anglo-Saxon_England\" title=\"Anglo-Saxon England\" style=\"color: rgb(11, 0, 128); background-image: none; font-family: sans-serif; font-size: 12.666666984558105px; line-height: 19.200000762939453px;\">early medieval England</a><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 12.666666984558105px; line-height: 19.200000762939453px;\">&nbsp;and is now the most widely used language in the world.</span><sup id=\"cite_ref-4\" class=\"reference\" style=\"line-height: 1em; unicode-bidi: -webkit-isolate; color: rgb(0, 0, 0); font-family: sans-serif;\"><a href=\"http://en.wikipedia.org/wiki/English_language#cite_note-4\" style=\"color: rgb(11, 0, 128); background-image: none; white-space: nowrap;\">[4]</a></sup><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 12.666666984558105px; line-height: 19.200000762939453px;\">&nbsp;It is spoken as a first language by the majority populations of several sovereign states, including the</span><a href=\"http://en.wikipedia.org/wiki/United_Kingdom\" title=\"United Kingdom\" style=\"color: rgb(11, 0, 128); background-image: none; font-family: sans-serif; font-size: 12.666666984558105px; line-height: 19.200000762939453px;\">United Kingdom</a><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 12.666666984558105px; line-height: 19.200000762939453px;\">, the&nbsp;</span><a href=\"http://en.wikipedia.org/wiki/United_States\" title=\"United States\" style=\"color: rgb(11, 0, 128); background-image: none; font-family: sans-serif; font-size: 12.666666984558105px; line-height: 19.200000762939453px;\">United States</a><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 12.666666984558105px; line-height: 19.200000762939453px;\">,&nbsp;</span><a href=\"http://en.wikipedia.org/wiki/Canada\" title=\"Canada\" style=\"color: rgb(11, 0, 128); background-image: none; font-family: sans-serif; font-size: 12.666666984558105px; line-height: 19.200000762939453px;\">Canada</a><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 12.666666984558105px; line-height: 19.200000762939453px;\">,&nbsp;</span><a href=\"http://en.wikipedia.org/wiki/Australia\" title=\"Australia\" style=\"color: rgb(11, 0, 128); background-image: none; font-family: sans-serif; font-size: 12.666666984558105px; line-height: 19.200000762939453px;\">Australia</a><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 12.666666984558105px; line-height: 19.200000762939453px;\">,&nbsp;</span><a href=\"http://en.wikipedia.org/wiki/Republic_of_Ireland\" title=\"Republic of Ireland\" style=\"color: rgb(11, 0, 128); background-image: none; font-family: sans-serif; font-size: 12.666666984558105px; line-height: 19.200000762939453px;\">Ireland</a><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 12.666666984558105px; line-height: 19.200000762939453px;\">,&nbsp;</span><a href=\"http://en.wikipedia.org/wiki/New_Zealand\" title=\"New Zealand\" style=\"color: rgb(11, 0, 128); background-image: none; font-family: sans-serif; font-size: 12.666666984558105px; line-height: 19.200000762939453px;\">New Zealand</a><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 12.666666984558105px; line-height: 19.200000762939453px;\">&nbsp;and a number of&nbsp;</span><a href=\"http://en.wikipedia.org/wiki/Caribbean\" title=\"Caribbean\" style=\"color: rgb(11, 0, 128); background-image: none; font-family: sans-serif; font-size: 12.666666984558105px; line-height: 19.200000762939453px;\">Caribbean</a><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 12.666666984558105px; line-height: 19.200000762939453px;\">&nbsp;nations; and it is an</span><a href=\"http://en.wikipedia.org/wiki/Official_language\" title=\"Official language\" style=\"color: rgb(11, 0, 128); background-image: none; font-family: sans-serif; font-size: 12.666666984558105px; line-height: 19.200000762939453px;\">official language</a><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 12.666666984558105px; line-height: 19.200000762939453px;\">&nbsp;of&nbsp;</span><a href=\"http://en.wikipedia.org/wiki/List_of_countries_where_English_is_an_official_language\" title=\"List of countries where English is an official language\" style=\"color: rgb(11, 0, 128); background-image: none; font-family: sans-serif; font-size: 12.666666984558105px; line-height: 19.200000762939453px;\">almost 60 sovereign states</a><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 12.666666984558105px; line-height: 19.200000762939453px;\">. It is the third-most-common native language in the world, after&nbsp;</span><a href=\"http://en.wikipedia.org/wiki/Mandarin_Chinese\" title=\"Mandarin Chinese\" style=\"color: rgb(11, 0, 128); background-image: none; font-family: sans-serif; font-size: 12.666666984558105px; line-height: 19.200000762939453px;\">Mandarin Chinese</a><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 12.666666984558105px; line-height: 19.200000762939453px;\">&nbsp;and&nbsp;</span><a href=\"http://en.wikipedia.org/wiki/Spanish_language\" title=\"Spanish language\" style=\"color: rgb(11, 0, 128); background-image: none; font-family: sans-serif; font-size: 12.666666984558105px; line-height: 19.200000762939453px;\">Spanish</a><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 12.666666984558105px; line-height: 19.200000762939453px;\">.</span><sup id=\"cite_ref-ethnologue_5-0\" class=\"reference\" style=\"line-height: 1em; unicode-bidi: -webkit-isolate; color: rgb(0, 0, 0); font-family: sans-serif;\"><a href=\"http://en.wikipedia.org/wiki/English_language#cite_note-ethnologue-5\" style=\"color: rgb(11, 0, 128); background-image: none; white-space: nowrap;\">[5]</a></sup><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 12.666666984558105px; line-height: 19.200000762939453px;\">&nbsp;It is widely learned as a&nbsp;</span><a href=\"http://en.wikipedia.org/wiki/Second_language\" title=\"Second language\" style=\"color: rgb(11, 0, 128); background-image: none; font-family: sans-serif; font-size: 12.666666984558105px; line-height: 19.200000762939453px;\">second language</a><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 12.666666984558105px; line-height: 19.200000762939453px;\">&nbsp;and is an&nbsp;</span><a href=\"http://en.wikipedia.org/wiki/Languages_of_the_European_Union\" title=\"Languages of the European Union\" style=\"color: rgb(11, 0, 128); background-image: none; font-family: sans-serif; font-size: 12.666666984558105px; line-height: 19.200000762939453px;\">official language of the European Union</a><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 12.666666984558105px; line-height: 19.200000762939453px;\">, many</span><a href=\"http://en.wikipedia.org/wiki/Commonwealth_of_Nations\" title=\"Commonwealth of Nations\" style=\"color: rgb(11, 0, 128); background-image: none; font-family: sans-serif; font-size: 12.666666984558105px; line-height: 19.200000762939453px;\">Commonwealth</a><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 12.666666984558105px; line-height: 19.200000762939453px;\">&nbsp;countries and the&nbsp;</span><a href=\"http://en.wikipedia.org/wiki/Official_languages_of_the_United_Nations\" title=\"Official languages of the United Nations\" style=\"color: rgb(11, 0, 128); background-image: none; font-family: sans-serif; font-size: 12.666666984558105px; line-height: 19.200000762939453px;\">United Nations</a><span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 12.666666984558105px; line-height: 19.200000762939453px;\">, as well as in many world organisations.</span>"
+    },
+    {
+      "id": "6fce9060-f9bb-fd23-193b-156ebfbdf6fe",
+      "attachment_name": "content",
+      "content_type": "text/html; charset=utf8",
+      "content": "<span style=\"color: rgb(0, 0, 0); font-family: sans-serif; font-size: 13px; line-height: 19.200000762939453px;\">[[ᐃᓄᐃᑦ (ᓄᓇᖃᖅᑳᖅᓯᒪᔪᑦ)| ᓄᓇᕗᒥᐅᑦ ᐃᓄᒃᑎᑦᑐᖅ ᐅᖃᐅᓯᕐᖓᐅᑎᖃᕐᒪᑕ. ᐃᓄᐃᑦ ᐅᖃᐅᓯᖏᑦ ᐊᔾᔨᒌᙱᑦᑑᑎᐅᒐᓗᐊᖅᑐᑎᒃ ᓄᓇᓖᑦ ᒪᓕᒃᖢᒋᑦ, ᐃᓄᐃᓐᓇᖅᑐᓐ ᐃᓚᐅᓪᓗᓂ, ᐅᖃᐅᓯᕆᔭᐅᔪᖅ ᐅᐊᓕᓂᖅᐸᓯᖓᓂᕐᒥᐅᑕᐅᔪᓂ ᓄᓇᕗᒥ. ᐃᓄᐃᓐᓇᖅᑐᓐ ᖃᓕᐅᔮᖅᐸᐃᑎᑐᑦ ᐃᓅᔨᖓᔪᖅᑎᑐᑦ ᑎᑎᕋᐅᓯᖃᖅᑐᑦ ᖃᓂᐅᔮᖅᐸᐃᑎᑑᖓᙱᑦᑐᑦ ᑎᑎᕋᐅᓯᖏᑦ.</span><br>"
+    },
+    {
+      "id": "963de44b-f305-56f2-a865-a538ad7a3f4e",
+      "attachment_name": "content",
+      "content_type": "text/html; charset=utf8",
+      "content": "<p style=\"margin-top: 0.4em; margin-bottom: 0.5em; line-height: 19.200000762939453px; color: rgb(0, 0, 0); font-family: sans-serif; font-size: 12.800000190734863px;\">Le&nbsp;<b>français</b>&nbsp;est une&nbsp;<a href=\"http://fr.wikipedia.org/wiki/Langue_indo-europ%C3%A9enne\" title=\"Langue indo-européenne\" class=\"mw-redirect\" style=\"color: rgb(11, 0, 128); background-image: none;\">langue indo-européenne</a>&nbsp;de la famille des&nbsp;<a href=\"http://fr.wikipedia.org/wiki/Langues_romanes\" title=\"Langues romanes\" style=\"color: rgb(11, 0, 128); background-image: none;\">langues romanes</a>. Le français s'est formé en France (variété de la «&nbsp;<a href=\"http://fr.wikipedia.org/wiki/Langue_d%27o%C3%AFl\" title=\"Langue d'oïl\" style=\"color: rgb(11, 0, 128); background-image: none;\">langue d’oïl</a>&nbsp;») et est aujourd'hui parlé sur tous les&nbsp;<a href=\"http://fr.wikipedia.org/wiki/Continent\" title=\"Continent\" style=\"color: rgb(11, 0, 128); background-image: none;\">continents</a>&nbsp;par environ&nbsp;<span class=\"nowrap\" style=\"white-space: nowrap;\">220&nbsp;millions</span>&nbsp;de personnes dont&nbsp;<span class=\"nowrap\" style=\"white-space: nowrap;\">115&nbsp;millions</span>&nbsp;de locuteurs natifs<span id=\"cite_ref-France_Diplomatie_1-1\" class=\"reference\" style=\"line-height: 1em; vertical-align: text-top; position: relative; font-size: 0.8em; top: -5px; padding-left: 1px; unicode-bidi: -webkit-isolate; white-space: nowrap;\"><a href=\"http://fr.wikipedia.org/wiki/Fran%C3%A7ais#cite_note-France_Diplomatie-1\" style=\"color: rgb(11, 0, 128); background-image: none;\">1</a></span>, auxquels s'ajoutent&nbsp;<span class=\"nowrap\" style=\"white-space: nowrap;\">72&nbsp;millions</span>&nbsp;de locuteurs partiels (évaluation&nbsp;<a href=\"http://fr.wikipedia.org/wiki/Organisation_internationale_de_la_francophonie\" title=\"Organisation internationale de la francophonie\" style=\"color: rgb(11, 0, 128); background-image: none;\">Organisation internationale de la francophonie</a>&nbsp;: 2010). Elle est une des six&nbsp;<a href=\"http://fr.wikipedia.org/wiki/Langues_officielles\" title=\"Langues officielles\" class=\"mw-redirect\" style=\"color: rgb(11, 0, 128); background-image: none;\">langues officielles</a>&nbsp;et une des deux langues de travail (avec l’<a href=\"http://fr.wikipedia.org/wiki/Anglais\" title=\"Anglais\" style=\"color: rgb(11, 0, 128); background-image: none;\">anglais</a>) de l’<a href=\"http://fr.wikipedia.org/wiki/Organisation_des_Nations_unies\" title=\"Organisation des Nations unies\" style=\"color: rgb(11, 0, 128); background-image: none;\">Organisation des Nations unies</a>, et langue officielle ou de travail de plusieurs organisations internationales ou régionales, dont l’<a href=\"http://fr.wikipedia.org/wiki/Union_europ%C3%A9enne\" title=\"Union européenne\" style=\"color: rgb(11, 0, 128); background-image: none;\">Union européenne</a>. Après avoir été à l’époque de l’<a href=\"http://fr.wikipedia.org/wiki/Ancien_R%C3%A9gime\" title=\"Ancien Régime\" style=\"color: rgb(11, 0, 128); background-image: none;\">Ancien Régime</a>&nbsp;français la langue des cours royales et princières, des tsars de&nbsp;<a href=\"http://fr.wikipedia.org/wiki/Russie\" title=\"Russie\" style=\"color: rgb(11, 0, 128); background-image: none;\">Russie</a>&nbsp;aux rois d’<a href=\"http://fr.wikipedia.org/wiki/Espagne\" title=\"Espagne\" style=\"color: rgb(11, 0, 128); background-image: none;\">Espagne</a>&nbsp;et d'<a href=\"http://fr.wikipedia.org/wiki/Angleterre\" title=\"Angleterre\" style=\"color: rgb(11, 0, 128); background-image: none;\">Angleterre</a>&nbsp;en passant par les princes de l’<a href=\"http://fr.wikipedia.org/wiki/Allemagne\" title=\"Allemagne\" style=\"color: rgb(11, 0, 128); background-image: none;\">Allemagne</a>, elle demeure une langue importante de la diplomatie internationale aux côtés de l’<a href=\"http://fr.wikipedia.org/wiki/Anglais\" title=\"Anglais\" style=\"color: rgb(11, 0, 128); background-image: none;\">anglais</a>, de l'<a href=\"http://fr.wikipedia.org/wiki/Allemand\" title=\"Allemand\" style=\"color: rgb(11, 0, 128); background-image: none;\">allemand</a>&nbsp;et de l’<a href=\"http://fr.wikipedia.org/wiki/Espagnol\" title=\"Espagnol\" style=\"color: rgb(11, 0, 128); background-image: none;\">espagnol</a>.</p><p style=\"margin-top: 0.4em; margin-bottom: 0.5em; line-height: 19.200000762939453px; color: rgb(0, 0, 0); font-family: sans-serif; font-size: 12.800000190734863px;\">La langue française est un attribut de&nbsp;<a href=\"http://fr.wikipedia.org/wiki/Souverainet%C3%A9\" title=\"Souveraineté\" style=\"color: rgb(11, 0, 128); background-image: none;\">souveraineté</a>&nbsp;en France, depuis 1992 «&nbsp;la langue de la République est le français&nbsp;» (<a href=\"http://fr.wikipedia.org/wiki/Article_2_de_la_Constitution_de_la_Cinqui%C3%A8me_R%C3%A9publique_fran%C3%A7aise\" title=\"Article 2 de la Constitution de la Cinquième République française\" style=\"color: rgb(11, 0, 128); background-image: none;\">article 2 de la Constitution de la Cinquième République française</a>). Elle est également le principal véhicule de la pensée et de la&nbsp;<a href=\"http://fr.wikipedia.org/wiki/Culture_fran%C3%A7aise\" title=\"Culture française\" style=\"color: rgb(11, 0, 128); background-image: none;\">culture française</a>&nbsp;dans le monde. La langue française fait l’objet d’un dispositif public d’enrichissement de la langue, avec le&nbsp;<a href=\"http://fr.wikipedia.org/wiki/D%C3%A9cret_du_3_juillet_1996_relatif_%C3%A0_l%27enrichissement_de_la_langue_fran%C3%A7aise\" title=\"Décret du 3 juillet 1996 relatif à l'enrichissement de la langue française\" style=\"color: rgb(11, 0, 128); background-image: none;\">décret du 3 juillet 1996 relatif à l'enrichissement de la langue française</a>.</p><p style=\"margin-top: 0.4em; margin-bottom: 0.5em; line-height: 19.200000762939453px; color: rgb(0, 0, 0); font-family: sans-serif; font-size: 12.800000190734863px;\">La langue française a cette particularité que son développement et sa codification ont été en partie l’œuvre de groupes&nbsp;<a href=\"http://fr.wikipedia.org/wiki/Intellectuel\" title=\"Intellectuel\" style=\"color: rgb(11, 0, 128); background-image: none;\">intellectuels</a>, comme la&nbsp;<a href=\"http://fr.wikipedia.org/wiki/Pl%C3%A9iade_(XVIe_si%C3%A8cle)\" title=\"Pléiade (XVIe siècle)\" style=\"color: rgb(11, 0, 128); background-image: none;\">Pléiade</a>, ou d’institutions, comme l’<a href=\"http://fr.wikipedia.org/wiki/Acad%C3%A9mie_fran%C3%A7aise\" title=\"Académie française\" style=\"color: rgb(11, 0, 128); background-image: none;\">Académie française</a>. C’est une langue dite «&nbsp;<a href=\"http://fr.wikipedia.org/wiki/Acad%C3%A9mie\" title=\"Académie\" style=\"color: rgb(11, 0, 128); background-image: none;\">académique</a>&nbsp;». Toutefois, l’usage garde ses droits et nombreux sont ceux qui malaxèrent cette&nbsp;<a href=\"http://fr.wikipedia.org/wiki/Langue_vivante\" title=\"Langue vivante\" style=\"color: rgb(11, 0, 128); background-image: none;\">langue vivante</a>, au premier rang desquels&nbsp;<a href=\"http://fr.wikipedia.org/wiki/Fran%C3%A7ois_Rabelais\" title=\"François Rabelais\" style=\"color: rgb(11, 0, 128); background-image: none;\">Rabelais</a>&nbsp;et&nbsp;<a href=\"http://fr.wikipedia.org/wiki/Moli%C3%A8re\" title=\"Molière\" style=\"color: rgb(11, 0, 128); background-image: none;\">Molière</a>&nbsp;: il est d’ailleurs question de la «&nbsp;<a href=\"http://fr.wikipedia.org/wiki/Liste_de_p%C3%A9riphrases_d%C3%A9signant_des_langues\" title=\"Liste de périphrases désignant des langues\" style=\"color: rgb(11, 0, 128); background-image: none;\">langue de Molière</a>&nbsp;»<span id=\"cite_ref-mol_4-0\" class=\"reference\" style=\"line-height: 1em; vertical-align: text-top; position: relative; font-size: 0.8em; top: -5px; padding-left: 1px; unicode-bidi: -webkit-isolate; white-space: nowrap;\"><a href=\"http://fr.wikipedia.org/wiki/Fran%C3%A7ais#cite_note-mol-4\" style=\"color: rgb(11, 0, 128); background-image: none;\">4</a></span>.</p>"
+    }
+  ]
 }
