@@ -17,8 +17,8 @@ $(document).on('mobileinit', function () {
       // and everything is kept in the metadata.
       attachment_mode: 'none',
       jio_type: 'Task',
-      i18n_namespace: 'taskman'
-      test_data_url: 'data/test_data_taskman.json'
+      i18n_namespace: 'taskman',
+      test_data_url: 'app/data/test_data_taskman.json'
     },
     taskman_attachments: {
       // In taskman-attachments mode, each metadata (i.e. task)
@@ -27,7 +27,7 @@ $(document).on('mobileinit', function () {
       attachment_content_type: 'text/html',
       jio_type: 'Task',
       i18n_namespace: 'taskman',
-      test_data_url: 'data/test_data_taskman.json',
+      test_data_url: 'app/data/test_data_taskman.json',
       gadget: {
         url: 'lib/officejs/gadget/bootstrap-wysiwyg.html'
       }
@@ -44,7 +44,7 @@ $(document).on('mobileinit', function () {
       attachment_content_type: 'text/html',
       jio_type: 'Web Page',
       i18n_namespace: 'editor',
-      test_data_url: 'data/test_data_editor.json',
+      test_data_url: 'app/data/test_data_editor.json',
       gadget: {
         url: 'lib/officejs/gadget/bootstrap-wysiwyg.html'
       }
@@ -56,7 +56,7 @@ $(document).on('mobileinit', function () {
       attachment_content_type: 'application/json',
       jio_type: 'Web Table',
       i18n_namespace: 'spreadsheet',
-      test_data_url: 'data/test_data_spreadsheet.json',
+      test_data_url: 'app/data/test_data_spreadsheet.json',
       gadget: {
         url: 'lib/officejs/gadget/jqs.html'
       }
@@ -68,7 +68,7 @@ $(document).on('mobileinit', function () {
       attachment_content_type: 'image/svg+xml',
       jio_type: 'Image',
       i18n_namespace: 'svg',
-      test_data_url: 'data/test_data_svg.json',
+      test_data_url: 'app/data/test_data_svg.json',
       gadget: {
         url: 'lib/officejs/gadget/svgedit.html',
         beforeLoad: function () {
@@ -2107,7 +2107,7 @@ $(document).on('mobileinit', function () {
     },
     // keys missing from generic will be provided by the specific namespace
     fallbackNS: [application_setup.i18n_namespace],
-    resGetPath: 'i18n/__lng__/__ns__.json',
+    resGetPath: 'app/i18n/__lng__/__ns__.json',
     load: 'unspecific'
   }, applyTranslation);
 
