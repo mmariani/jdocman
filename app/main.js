@@ -77,7 +77,7 @@ $(document).on('mobileinit', function () {
         }
       }
     },
-  }, application_setup = APPLICATION_SETUP_MAP.editor,
+  }, application_setup = APPLICATION_SETUP_MAP.taskman,
     template = {
       // precompile for speed
       'feedback-popup': Handlebars.compile($('#feedback-popup-template').text()),
