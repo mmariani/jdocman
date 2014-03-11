@@ -16,15 +16,18 @@ $(document).on('mobileinit', function () {
       // In taskman mode, there are no attachments
       // and everything is kept in the metadata.
       attachment_mode: 'none',
-      metadata_type: 'Task',
+      jio_type: 'Task',
       i18n_namespace: 'taskman'
+      test_data_url: 'data/test_data_taskman.json'
     },
     taskman_attachments: {
       // In taskman-attachments mode, each metadata (i.e. task)
       // can contain several HTML attachments.
       attachment_mode: 'multiple',
-      metadata_type: 'Task',
+      attachment_content_type: 'text/html',
+      jio_type: 'Task',
       i18n_namespace: 'taskman',
+      test_data_url: 'data/test_data_taskman.json',
       gadget: {
         url: 'lib/officejs/gadget/bootstrap-wysiwyg.html'
       }
@@ -38,8 +41,10 @@ $(document).on('mobileinit', function () {
       // is hardcoded.
       attachment_mode: 'single',
       single_attachment_name: 'content',
-      metadata_type: 'Task',
+      attachment_content_type: 'text/html',
+      jio_type: 'Web Page',
       i18n_namespace: 'editor',
+      test_data_url: 'data/test_data_editor.json',
       gadget: {
         url: 'lib/officejs/gadget/bootstrap-wysiwyg.html'
       }
@@ -48,8 +53,10 @@ $(document).on('mobileinit', function () {
       // Same as editor with different gadget.
       attachment_mode: 'single',
       single_attachment_name: 'content',
-      metadata_type: 'Task',
+      attachment_content_type: 'application/json',
+      jio_type: 'Web Table',
       i18n_namespace: 'spreadsheet',
+      test_data_url: 'data/test_data_spreadsheet.json',
       gadget: {
         url: 'lib/officejs/gadget/jqs.html'
       }
@@ -58,8 +65,10 @@ $(document).on('mobileinit', function () {
       // Same as editor with different gadget.
       attachment_mode: 'single',
       single_attachment_name: 'content',
-      metadata_type: 'Task',
+      attachment_content_type: 'image/svg+xml',
+      jio_type: 'Image',
       i18n_namespace: 'svg',
+      test_data_url: 'data/test_data_svg.json',
       gadget: {
         url: 'lib/officejs/gadget/svgedit.html',
         beforeLoad: function () {
@@ -424,7 +433,7 @@ $(document).on('mobileinit', function () {
       return {
         type: 'local',
         username: config.username,
-        application_name: config.application_name
+        application_name: config.storage_name
       };
     }
 
@@ -466,7 +475,7 @@ $(document).on('mobileinit', function () {
     var jio_config = jIO.createJIO({
       type: 'local',
       username: 'Admin',
-      application_name: 'Taskman-config'
+      application_name: 'jiodocs-config'
     });
 
     // either load configuration from local storage, or create it
@@ -484,18 +493,18 @@ $(document).on('mobileinit', function () {
           {
             storage_type: 'local',
             username: 'Admin',
-            application_name: 'Local'
+            storage_name: 'Local-1'
           }, {
             storage_type: 'dav',
             username: 'Admin',
-            application_name: 'WebDAV',
+            storage_name: 'WebDAV',
             url: 'http://localhost/',
             realm: '',
             auth_type: 'none',
             password: ''
           }, {
             storage_type: 'local',
-            application_name: 'Local 2',
+            storage_name: 'Local-2',
             json_description: '{"type":"local","username":"Admin","application_name":"Local"}'
           }
         ];
@@ -565,7 +574,7 @@ $(document).on('mobileinit', function () {
         return JSON.parse(ev.target.result);
       }).
       then(function (config) {
-        Logger.debug('Using storage:', config.application_name);
+        Logger.debug('Using storage:', config.storage_name);
         var storage_description = config.json_description ? JSON.parse(config.json_description) : storageDescription(config);
         storage_description.key_schema = key_schema;
         _jio = jIO.createJIO(storage_description);
@@ -644,7 +653,7 @@ $(document).on('mobileinit', function () {
           {
             type: 'simple',
             key: 'type',
-            value: application_setup.metadata_type
+            value: application_setup.jio_type
           }, {
             type: 'simple',
             key: 'state',
@@ -676,7 +685,7 @@ $(document).on('mobileinit', function () {
           {
             type: 'simple',
             key: 'type',
-            value: application_setup.metadata_type
+            value: application_setup.jio_type
           }, {
             type: 'simple',
             key: 'project',
@@ -732,7 +741,7 @@ $(document).on('mobileinit', function () {
    * @return {String} A query string that can be used with allDocs
    */
   function grammarQuery(search_string) {
-    var query = '(type: "' + application_setup.metadata_type + '")';
+    var query = '(type: "' + application_setup.jio_type + '")';
     if (search_string) {
       query += ' AND ' + search_string;
     }
@@ -795,7 +804,7 @@ $(document).on('mobileinit', function () {
     query = {
       type: 'simple',
       key: 'type',
-      value: application_setup.metadata_type
+      value: application_setup.jio_type
     };
 
     if (content_query_list.length) {
@@ -890,6 +899,12 @@ $(document).on('mobileinit', function () {
     return jioConfigConnect().
       then(storageConfigList).
       then(function (storage_list) {
+        // same as _(storage_list).sortBy(function(o) {return o.config.storage_name})
+        storage_list.sort(function (a, b) {
+          var namea = a.config.storage_name,
+            nameb = b.config.storage_name;
+          return ((namea < nameb) ? -1 : ((namea > nameb) ? 1 : 0));
+        });
         // store the configuration list in a closure var
         _storage_list = storage_list;
       }).
@@ -1063,7 +1078,7 @@ $(document).on('mobileinit', function () {
       // XXX validate input
 
       metadata = {
-        type: application_setup.metadata_type,
+        type: application_setup.jio_type,
         title: title,
         start: start,
         stop: stop,
@@ -1274,7 +1289,7 @@ $(document).on('mobileinit', function () {
     jioConnect().then(function (jio) {
       var options = {
         include_docs: true,
-        query: '(type:"Project") OR (type:"' + application_setup.metadata_type + '")',
+        query: '(type:"Project") OR (type:"' + application_setup.jio_type + '")',
         sort_on: [['project', 'ascending']]
       }, document_map = {};
 
@@ -1293,7 +1308,7 @@ $(document).on('mobileinit', function () {
           }
 
           for (i = 0; i < rows.length; i += 1) {
-            if (rows[i].doc.type === application_setup.metadata_type) {
+            if (rows[i].doc.type === application_setup.jio_type) {
               document_map[rows[i].doc.project] = document_map[rows[i].doc.project] || {document_list: [], document_count: 0};
               document_map[rows[i].doc.project].document_list.push(rows[i]);
               document_map[rows[i].doc.project].document_count += 1;
@@ -1552,7 +1567,8 @@ $(document).on('mobileinit', function () {
         var attachment = {
           _id: document_id,
           _attachment: attachment_name,
-          _data: new Blob([attachment_content], {type: 'application/octet-stream'})
+          _data: new Blob([attachment_content],
+                          { type: application_setup.attachment_content_type || 'application/octet-stream'})
         };
         return jioConnect().
           then(function (jio) {
@@ -1624,7 +1640,7 @@ $(document).on('mobileinit', function () {
       var id = $('#storage-id').val(),
         $page = $.mobile.activePage,
         storage_type = $page.find('[name=storage_type]').val(),
-        application_name = $page.find('[name=application_name]').val(),
+        storage_name = $page.find('[name=storage_name]').val(),
         url = $page.find('[name=url]').val(),
         auth_type = $page.find('[name=auth_type]').val(),
         realm = $page.find('[name=realm]').val(),
@@ -1640,8 +1656,8 @@ $(document).on('mobileinit', function () {
       // XXX validate input
 
       config = {
-        application_name: application_name,
         storage_type: storage_type,
+        storage_name: storage_name,
         url: url,
         auth_type: auth_type,
         realm: realm,
@@ -1743,7 +1759,8 @@ $(document).on('mobileinit', function () {
       });
       return RSVP.all(attachment_promise_list);
     }).then(function (attachment_resp) {
-      return RSVP.all(attachment_resp.map(function (response) {
+      return RSVP.all(attachment_resp.map(function (response, idx) {
+        archive.attachment_list[idx].content_type = response.data.type;
         return jIO.util.readBlobAsBinaryString(response.data);
       }));
     }).then(function (attachment_content_resp) {
@@ -1806,7 +1823,7 @@ $(document).on('mobileinit', function () {
     jIO.util.ajax({
       // XXX if 404, display the URL in dialog
       type: 'GET',
-      url: 'data/test_data.json'
+      url: application_setup.test_data_url
     }).then(function (ev) {
       $textarea.val(ev.target.responseText);
       displayFeedback('Storage import', 'Test data has been loaded. Click Import to insert it into the storage.');
@@ -1898,7 +1915,7 @@ $(document).on('mobileinit', function () {
           promise = jio.putAttachment({
             _id: obj.id,
             _attachment: obj.attachment_name,
-            _data: new Blob([content], {type: 'application/octet-stream'})
+            _data: new Blob([content], {type: obj.content_type})
           });
         ins_promise_list.push(promise.
           then(function () {

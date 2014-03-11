@@ -354,7 +354,7 @@
           Storage:
           <select id="storage-select" data-mini="true" data-inline="true">
             {{#storage_list}}
-            <option value="{{this.id}}">{{this.config.application_name}} ({{this.config.storage_type}})</option>
+            <option value="{{this.id}}">{{this.config.storage_name}} ({{this.config.storage_type}})</option>
             {{/storage_list}}
           </select>
         </label>
@@ -506,7 +506,7 @@
         <div class="ui-field-contain">
           <label>
             <span data-i18n="i18n.todo">Name:</span>
-            <input type="text" name="application_name" value="{{config.application_name}}" data-mini="true" />
+            <input type="text" name="storage_name" value="{{config.storage_name}}" data-mini="true" />
           </label>
         </div>
 

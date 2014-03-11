@@ -17,7 +17,10 @@ NETWORK:
 *
 
 CACHE:
-data/test_data.json
+data/test_data_taskman.json
+data/test_data_editor.json
+data/test_data_spreadsheet.json
+data/test_data_svg.json
 favicon.png
 i18n/fr/generic.json
 i18n/fr/editor.json
