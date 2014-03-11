@@ -599,11 +599,11 @@ $(document).on('mobileinit', function () {
    * Check if a project already exists.
    *
    * @param {Object} jio the storage instance to use
-   * @param {String} project name of the project to look up
+   * @param {String} project_title title of the project to look up
    * @return {Promise} A promise that resolves to true
    * if the project exists, false otherwise.
    */
-  function checkProjectExists(jio, project) {
+  function checkProjectExists(jio, project_title) {
     return jio.allDocs({
       query:  {
         type: 'complex',
@@ -615,9 +615,9 @@ $(document).on('mobileinit', function () {
             value: 'Project'
           }, {
             type: 'simple',
-            key: 'project',
+            key: 'title',
             operator: '=',
-            value: project
+            value: project_title
           }
         ]
       }
@@ -631,11 +631,11 @@ $(document).on('mobileinit', function () {
    * Count the documents with a given state.
    *
    * @param {Object} jio the storage instance to use
-   * @param {String} state name of the state to look up
+   * @param {String} state_title title of the state to look up
    * @return {Promise} A promise that resolves to the
    * number of documents with that state.
    */
-  function countStateDocuments(jio, state) {
+  function countStateDocuments(jio, state_title) {
     return jio.allDocs({
       query:  {
         type: 'complex',
@@ -649,7 +649,7 @@ $(document).on('mobileinit', function () {
             type: 'simple',
             key: 'state',
             operator: '=',
-            value: state
+            value: state_title
           }
         ]
       }
@@ -663,11 +663,11 @@ $(document).on('mobileinit', function () {
    * Count the documents within a project.
    *
    * @param {Object} jio the storage instance to use
-   * @param {String} project name of the project to look up
+   * @param {String} project_title title of the project to look up
    * @return {Promise} A promise that resolves to the
    * number of documents in the project.
    */
-  function countProjectDocuments(jio, project) {
+  function countProjectDocuments(jio, project_title) {
     return jio.allDocs({
       query:  {
         type: 'complex',
@@ -681,7 +681,7 @@ $(document).on('mobileinit', function () {
             type: 'simple',
             key: 'project',
             operator: '=',
-            value: project
+            value: project_title
           }
         ]
       }
@@ -695,11 +695,11 @@ $(document).on('mobileinit', function () {
    * Check if a state already exists.
    *
    * @param {Object} jio the storage instance to use
-   * @param {String} state name of the state to look up
+   * @param {String} state_title title of the state to look up
    * @return {Promise} A promise that resolves to true
    * if the state exists, false otherwise.
    */
-  function checkStateExists(jio, state) {
+  function checkStateExists(jio, state_title) {
     return jio.allDocs({
       query:  {
         type: 'complex',
@@ -711,9 +711,9 @@ $(document).on('mobileinit', function () {
             value: 'State'
           }, {
             type: 'simple',
-            key: 'state',
+            key: 'title',
             operator: '=',
-            value: state
+            value: state_title
           }
         ]
       }
@@ -897,8 +897,8 @@ $(document).on('mobileinit', function () {
       // keep going even if we could not connect to the main storage
       fail(ignoreError).
       always(function (jio) {
-        var project_opt = {include_docs: true, sort_on: [['project', 'ascending']], query: '(type:"Project")'},
-          state_opt = {include_docs: true, sort_on: [['state', 'ascending']], query: '(type:"State")'};
+        var project_opt = {include_docs: true, sort_on: [['title', 'ascending']], query: '(type:"Project")'},
+          state_opt = {include_docs: true, sort_on: [['title', 'ascending']], query: '(type:"State")'};
 
         if (jio) {
           return RSVP.all([
@@ -1000,10 +1000,10 @@ $(document).on('mobileinit', function () {
     var document_id = parseHashParams(window.location.hash).document_id;
 
     jioConnect().then(function (jio) {
-      var project_opt = {include_docs: true, sort_on: [['project', 'ascending']], query: '(type:"Project")'},
+      var project_opt = {include_docs: true, sort_on: [['title', 'ascending']], query: '(type:"Project")'},
         project_promise = jio.allDocs(project_opt),
         metadata_promise = null,
-        state_opt = {include_docs: true, sort_on: [['state', 'ascending']], query: '(type:"State")'},
+        state_opt = {include_docs: true, sort_on: [['title', 'ascending']], query: '(type:"State")'},
         state_promise = jio.allDocs(state_opt),
         dateinput_type = hasHTML5DatePicker() ? 'date' : 'text';
 
@@ -1288,7 +1288,7 @@ $(document).on('mobileinit', function () {
 
           for (i = 0; i < rows.length; i += 1) {
             if (rows[i].doc.type === 'Project') {
-              document_map[rows[i].doc.project] = {document_list: [], document_count: 0};
+              document_map[rows[i].doc.title] = {document_list: [], document_count: 0};
             }
           }
 
@@ -1919,20 +1919,20 @@ $(document).on('mobileinit', function () {
   $(document).on('click', '#settings-del-state', function () {
     jioConnect().then(function (jio) {
       var $selected = $('input:radio:checked[name=state-radio]'),
-        state = $selected.data('jio-state'),
+        state_title = $selected.data('jio-state'),
         state_id = $selected.data('jio-id');
 
-      return countStateDocuments(jio, state).
+      return countStateDocuments(jio, state_title).
         then(function (document_count) {
           if (document_count) {
             return RSVP.reject({
               statusText: 'Cannot remove state',
-              message: document_count + ' documents are in state "' + state + '"'
+              message: document_count + ' documents are in state "' + state_title + '"'
             });
           }
           return jio.remove({_id: state_id});
         }).then(function () {
-          Logger.debug('State %s has been removed', state);
+          Logger.debug('State %s has been removed', state_title);
           return updateSettingsForm();
         });
 
@@ -1945,28 +1945,28 @@ $(document).on('mobileinit', function () {
    */
   $(document).on('click', '#settings-add-state', function () {
     jioConnect().then(function (jio) {
-      var state = window.prompt('State name?') || '';
+      var state_title = window.prompt('State name?') || '';
 
-      state = state.trim();
+      state_title = state_title.trim();
 
-      if (!state) {
+      if (!state_title) {
         return;
       }
 
-      state = state.charAt(0).toUpperCase() + state.slice(1);
+      state_title = state_title.charAt(0).toUpperCase() + state_title.slice(1);
 
-      return checkStateExists(jio, state).
+      return checkStateExists(jio, state_title).
         then(function (state_exists) {
           var doc = {
             type: 'State',
-            state: state,
+            title: state_title,
             modified: new Date()
           };
 
           if (state_exists) {
             return RSVP.reject({
               statusText: 'Cannot add state',
-              message: 'State "' + state + '" already exists'
+              message: 'State "' + state_title + '" already exists'
             });
           }
 
@@ -1987,21 +1987,21 @@ $(document).on('mobileinit', function () {
   $(document).on('click', '#settings-del-project', function () {
     jioConnect().then(function (jio) {
       var $selected = $('input:radio:checked[name=project-radio]'),
-        project = $selected.data('jio-project'),
+        project_title = $selected.data('jio-project'),
         project_id = $selected.data('jio-id');
 
       // query documents by project name, but query projects by id
-      return countProjectDocuments(jio, project).
+      return countProjectDocuments(jio, project_title).
         then(function (document_count) {
           if (document_count) {
             return RSVP.reject({
-              statusText: 'Cannot remove project "' + project + '"',
+              statusText: 'Cannot remove project "' + project_title + '"',
               message: 'The project contains ' + document_count + ' documents.'
             });
           }
           return jio.remove({_id: project_id});
         }).then(function () {
-          Logger.debug('Project %s has been removed', project);
+          Logger.debug('Project %s has been removed', project_title);
           return updateSettingsForm();
         });
 
@@ -2014,28 +2014,28 @@ $(document).on('mobileinit', function () {
    */
   $(document).on('click', '#settings-add-project', function () {
     jioConnect().then(function (jio) {
-      var project = window.prompt('Project name?') || '';
+      var project_title = window.prompt('Project name?') || '';
 
-      project = project.trim();
+      project_title = project_title.trim();
 
-      if (!project) {
+      if (!project_title) {
         return;
       }
 
-      project = project.charAt(0).toUpperCase() + project.slice(1);
+      project_title = project_title.charAt(0).toUpperCase() + project_title.slice(1);
 
-      return checkProjectExists(jio, project).
+      return checkProjectExists(jio, project_title).
         then(function (project_exists) {
           var doc = {
             type: 'Project',
-            project: project,
+            title: project_title,
             modified: new Date()
           };
 
           if (project_exists) {
             return RSVP.reject({
               statusText: 'Cannot add project',
-              message: 'Project "' + project + '" already exists'
+              message: 'Project "' + project_title + '" already exists'
             });
           }
 

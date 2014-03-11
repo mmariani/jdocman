@@ -177,7 +177,7 @@
           <select name="project" data-inline="true" data-mini="true">
             <option value="">--</option>
             {{#project_list}}
-            <option value="{{this.doc.project}}">{{this.doc.project}}</option>
+            <option value="{{this.doc.title}}">{{this.doc.title}}</option>
             {{/project_list}}
           </select>
         </label>
@@ -187,7 +187,7 @@
           <select name="state" data-inline="true" data-mini="true">
             <option value="">--</option>
             {{#state_list}}
-            <option value="{{this.doc.state}}">{{t this.doc.state}}</option>
+            <option value="{{this.doc.title}}">{{t this.doc.title}}</option>
             {{/state_list}}
           </select>
         </label>
@@ -372,7 +372,7 @@
         <fieldset data-role="controlgroup" data-mini="true">
           <legend data-i18n="settings.states">States:</legend>
           {{#state_list}}
-          <label data-i18n="{{this.doc.state}}"><input type="radio" name="state-radio" data-jio-state="{{this.doc.state}}" data-jio-id="{{this.id}}" />{{t this.doc.state}}</label>
+          <label data-i18n="{{this.doc.title}}"><input type="radio" name="state-radio" data-jio-state="{{this.doc.title}}" data-jio-id="{{this.id}}" />{{t this.doc.title}}</label>
           {{/state_list}}
         </fieldset>
         <fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
@@ -385,11 +385,11 @@
         <fieldset data-role="controlgroup" data-mini="true">
           <legend data-i18n="settings.projects">Projects:</legend>
           {{#project_list}}
-          <label data-i18n="{{this.doc.project}}">
+          <label data-i18n="{{this.doc.title}}">
             <input type="radio" name="project-radio"
-                   data-jio-project="{{this.doc.project}}"
+                   data-jio-project="{{this.doc.title}}"
                    data-jio-id="{{this.id}}" />
-              {{this.doc.project}}
+              {{this.doc.title}}
             </label>
           {{/project_list}}
         </fieldset>
