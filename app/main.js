@@ -322,13 +322,14 @@ $(document).on('mobileinit', function () {
    *
    * @param {String} page the page id, including '#'.
    * @param {Object|String} params the parameters to encode, or a fragment
+   * @param {Object} options the options to pass to changePage()
    * identifier which is already encoded. Optional.
    */
-  function gotoPage(page_selector, params) {
+  function gotoPage(page_selector, params, options) {
     // here '#' has double meaning: CSS selector and fragment separator
     var url = (typeof params === 'string') ? params : encodeHashParams(page_selector, params);
     $(page_selector).jqmData('url', url);
-    $.mobile.changePage(page_selector);
+    $.mobile.changePage(page_selector, options);
   }
 
 
@@ -1529,6 +1530,9 @@ $(document).on('mobileinit', function () {
         if (response.status === 404) {
           // attachment does not exist, no content to read
           return null;
+        }
+        if (response.stack) {
+          throw response;
         }
       }).
       then(function (response) {
