@@ -20,18 +20,6 @@ $(document).on('mobileinit', function () {
       i18n_namespace: 'taskman',
       test_data_url: 'app/data/test_data_taskman.json'
     },
-    taskman_attachments: {
-      // In taskman-attachments mode, each metadata (i.e. task)
-      // can contain several HTML attachments.
-      attachment_mode: 'multiple',
-      attachment_content_type: 'text/html; charset=utf8',
-      jio_type: 'Task',
-      i18n_namespace: 'taskman',
-      test_data_url: 'app/data/test_data_taskman.json',
-      gadget: {
-        url: 'lib/officejs/gadget/bootstrap-wysiwyg.html'
-      }
-    },
     editor: {
       // In editor mode, metadata is edited before creating
       // a new document, then it can be modified within a popup
@@ -77,7 +65,7 @@ $(document).on('mobileinit', function () {
         }
       }
     },
-  }, application_setup = APPLICATION_SETUP_MAP.svg,
+  }, application_setup = APPLICATION_SETUP_MAP.taskman,
     template = {
       // precompile for speed
       'feedback-popup': Handlebars.compile($('#feedback-popup-template').text()),
@@ -96,13 +84,12 @@ $(document).on('mobileinit', function () {
     _jio = null,
     _jio_promise = null,
     _jio_config = null,
-    _jio_config_promise = null,
+    _jio_config_promise = null;
     // are we creating a document from document list page, or from project list page?
-    goto_page_after_document_save = null;
 
 
   if (DEBUG) {
-    if (['#taskman', '#taskman_attachments', '#editor', '#spreadsheet', '#svg'].
+    if (['#taskman', '#editor', '#spreadsheet', '#svg'].
         indexOf(window.location.hash) !== -1) {
       application_setup = APPLICATION_SETUP_MAP[window.location.hash.substr(1)];
     }
@@ -1012,9 +999,7 @@ $(document).on('mobileinit', function () {
    * Update the metadata form to edit project/state list.
    * Works either in a full page or a popup.
    */
-  function updateMetadataForm() {
-    var document_id = parseHashParams(window.location.hash).document_id;
-
+  function updateMetadataForm(document_id) {
     jioConnect().then(function (jio) {
       var project_opt = {include_docs: true, sort_on: [['title', 'ascending']], query: '(type:"Project")'},
         project_promise = jio.allDocs(project_opt),
@@ -1128,14 +1113,6 @@ $(document).on('mobileinit', function () {
     }
     return options.inverse(this);
   });
-
-  Handlebars.registerHelper('IF_ATTACHMENT_MODE_MULTIPLE', function (options) {
-    if (application_setup.attachment_mode === 'multiple') {
-      return options.fn(this);
-    }
-    return options.inverse(this);
-  });
-
 
   /**
    * Clean up HTML before display for security reasons
@@ -1262,6 +1239,32 @@ $(document).on('mobileinit', function () {
     updateFooter();
   });
 
+  $(document).on('pagecreate', function (ev, data) {
+    if (window.location.hash.indexOf('?') > -1) {
+      // we are loading from direct URL, page refresh, or a bookmark, and have parameters.
+      $(ev.target).jqmData('url', window.location.hash);
+    }
+  });
+
+  $(document).on('pagebeforechange', function (e, data) {
+    if (!data || typeof data.toPage === 'string') {
+      return;
+    }
+
+    var args = parseHashParams($(data.toPage).jqmData('url'));
+
+    if (data.options.reverse) {
+      // we don't want to render the page again after hitting Back.
+      // If required, it must be done inside pagebeforeshow.
+      return;
+    }
+
+    $(data.toPage).trigger({
+      type: 'pagerender',
+      page: data.toPage,
+      args: args
+    });
+  });
 
   /**
    * Apply a language change upon selection from the menu.
@@ -1274,7 +1277,7 @@ $(document).on('mobileinit', function () {
   });
 
 
-  $(document).on('pagebeforeshow', '#settings-page', function () {
+  $(document).on('pagerender', '#settings-page', function () {
     updateSettingsForm();
   });
 
@@ -1286,7 +1289,6 @@ $(document).on('mobileinit', function () {
    * Translation is applied after rendering the template.
    */
   $(document).on('pagebeforeshow', '#project-list-page', function () {
-    goto_page_after_document_save = '#' + $.mobile.activePage.attr('id');
     jioConnect().then(function (jio) {
       var options = {
         include_docs: true,
@@ -1342,8 +1344,7 @@ $(document).on('mobileinit', function () {
   /**
    * Initial rendering of the 'document list' page.
    */
-  $(document).on('pagebeforeshow', '#document-list-page', function () {
-    goto_page_after_document_save = '#' + $.mobile.activePage.attr('id');
+  $(document).on('pagebeforeshow', '#document-list-page', function (ev) {
     jioConnect().then(function (jio) {
       // attempt to fix cosmetic issue with a select menu in the header
       $('#document-sortby-button').addClass('ui-btn-left');
@@ -1392,7 +1393,8 @@ $(document).on('mobileinit', function () {
    * with the appcache) we temporarily change the url of
    * the target page. It will be restored during the pageshow event.
    */
-  $(document).on('click', '.metadata-link', function () {
+  $(document).on('click', 'a.metadata-link', function (ev) {
+    ev.preventDefault();
     gotoPage('#metadata-page', this.hash);
   });
 
@@ -1402,18 +1404,20 @@ $(document).on('mobileinit', function () {
    * or to create a new document.
    * Translation is applied after rendering the template.
    */
-  $(document).on('pagebeforeshow', '#metadata-page', function () {
-    updateMetadataForm();
+  $(document).on('pagerender', '#metadata-page', function (ev) {
+    updateMetadataForm(ev.args.document_id);
   });
 
 
-  $(document).on('click', '#metadata-popup-trigger', function () {
-    updateMetadataForm();
+  $(document).on('click', 'a#metadata-popup-trigger', function (ev) {
+    ev.preventDefault();
+    var document_id = parseHashParams(window.location.hash).document_id;
+    updateMetadataForm(document_id);
     $('#metadata-popup').popup('open');
   });
 
-
-  $(document).on('click', '#metadata-popup-save', function () {
+  $(document).on('click', 'a#metadata-popup-save', function (ev) {
+    ev.preventDefault();
     saveMetadata().
       then(function () {
         $('#metadata-popup').popup('close');
@@ -1425,7 +1429,8 @@ $(document).on('mobileinit', function () {
    * Apply changes to the edited document, or create
    * a new document in the storage.
    */
-  $(document).on('click', '#metadata-page-save', function () {
+  $(document).on('click', 'a#metadata-page-save', function (ev) {
+    ev.preventDefault();
     saveMetadata().
       then(function (document_id) {
         if (application_setup.attachment_mode === 'single') {
@@ -1442,7 +1447,8 @@ $(document).on('mobileinit', function () {
   /**
    * Delete the currently open document from the storage.
    */
-  $(document).on('click', '.document-delete', function () {
+  $(document).on('click', 'a.document-delete', function (ev) {
+    ev.preventDefault();
     var document_id = parseHashParams(window.location.hash).document_id;
 
     jioConnect().then(function (jio) {
@@ -1458,7 +1464,8 @@ $(document).on('mobileinit', function () {
   /**
    * Delete the currently open attachment.
    */
-  $(document).on('click', '.attachment-delete', function () {
+  $(document).on('click', 'a.attachment-delete', function (ev) {
+    ev.preventDefault();
     var args = parseHashParams(window.location.hash),
       document_id = args.document_id,
       attachment_name = args.attachment_name;
@@ -1481,38 +1488,19 @@ $(document).on('mobileinit', function () {
 
 
   /**
-   * Redirects to the document edit page (for new attachments).
-   */
-  $(document).on('click', '#add-attachment', function () {
-    var document_id = parseHashParams(window.location.hash).document_id,
-      attachment_name = window.prompt('Attachment name?') || '';
-
-    attachment_name = attachment_name.trim();
-
-    if (!attachment_name) {
-      return;
-    }
-
-    // XXX check for duplicate names, allow rename
-
-    gotoPage('#attachment-page',
-             { document_id: document_id,
-               attachment_name: attachment_name});
-  });
-
-
-  /**
    * Redirects to the document edit page (for existing attachments).
    */
-  $(document).on('click', '.edit-attachment-link', function () {
+  $(document).on('click', 'a.edit-attachment-link', function (ev) {
+    ev.preventDefault();
     gotoPage('#attachment-page', this.hash);
   });
 
 
-  $(document).on('pagebeforeshow', '#attachment-page', function () {
-    var args = parseHashParams(window.location.hash),
-      document_id = args.document_id,
-      attachment_name = args.attachment_name;
+  $(document).on('pagerender', '#attachment-page', function (ev) {
+    var document_id = ev.args.document_id,
+      attachment_name = ev.args.attachment_name;
+
+    Logger.debug('open attachemnt:', document_id, attachment_name);
 
     editor_gadget = null;
 
@@ -1561,7 +1549,8 @@ $(document).on('mobileinit', function () {
   });
 
 
-  $(document).on('click', '#attachment-save', function () {
+  $(document).on('click', 'a#attachment-save', function (ev) {
+    ev.preventDefault();
     var args = parseHashParams(window.location.hash),
       document_id = args.document_id,
       attachment_name = args.attachment_name;
@@ -1578,14 +1567,14 @@ $(document).on('mobileinit', function () {
           then(function (jio) {
             return jio.putAttachment(attachment);
           }).then(function () {
-            gotoPage(goto_page_after_document_save);
+            parent.history.back();
           });
       }).
       fail(displayError);
   });
 
 
-  $(document).on('pagebeforehide', '#attachment-page', function () {
+  $(document).on('pagebeforehide', 'a#attachment-page', function () {
     $('#attachment iframe').remove();
   });
 
@@ -1603,7 +1592,8 @@ $(document).on('mobileinit', function () {
   /**
    * Redirects to the details page for the selected storage.
    */
-  $(document).on('click', '#storage-config', function () {
+  $(document).on('click', 'a#storage-config', function (ev) {
+    ev.preventDefault();
     var storage_id = $('#storage-select').val();
     gotoPage('#storage-config-page', {storage_id: storage_id});
   });
@@ -1614,7 +1604,7 @@ $(document).on('mobileinit', function () {
    * or to create a new storage.
    * Translation is applied after rendering the template.
    */
-  $(document).on('pagebeforeshow', '#storage-config-page', function () {
+  $(document).on('pagerender', 'a#storage-config-page', function () {
     var storage_id = parseHashParams(window.location.hash).storage_id;
     jioConfigConnect().then(function (jio_config) {
       return storageConfig(jio_config, storage_id).
@@ -1639,7 +1629,8 @@ $(document).on('mobileinit', function () {
    * Apply changes to the edited storage configuration,
    * or create a new one.
    */
-  $(document).on('click', '#storage-save', function () {
+  $(document).on('click', 'a#storage-save', function (ev) {
+    ev.preventDefault();
     jioConfigConnect().then(function (jio_config) {
       var id = $('#storage-id').val(),
         $page = $.mobile.activePage,
@@ -1707,7 +1698,8 @@ $(document).on('mobileinit', function () {
    * Does not actually touch the storage's content, and resets
    * the selected storage to the default one.
    */
-  $(document).on('click', '#storage-delete', function () {
+  $(document).on('click', 'a#storage-delete', function (ev) {
+    ev.preventDefault();
     jioConfigConnect().then(function (jio_config) {
       var id = $('#storage-id').val();
 
@@ -1725,7 +1717,7 @@ $(document).on('mobileinit', function () {
   /**
    * Export the content of the current storage for backup purposes.
    */
-  $(document).on('pagebeforeshow', '#storage-export-page', function () {
+  $(document).on('pagerender', '#storage-export-page', function () {
     var $export_container = $('#storage-export-json-container'),
       // collect evertything here as {'metadata': [...], 'attachment_list': [...]}
       archive = {},
@@ -1809,7 +1801,7 @@ $(document).on('mobileinit', function () {
   /**
    * Page to import a previously exported content into the current storage.
    */
-  $(document).on('pagebeforeshow', '#storage-import-page', function () {
+  $(document).on('pagerender', '#storage-import-page', function () {
     var $textarea = $('#storage-import-json');
     $textarea.
       // Set the height overriding the value set by JQM
@@ -1822,7 +1814,8 @@ $(document).on('mobileinit', function () {
   /**
    * Insert test data into textarea
    */
-  $(document).on('click', '#storage-import-test', function () {
+  $(document).on('click', 'a#storage-import-test', function (ev) {
+    ev.preventDefault();
     var $textarea = $('#storage-import-json');
     jIO.util.ajax({
       // XXX if 404, display the URL in dialog
@@ -1838,7 +1831,8 @@ $(document).on('mobileinit', function () {
   /**
    * Clear the content of the current storage.
    */
-  $(document).on('click', '#storage-clear', function () {
+  $(document).on('click', 'a#storage-clear', function (ev) {
+    ev.preventDefault();
     if (!window.confirm("Are you sure you want to remove the content of the storage?")) {
       return;
     }
@@ -1879,7 +1873,8 @@ $(document).on('mobileinit', function () {
   /**
    * Import a previously exported content into the current storage.
    */
-  $(document).on('click', '#storage-import', function () {
+  $(document).on('click', 'a#storage-import', function (ev) {
+    ev.preventDefault();
     var object_count = 0;
 
     jioConnect().then(function (jio) {
@@ -1937,7 +1932,8 @@ $(document).on('mobileinit', function () {
   /**
    * Delete a state. It must have no related documents.
    */
-  $(document).on('click', '#settings-del-state', function () {
+  $(document).on('click', 'a#settings-del-state', function (ev) {
+    ev.preventDefault();
     jioConnect().then(function (jio) {
       var $selected = $('input:radio:checked[name=state-radio]'),
         state_title = $selected.data('jio-state'),
@@ -1964,7 +1960,8 @@ $(document).on('mobileinit', function () {
   /**
    * Create a new state. Its name must be unique.
    */
-  $(document).on('click', '#settings-add-state', function () {
+  $(document).on('click', 'a#settings-add-state', function (ev) {
+    ev.preventDefault();
     jioConnect().then(function (jio) {
       var state_title = window.prompt('State name?') || '';
 
@@ -2005,7 +2002,8 @@ $(document).on('mobileinit', function () {
   /**
    * Delete a project. It must have no related documents.
    */
-  $(document).on('click', '#settings-del-project', function () {
+  $(document).on('click', 'a#settings-del-project', function (ev) {
+    ev.preventDefault();
     jioConnect().then(function (jio) {
       var $selected = $('input:radio:checked[name=project-radio]'),
         project_title = $selected.data('jio-project'),
@@ -2033,7 +2031,8 @@ $(document).on('mobileinit', function () {
   /**
    * Create a new project. Its name must be unique.
    */
-  $(document).on('click', '#settings-add-project', function () {
+  $(document).on('click', 'a#settings-add-project', function (ev) {
+    ev.preventDefault();
     jioConnect().then(function (jio) {
       var project_title = window.prompt('Project name?') || '';
 

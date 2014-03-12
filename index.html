@@ -35,13 +35,6 @@
           {{t "documents.to"}}
           <span class="to-date">{{asYMD this.doc.stop}}</span>
         </p>
-        {{#IF_ATTACHMENT_MODE_MULTIPLE}}
-        {{#if this.doc._attachments}}
-        <p>
-          attachments: {{#each this.doc._attachments}}<span class="attachment">{{@key}}</span>{{/each}}
-        </p>
-        {{/if}}
-        {{/IF_ATTACHMENT_MODE_MULTIPLE}}
       </a>
     </script><!-- /document-link-partial -->
 
@@ -199,30 +192,6 @@
             {{/state_list}}
           </select>
         </label>
-
-        {{#IF_ATTACHMENT_MODE_MULTIPLE}}
-        {{#if document_id}}
-        <ul data-role="listview" data-inset="true">
-          {{#if attachments}}
-          {{#each attachments}}
-            <li>
-              <a href="#attachment-page?document_id={{../document_id}}&attachment_name={{encode @key}}" class="edit-attachment-link">
-                {{@key}}
-              </a>
-            </li>
-          {{/each}}
-          {{else}}
-            <li>
-              <h3>No attachments.</h3>
-            </li>
-          {{/if}}
-        </ul>
-
-        <a href="#" id="add-attachment" data-role="button" data-icon="plus" data-mini="true" data-inline="true">
-          New attachment
-        </a>
-        {{/if}}
-        {{/IF_ATTACHMENT_MODE_MULTIPLE}}
       </form>
     </script><!-- /metadata-template -->
 
@@ -362,7 +331,7 @@
           </select>
         </label>
         <fieldset data-role="controlgroup" data-mini="true" data-type="horizontal" data-inline="true">
-          <a href="#storage-config-page" id="storage-config" data-role="button">Configure</a>
+          <a href="#" id="storage-config" data-role="button">Configure</a>
           <a href="#storage-export-page" data-role="button">Export</a>
           <a href="#storage-import-page" data-role="button">Import</a>
           <a href="#storage-config-page" data-role="button" data-icon="plus">New Storage</a>
