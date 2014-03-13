@@ -15,7 +15,7 @@ $(document).on('mobileinit', function () {
     taskman: {
       // In taskman mode, there are no attachments
       // and everything is kept in the metadata.
-      attachment_mode: 'none',
+      attachment_mode: false,
       jio_type: 'Task',
       i18n_namespace: 'taskman',
       test_data_url: 'app/data/test_data_taskman.json'
@@ -27,7 +27,7 @@ $(document).on('mobileinit', function () {
       // Clicking on the search list directly opens the attachment.
       // There can only be an attachment per metadata and its name
       // is hardcoded.
-      attachment_mode: 'single',
+      attachment_mode: true,
       single_attachment_name: 'content',
       attachment_content_type: 'text/html; charset=utf8',
       jio_type: 'Web Page',
@@ -39,7 +39,7 @@ $(document).on('mobileinit', function () {
     },
     spreadsheet: {
       // Same as editor with different gadget.
-      attachment_mode: 'single',
+      attachment_mode: true,
       single_attachment_name: 'content',
       attachment_content_type: 'application/json',
       jio_type: 'Web Table',
@@ -51,7 +51,7 @@ $(document).on('mobileinit', function () {
     },
     svg: {
       // Same as editor with different gadget.
-      attachment_mode: 'single',
+      attachment_mode: true,
       single_attachment_name: 'content',
       attachment_content_type: 'image/svg+xml',
       jio_type: 'Image',
@@ -65,7 +65,7 @@ $(document).on('mobileinit', function () {
         }
       }
     },
-  }, application_setup = APPLICATION_SETUP_MAP.taskman,
+  }, application_setup = APPLICATION_SETUP_MAP.editor,
     template = {
       // precompile for speed
       'feedback-popup': Handlebars.compile($('#feedback-popup-template').text()),
@@ -73,7 +73,6 @@ $(document).on('mobileinit', function () {
       'settings-form': Handlebars.compile($('#settings-form-template').text()),
       'footer': Handlebars.compile($('#footer-template').text()),
       'attachment-page-footer': Handlebars.compile($('#attachment-page-footer-template').text()),
-      'metadata-page-footer': Handlebars.compile($('#metadata-page-footer-template').text()),
       'project-list': Handlebars.compile($('#project-list-template').text()),
       'metadata': Handlebars.compile($('#metadata-template').text()),
       'storage-config': Handlebars.compile($('#storage-config-template').text())
@@ -304,8 +303,9 @@ $(document).on('mobileinit', function () {
 
   /*
    * Changes page and provide parameters within the fragment identifier.
-   * The hack is to temporarily change the target url of the JQM page.
-   * It will be restored during the pageshow event.
+   * Since we cannot use query parameters (they would not work
+   * with the appcache) we temporarily change the url of
+   * the target page. It will be restored during the pageshow event.
    *
    * @param {String} page the page id, including '#'.
    * @param {Object|String} params the parameters to encode, or a fragment
@@ -995,58 +995,6 @@ $(document).on('mobileinit', function () {
   }
 
 
-  /**
-   * Update the metadata form to edit project/state list.
-   * Works either in a full page or a popup.
-   */
-  function updateMetadataForm(document_id) {
-    jioConnect().then(function (jio) {
-      var project_opt = {include_docs: true, sort_on: [['title', 'ascending']], query: '(type:"Project")'},
-        project_promise = jio.allDocs(project_opt),
-        metadata_promise = null,
-        state_opt = {include_docs: true, sort_on: [['title', 'ascending']], query: '(type:"State")'},
-        state_promise = jio.allDocs(state_opt),
-        dateinput_type = hasHTML5DatePicker() ? 'date' : 'text';
-
-      if (document_id) {
-        metadata_promise = jio.get({_id: document_id});
-      } else {
-        metadata_promise = new RSVP.Promise(function (resolve) {
-          resolve({
-            data: {
-              title: 'New Document',
-              start: moment().format('YYYY-MM-DD')
-            }
-          });
-        });
-      }
-
-      return RSVP.all([metadata_promise, project_promise, state_promise]).
-        then(function (response_list) {
-          var metadata_resp = response_list[0],
-            project_list = response_list[1].data.rows,
-            state_list = response_list[2].data.rows,
-            attachments = metadata_resp.data._attachments || [],
-            $page = $.mobile.activePage;
-
-          $page.find('.metadata-container').
-            html(template.metadata({
-              metadata: metadata_resp.data,
-              document_id: metadata_resp.id,
-              attachments: attachments,
-              project_list: project_list,
-              state_list: state_list,
-              dateinput_type: dateinput_type
-            })).
-            trigger('create');
-
-          jqmSetSelected($page.find('[name=project]'), metadata_resp.data.project);
-          jqmSetSelected($page.find('[name=state]'), metadata_resp.data.state);
-          applyTranslation();
-        });
-    }).fail(displayError);
-  }
-
 
   function saveMetadata() {
     return jioConnect().then(function (jio) {
@@ -1108,7 +1056,7 @@ $(document).on('mobileinit', function () {
   });
 
   Handlebars.registerHelper('IF_ATTACHMENT_MODE_SINGLE', function (options) {
-    if (application_setup.attachment_mode === 'single') {
+    if (application_setup.attachment_mode) {
       return options.fn(this);
     }
     return options.inverse(this);
@@ -1389,14 +1337,22 @@ $(document).on('mobileinit', function () {
   /**
    * Redirects to the metadata page for a document, when a document
    * is selected in the listview.
-   * Since we cannot use query parameters (they would not work
-   * with the appcache) we temporarily change the url of
-   * the target page. It will be restored during the pageshow event.
    */
   $(document).on('click', 'a.metadata-link', function (ev) {
     ev.preventDefault();
-    gotoPage('#metadata-page', this.hash);
+    gotoPage('#metadata-page', $(this).attr('href'));
   });
+
+
+  /**
+   * Redirects to the metadata page of the currently open attachment.
+   */
+  $(document).on('click', 'a.current-metadata-link', function (ev) {
+    ev.preventDefault();
+    var document_id = parseHashParams(window.location.hash).document_id;
+    gotoPage('#metadata-page', {document_id: document_id});
+  });
+
 
 
   /**
@@ -1405,41 +1361,83 @@ $(document).on('mobileinit', function () {
    * Translation is applied after rendering the template.
    */
   $(document).on('pagerender', '#metadata-page', function (ev) {
-    updateMetadataForm(ev.args.document_id);
+    var $page = $(ev.page),
+      document_id = ev.args.document_id,
+      attachment_name = ev.args.attachment_name;
+
+    jioConnect().then(function (jio) {
+      var project_opt = {include_docs: true, sort_on: [['title', 'ascending']], query: '(type:"Project")'},
+        project_promise = jio.allDocs(project_opt),
+        metadata_promise = null,
+        state_opt = {include_docs: true, sort_on: [['title', 'ascending']], query: '(type:"State")'},
+        state_promise = jio.allDocs(state_opt),
+        dateinput_type = hasHTML5DatePicker() ? 'date' : 'text';
+
+      if (document_id) {
+        metadata_promise = jio.get({_id: document_id});
+      } else {
+        metadata_promise = new RSVP.Promise(function (resolve) {
+          resolve({
+            data: {
+              title: 'New Document',
+              start: moment().format('YYYY-MM-DD')
+            }
+          });
+        });
+      }
+
+      return RSVP.all([metadata_promise, project_promise, state_promise]).
+        then(function (response_list) {
+          var metadata_resp = response_list[0],
+            project_list = response_list[1].data.rows,
+            state_list = response_list[2].data.rows;
+
+          $page.find('.metadata-container').
+            html(template.metadata({
+              metadata: metadata_resp.data,
+              document_id: document_id,
+              attachment_name: attachment_name,
+              project_list: project_list,
+              state_list: state_list,
+              dateinput_type: dateinput_type
+            })).
+            trigger('create');
+
+          jqmSetSelected($page.find('[name=project]'), metadata_resp.data.project);
+          jqmSetSelected($page.find('[name=state]'), metadata_resp.data.state);
+          applyTranslation();
+        });
+    }).fail(displayError);
   });
 
 
-  $(document).on('click', 'a#metadata-popup-trigger', function (ev) {
+
+  $(document).on('click', 'a.new-metadata-link', function (ev) {
     ev.preventDefault();
-    var document_id = parseHashParams(window.location.hash).document_id;
-    updateMetadataForm(document_id);
-    $('#metadata-popup').popup('open');
+    gotoPage('#metadata-page');
   });
 
-  $(document).on('click', 'a#metadata-popup-save', function (ev) {
-    ev.preventDefault();
-    saveMetadata().
-      then(function () {
-        $('#metadata-popup').popup('close');
-      });
-  });
 
 
   /**
-   * Apply changes to the edited document, or create
-   * a new document in the storage.
+   * Apply changes to the metadata, and go back to the attachment,
+   * the document list or whatever page before the current one.
    */
-  $(document).on('click', 'a#metadata-page-save', function (ev) {
+  $(document).on('click', 'a#metadata-save', function (ev) {
+    var existing_document_id = parseHashParams(window.location.hash).document_id;
+    Logger.debug('Saving metadata:', existing_document_id);
     ev.preventDefault();
     saveMetadata().
       then(function (document_id) {
-        if (application_setup.attachment_mode === 'single') {
+        if (!existing_document_id && application_setup.attachment_mode) {
+          Logger.debug('Done. Going to attachment');
           gotoPage('#attachment-page',
                    { document_id: document_id,
                      attachment_name: application_setup.single_attachment_name});
-          return;
+        } else {
+          Logger.debug('Done. Going back');
+          parent.history.back();
         }
-        parent.history.back();
       });
   });
 
@@ -1462,32 +1460,6 @@ $(document).on('mobileinit', function () {
 
 
   /**
-   * Delete the currently open attachment.
-   */
-  $(document).on('click', 'a.attachment-delete', function (ev) {
-    ev.preventDefault();
-    var args = parseHashParams(window.location.hash),
-      document_id = args.document_id,
-      attachment_name = args.attachment_name;
-
-    jioConnect().then(function (jio) {
-      return jio.removeAttachment({_id: document_id,
-                                   _attachment: attachment_name});
-    }).then(function (response) {
-      Logger.debug('Deleted attachment %s/%s:', response.id, response.attachment);
-      Logger.debug('  status %s', response.status);
-      parent.history.back();
-    }).fail(function (response) {
-      if (response.status === 404) {
-        parent.history.back();
-        return;
-      }
-      throw response;
-    }).fail(displayError);
-  });
-
-
-  /**
    * Redirects to the document edit page (for existing attachments).
    */
   $(document).on('click', 'a.edit-attachment-link', function (ev) {
@@ -1500,7 +1472,7 @@ $(document).on('mobileinit', function () {
     var document_id = ev.args.document_id,
       attachment_name = ev.args.attachment_name;
 
-    Logger.debug('open attachemnt:', document_id, attachment_name);
+    Logger.debug('open attachment:', document_id, attachment_name);
 
     editor_gadget = null;
 
@@ -1549,6 +1521,11 @@ $(document).on('mobileinit', function () {
   });
 
 
+  function removeOfficeJSGadget() {
+    $('#attachment iframe').remove();
+  }
+
+
   $(document).on('click', 'a#attachment-save', function (ev) {
     ev.preventDefault();
     var args = parseHashParams(window.location.hash),
@@ -1567,6 +1544,7 @@ $(document).on('mobileinit', function () {
           then(function (jio) {
             return jio.putAttachment(attachment);
           }).then(function () {
+            removeOfficeJSGadget();
             parent.history.back();
           });
       }).
@@ -1574,8 +1552,8 @@ $(document).on('mobileinit', function () {
   });
 
 
-  $(document).on('pagebeforehide', 'a#attachment-page', function () {
-    $('#attachment iframe').remove();
+  $(document).on('click', '#attachment-page a[data-rel=back]', function (ev) {
+    removeOfficeJSGadget();
   });
 
 
