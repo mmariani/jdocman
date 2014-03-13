@@ -39,11 +39,7 @@
   color: green;
 }
 
-.document-listview .attachment:not(:last-child):after {
-  content: ', ';
-}
-
-.metadata-container .ui-field-contain {
+#metadata-form-container .ui-field-contain {
   margin: 0;
 }
 
@@ -67,15 +63,6 @@ div.ui-field-contain > label > [class*="ui-"] {
   box-sizing: border-box;
 }
 
-
-/*
- * Resize popup
- */
-
-#metadata-popup {
-  position:fixed;
-  top:0px;
-}
 
 
 /*
@@ -103,7 +90,7 @@ textarea {
  * For the renderJS gadgets, like text editor etc.
  */
 
-#attachment iframe {
+#attachment-container iframe {
   position: fixed;
   width: 100%;
   height: 100%;
@@ -114,7 +101,7 @@ textarea {
   border: 0;
 }
 
-.attachment-content {
+#attachment-container {
   padding: 0;
 }
 

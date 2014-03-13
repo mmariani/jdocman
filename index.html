@@ -21,12 +21,7 @@
 
     <script id="document-link-partial" type="text/x-handlebars-template">
       <a data-role="button"
-        {{#IF_ATTACHMENT_MODE_SINGLE}}
-        href="#attachment-page?document_id={{this.id}}&attachment_name={{SINGLE_ATTACHMENT_NAME}}" class="edit-attachment-link"
-        {{else}}
-        href="#metadata-page?document_id={{this.id}}&create_attachment" class="metadata-link"
-        {{/IF_ATTACHMENT_MODE_SINGLE}}
-        >
+        href="#document-page?document_id={{this.id}}" class="document-link">
         {{this.doc.title}}
         <p class="description">{{sanitize this.doc.description 100}}</p>
         <p>
@@ -58,7 +53,7 @@
           Application Name
         </h2>
         <a href="#" data-role="button" data-icon="plus"
-           class="new-metadata-link ui-btn-right"
+           class="new-document-link ui-btn-right"
            data-mini="true"
            data-i18n="documents.newdocument">
           New Task
@@ -138,62 +133,13 @@
 
 
     <!--
-    Metadata Page
+    Document Page
     -->
 
-    <section data-role="page" id="metadata-page" data-title="New Task">
-      <article data-role="content" class="metadata-container"></article>
-    </section><!-- /metadata-page -->
-
-    <script id="metadata-template" type="text/x-handlebars-template">
+    <section data-role="page" id="document-page" data-i18n="[data-title]documents.newdocument">
       <article data-role="content">
-        <form action="javascript:void(0);">
-          <div class="ui-field-contain">
-            <label>
-              <span data-i18n="details.title">Title:</span>
-              <input type="text" name="title" value="{{metadata.title}}" data-mini="true" />
-            </label>
-          </div>
-
-          <label>
-            <span data-i18n="details.description">Description:</span>
-            <textarea name="description">{{metadata.description}}</textarea>
-          </label>
-
-          <div class="ui-field-contain">
-            <label>
-              <span data-i18n="details.start">Begin date:</span>
-              <input type="{{dateinput_type}}" name="start" data-role="date" data-mini="true" data-inline="true" value="{{asYMD metadata.start}}" />
-            </label>
-          </div>
-
-          <div class="ui-field-contain">
-            <label>
-              <span data-i18n="details.stop">End date:</span>
-              <input type="{{dateinput_type}}" name="stop" data-role="date" data-mini="true" data-inline="true" value="{{asYMD metadata.stop}}" />
-            </label>
-          </div>
-
-          <label>
-            <span data-i18n="details.project">Project:</span>
-            <select name="project" data-inline="true" data-mini="true">
-              <option value="">--</option>
-              {{#project_list}}
-              <option value="{{this.doc.title}}">{{this.doc.title}}</option>
-              {{/project_list}}
-            </select>
-          </label>
-
-          <label>
-            <span data-i18n="details.state">State:</span>
-            <select name="state" data-inline="true" data-mini="true">
-              <option value="">--</option>
-              {{#state_list}}
-              <option value="{{this.doc.title}}">{{t this.doc.title}}</option>
-              {{/state_list}}
-            </select>
-          </label>
-        </form>
+        <div id="metadata-form-container"></div>
+        <div id="attachment-container"></div>
       </article>
 
       <footer data-role="footer" data-position="fixed">
@@ -203,51 +149,20 @@
           Back
         </a>
         <a href="#" data-role="button"
-          id="metadata-save"
+          id="document-save"
           data-icon="check"
-          data-mini="true"
-          data-inline="true">
+          data-mini="true">
           Save
         </a>
-        {{#if document_id}}
         <a href="#" data-role="button"
-          class="document-delete ui-btn-right"
-          data-icon="delete"
-          data-mini="true"
-          data-i18n="details.delete">
-          Delete
-        </a>
-        {{/if}}
-      </footer>
-    </script><!-- /metadata-template -->
-
-
-    <!--
-    Attachment Page
-    -->
-
-    <section data-role="page" id="attachment-page">
-      <article data-role="content" class="attachment-content">
-        <div id="attachment"></div>
-      </article>
-      <div class="footer-container"></div>
-    </section><!-- /attachment-page -->
-
-    <script id="attachment-page-footer-template" type="text/x-handlebars-template">
-      <footer data-role="footer" data-position="fixed">
-        <a href="#" data-role="button" data-rel="back"
-          data-icon="arrow-l" data-mini="true"
-          data-i18n="header.back">
-          Back
-        </a>
-        <a data-role="button"
-          href="#" class="current-metadata-link"
+          id="show-metadata"
           data-mini="true">
-          Metadata
+          Properties
         </a>
-        <a href="#" id="attachment-save" data-role="button"
-          data-icon="check" data-mini="true">
-          Save document
+        <a href="#" data-role="button"
+          id="show-attachment"
+          data-mini="true">
+          Document
         </a>
         <a href="#" data-role="button"
           class="document-delete ui-btn-right"
@@ -257,7 +172,58 @@
           Delete
         </a>
       </footer>
-    </script><!-- /attachment-page-footer -->
+    </section><!-- /document-page -->
+
+    <script id="metadata-form-template" type="text/x-handlebars-template">
+      <form action="javascript:void(0);">
+        <div class="ui-field-contain">
+          <label>
+            <span data-i18n="details.title">Title:</span>
+            <input type="text" name="title" value="{{metadata.title}}" data-mini="true" />
+          </label>
+        </div>
+
+        <label>
+          <span data-i18n="details.description">Description:</span>
+          <textarea name="description">{{metadata.description}}</textarea>
+        </label>
+
+        <div class="ui-field-contain">
+          <label>
+            <span data-i18n="details.start">Begin date:</span>
+            <input type="{{dateinput_type}}" name="start" data-role="date" data-mini="true" data-inline="true" value="{{asYMD metadata.start}}" />
+          </label>
+        </div>
+
+        <div class="ui-field-contain">
+          <label>
+            <span data-i18n="details.stop">End date:</span>
+            <input type="{{dateinput_type}}" name="stop" data-role="date" data-mini="true" data-inline="true" value="{{asYMD metadata.stop}}" />
+          </label>
+        </div>
+
+        <label>
+          <span data-i18n="details.project">Project:</span>
+          <select name="project" data-inline="true" data-mini="true">
+            <option value="">--</option>
+            {{#project_list}}
+            <option value="{{this.doc.title}}">{{this.doc.title}}</option>
+            {{/project_list}}
+          </select>
+        </label>
+
+        <label>
+          <span data-i18n="details.state">State:</span>
+          <select name="state" data-inline="true" data-mini="true">
+            <option value="">--</option>
+            {{#state_list}}
+            <option value="{{this.doc.title}}">{{t this.doc.title}}</option>
+            {{/state_list}}
+          </select>
+        </label>
+      </form>
+    </script><!-- /metadata-form-template -->
+
 
 
     <!--

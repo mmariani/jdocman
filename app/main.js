@@ -15,20 +15,16 @@ $(document).on('mobileinit', function () {
     taskman: {
       // In taskman mode, there are no attachments
       // and everything is kept in the metadata.
-      attachment_mode: false,
+      has_attachment: false,
       jio_type: 'Task',
       i18n_namespace: 'taskman',
       test_data_url: 'app/data/test_data_taskman.json'
     },
     editor: {
-      // In editor mode, metadata is edited before creating
-      // a new document, then it can be modified within a popup
-      // from the full screen editor page.
-      // Clicking on the search list directly opens the attachment.
-      // There can only be an attachment per metadata and its name
-      // is hardcoded.
-      attachment_mode: true,
-      single_attachment_name: 'content',
+      // In editor mode, metadata and attachment editor
+      // are show in the same page, loaded and saved together.
+      // Visualization can be toggled with a footer button.
+      has_attachment: true,
       attachment_content_type: 'text/html; charset=utf8',
       jio_type: 'Web Page',
       i18n_namespace: 'editor',
@@ -39,8 +35,7 @@ $(document).on('mobileinit', function () {
     },
     spreadsheet: {
       // Same as editor with different gadget.
-      attachment_mode: true,
-      single_attachment_name: 'content',
+      has_attachment: true,
       attachment_content_type: 'application/json',
       jio_type: 'Web Table',
       i18n_namespace: 'spreadsheet',
@@ -51,8 +46,7 @@ $(document).on('mobileinit', function () {
     },
     svg: {
       // Same as editor with different gadget.
-      attachment_mode: true,
-      single_attachment_name: 'content',
+      has_attachment: true,
       attachment_content_type: 'image/svg+xml',
       jio_type: 'Image',
       i18n_namespace: 'svg',
@@ -65,16 +59,16 @@ $(document).on('mobileinit', function () {
         }
       }
     },
-  }, application_setup = APPLICATION_SETUP_MAP.editor,
+  }, ATTACHMENT_NAME = 'content',
+    application_setup = APPLICATION_SETUP_MAP.editor,
     template = {
       // precompile for speed
       'feedback-popup': Handlebars.compile($('#feedback-popup-template').text()),
       'document-list': Handlebars.compile($('#document-list-template').text()),
       'settings-form': Handlebars.compile($('#settings-form-template').text()),
       'footer': Handlebars.compile($('#footer-template').text()),
-      'attachment-page-footer': Handlebars.compile($('#attachment-page-footer-template').text()),
       'project-list': Handlebars.compile($('#project-list-template').text()),
-      'metadata': Handlebars.compile($('#metadata-template').text()),
+      'metadata-form': Handlebars.compile($('#metadata-form-template').text()),
       'storage-config': Handlebars.compile($('#storage-config-template').text())
     },
     default_storage_id = 'default_storage',
@@ -85,17 +79,6 @@ $(document).on('mobileinit', function () {
     _jio_config = null,
     _jio_config_promise = null;
     // are we creating a document from document list page, or from project list page?
-
-
-  if (DEBUG) {
-    if (['#taskman', '#editor', '#spreadsheet', '#svg'].
-        indexOf(window.location.hash) !== -1) {
-      application_setup = APPLICATION_SETUP_MAP[window.location.hash.substr(1)];
-    }
-    Logger.debug('Application mode: ', window.location.hash.substr(1));
-  }
-
-
 
 
   /**
@@ -265,6 +248,8 @@ $(document).on('mobileinit', function () {
   /**
    * Immediately apply translation to all elements
    * which have a data-i18n attribute.
+   * The selector is not very efficient but is good enough
+   * for a small application like this.
    */
   function applyTranslation() {
     $('[data-i18n]').i18n();
@@ -302,7 +287,7 @@ $(document).on('mobileinit', function () {
 
 
   /*
-   * Changes page and provide parameters within the fragment identifier.
+   * Change page and provide parameters within the fragment identifier.
    * Since we cannot use query parameters (they would not work
    * with the appcache) we temporarily change the url of
    * the target page. It will be restored during the pageshow event.
@@ -321,7 +306,7 @@ $(document).on('mobileinit', function () {
 
 
   /**
-   * Retrieves the text typed by the user for searching.
+   * Retrieve the text typed by the user for searching.
    *
    * @return {String} the search string
    */
@@ -882,7 +867,7 @@ $(document).on('mobileinit', function () {
    */
   function updateSettingsForm() {
     var _storage_list = null,
-      error_message = null;
+      _error_message = null;
 
     return jioConfigConnect().
       then(storageConfigList).
@@ -912,7 +897,7 @@ $(document).on('mobileinit', function () {
       }).
       // keep going even if we could not retrieve the state/project lists
       fail(function (e) {
-        error_message = e.message; // enough for both jio messages and exceptions
+        _error_message = e.message; // enough for both jio messages and exceptions
       }).
       always(function (response_list) {
         var project_list = response_list ? response_list[0].data.rows : null,
@@ -921,7 +906,7 @@ $(document).on('mobileinit', function () {
         $('#settings-form-container').
           html(template['settings-form']({
             connection_ok: project_list !== null && state_list !== null,
-            error_message: error_message,
+            error_message: _error_message,
             storage_list: _storage_list,
             project_list: project_list,
             state_list: state_list
@@ -977,15 +962,8 @@ $(document).on('mobileinit', function () {
       return;
     }
 
-    // We can't inspect the page to see if there's an iframe, since
-    // the form is generated with a template and is not on the DOM yet.
-    // Therefore we hardcode the id of the page and directly check it.
-    var footer_template = template[page_id + '-footer'] || template.footer;
-
     $footer_container.
-      html(footer_template({
-        args: parseHashParams(window.location.hash)
-      })).
+      html(template.footer()).
       trigger('create');
 
     // activate the tab related to the current page (if any)
@@ -995,11 +973,55 @@ $(document).on('mobileinit', function () {
   }
 
 
-
-  function saveMetadata() {
+  function renderMetadata(document_id) {
     return jioConnect().then(function (jio) {
-      var document_id = parseHashParams(window.location.hash).document_id,
-        $page = $.mobile.activePage,
+      var project_opt = {include_docs: true, sort_on: [['title', 'ascending']], query: '(type:"Project")'},
+        project_promise = jio.allDocs(project_opt),
+        metadata_promise = null,
+        state_opt = {include_docs: true, sort_on: [['title', 'ascending']], query: '(type:"State")'},
+        state_promise = jio.allDocs(state_opt),
+        dateinput_type = hasHTML5DatePicker() ? 'date' : 'text';
+
+      if (document_id) {
+        metadata_promise = jio.get({_id: document_id});
+      } else {
+        metadata_promise = new RSVP.Promise(function (resolve) {
+          resolve({
+            data: {
+              title: 'New Document',
+              start: moment().format('YYYY-MM-DD')
+            }
+          });
+        });
+      }
+
+      return RSVP.all([metadata_promise, project_promise, state_promise]).
+        then(function (response_list) {
+          var metadata_resp = response_list[0],
+            project_list = response_list[1].data.rows,
+            state_list = response_list[2].data.rows;
+
+          $('#metadata-form-container').
+            html(template['metadata-form']({
+              metadata: metadata_resp.data,
+              document_id: document_id,
+              project_list: project_list,
+              state_list: state_list,
+              dateinput_type: dateinput_type
+            })).
+            trigger('create');
+
+          jqmSetSelected($('#metadata-form-container [name=project]'), metadata_resp.data.project);
+          jqmSetSelected($('#metadata-form-container [name=state]'), metadata_resp.data.state);
+          applyTranslation();
+        });
+    });
+  }
+
+
+  function saveMetadata(document_id) {
+    return jioConnect().then(function (jio) {
+      var $page = $.mobile.activePage,
         title = $page.find('[name=title]').val(),
         start = $page.find('[name=start]').val(),
         stop = $page.find('[name=stop]').val(),
@@ -1035,9 +1057,117 @@ $(document).on('mobileinit', function () {
           Logger.debug('  status %s (%s)', response.status, response.statusText);
           return RSVP.resolve(response.id);
         });
-    }).fail(displayError);
+    });
   }
 
+
+  function retrieveAttachmentContent(document_id) {
+    return jioConnect().then(function (jio) {
+      if (document_id) {
+        return jio.getAttachment({
+          _id: document_id,
+          _attachment: ATTACHMENT_NAME
+        });
+      }
+    }).
+      fail(function (response) {
+        if (response.status === 404) {
+          // attachment does not exist, no content to read
+          return null;
+        }
+        if (response.stack || response.status >= 400) {
+          throw response;
+        }
+      }).
+      then(function (response) {
+        // XXX hack
+        if (response === null) {
+          return null;
+        }
+        return jIO.util.readBlobAsText(response.data).
+          then(function (ev) {
+            return ev.target.result;
+          });
+      });
+  }
+
+
+  function renderAttachment(document_id) {
+    var content_prom = null;
+
+    editor_gadget = null;
+
+    if (application_setup.gadget && application_setup.gadget.beforeLoad) {
+      application_setup.gadget.beforeLoad();
+    }
+
+    if (document_id) {
+      content_prom = retrieveAttachmentContent(document_id);
+    } else {
+      content_prom = new RSVP.Promise(function (resolve) {
+        resolve('');
+      });
+    }
+
+    return content_prom.
+      then(function (content) {
+        return root_gadget.declareGadget(application_setup.gadget.url,
+                                         { sandbox: 'iframe',
+                                           element: document.getElementById('attachment-container')
+                                         }).
+          then(function (gadget) {
+            editor_gadget = gadget;
+            if (content) {
+              return gadget.setContent(content);
+            }
+          });
+      });
+  }
+
+
+  function saveAttachment(document_id) {
+    return editor_gadget.getContent().
+      then(function (attachment_content) {
+        var attachment = {
+          _id: document_id,
+          _attachment: ATTACHMENT_NAME,
+          _data: new Blob([attachment_content],
+                          { type: application_setup.attachment_content_type || 'application/octet-stream'})
+        };
+        return jioConnect().
+          then(function (jio) {
+            return jio.putAttachment(attachment);
+          });
+      });
+  }
+
+
+  function showMetadata() {
+    $('a#show-metadata').hide();
+    $('a#show-attachment').show();
+    $('#attachment-container').hide();
+    $('#metadata-form-container').show();
+  }
+
+  function showMetadataOnly() {
+    $('a#show-metadata').hide();
+    $('a#show-attachment').hide();
+    $('#attachment-container').hide();
+    $('#metadata-form-container').show();
+  }
+
+  function showAttachment() {
+    $('a#show-attachment').hide();
+    $('a#show-metadata').show();
+    $('#metadata-form-container').hide();
+    $('#attachment-container').show();
+  }
+
+
+  function clearMetadataAndAttachment() {
+    $('#attachment-container').empty();
+    $('#metadata-form-container').empty();
+  }
 
 
 
@@ -1050,17 +1180,6 @@ $(document).on('mobileinit', function () {
    ***********************************/
 
   Handlebars.registerPartial('document-link', $('#document-link-partial').text());
-
-  Handlebars.registerHelper('SINGLE_ATTACHMENT_NAME', function () {
-    return application_setup.single_attachment_name;
-  });
-
-  Handlebars.registerHelper('IF_ATTACHMENT_MODE_SINGLE', function (options) {
-    if (application_setup.attachment_mode) {
-      return options.fn(this);
-    }
-    return options.inverse(this);
-  });
 
   /**
    * Clean up HTML before display for security reasons
@@ -1187,14 +1306,17 @@ $(document).on('mobileinit', function () {
     updateFooter();
   });
 
-  $(document).on('pagecreate', function (ev, data) {
+
+  $(document).on('pagecreate', function (ev) {
     if (window.location.hash.indexOf('?') > -1) {
       // we are loading from direct URL, page refresh, or a bookmark, and have parameters.
       $(ev.target).jqmData('url', window.location.hash);
     }
   });
 
-  $(document).on('pagebeforechange', function (e, data) {
+
+  $(document).on('pagebeforechange', function (ev, data) {
+    /*jslint unparam: true*/
     if (!data || typeof data.toPage === 'string') {
       return;
     }
@@ -1213,6 +1335,7 @@ $(document).on('mobileinit', function () {
       args: args
     });
   });
+
 
   /**
    * Apply a language change upon selection from the menu.
@@ -1292,7 +1415,7 @@ $(document).on('mobileinit', function () {
   /**
    * Initial rendering of the 'document list' page.
    */
-  $(document).on('pagebeforeshow', '#document-list-page', function (ev) {
+  $(document).on('pagebeforeshow', '#document-list-page', function () {
     jioConnect().then(function (jio) {
       // attempt to fix cosmetic issue with a select menu in the header
       $('#document-sortby-button').addClass('ui-btn-left');
@@ -1335,12 +1458,11 @@ $(document).on('mobileinit', function () {
 
 
   /**
-   * Redirects to the metadata page for a document, when a document
-   * is selected in the listview.
+   * Redirects to the document page, when selected in the listview.
    */
-  $(document).on('click', 'a.metadata-link', function (ev) {
+  $(document).on('click', 'a.document-link', function (ev) {
     ev.preventDefault();
-    gotoPage('#metadata-page', $(this).attr('href'));
+    gotoPage('#document-page', $(this).attr('href'));
   });
 
 
@@ -1354,91 +1476,73 @@ $(document).on('mobileinit', function () {
   });
 
 
+  $(document).on('click', 'a#show-metadata', function () {
+    showMetadata();
+  });
+
+
+  $(document).on('click', 'a#show-attachment', function () {
+    showAttachment();
+  });
+
 
   /**
    * Display the form to edit a document's metadata details,
    * or to create a new document.
    * Translation is applied after rendering the template.
    */
-  $(document).on('pagerender', '#metadata-page', function (ev) {
+  $(document).on('pagerender', '#document-page', function (ev) {
     var $page = $(ev.page),
-      document_id = ev.args.document_id,
-      attachment_name = ev.args.attachment_name;
+      document_id = ev.args.document_id;
 
-    jioConnect().then(function (jio) {
-      var project_opt = {include_docs: true, sort_on: [['title', 'ascending']], query: '(type:"Project")'},
-        project_promise = jio.allDocs(project_opt),
-        metadata_promise = null,
-        state_opt = {include_docs: true, sort_on: [['title', 'ascending']], query: '(type:"State")'},
-        state_promise = jio.allDocs(state_opt),
-        dateinput_type = hasHTML5DatePicker() ? 'date' : 'text';
-
-      if (document_id) {
-        metadata_promise = jio.get({_id: document_id});
+    if (document_id) {
+      $page.find('.document-delete').show();
+      if (application_setup.has_attachment) {
+        showAttachment();
       } else {
-        metadata_promise = new RSVP.Promise(function (resolve) {
-          resolve({
-            data: {
-              title: 'New Document',
-              start: moment().format('YYYY-MM-DD')
-            }
-          });
-        });
+        showMetadataOnly();
       }
+    } else {
+      $page.find('.document-delete').hide();
+      if (application_setup.has_attachment) {
+        showMetadata();
+      } else {
+        showMetadataOnly();
+      }
+    }
 
-      return RSVP.all([metadata_promise, project_promise, state_promise]).
-        then(function (response_list) {
-          var metadata_resp = response_list[0],
-            project_list = response_list[1].data.rows,
-            state_list = response_list[2].data.rows;
-
-          $page.find('.metadata-container').
-            html(template.metadata({
-              metadata: metadata_resp.data,
-              document_id: document_id,
-              attachment_name: attachment_name,
-              project_list: project_list,
-              state_list: state_list,
-              dateinput_type: dateinput_type
-            })).
-            trigger('create');
-
-          jqmSetSelected($page.find('[name=project]'), metadata_resp.data.project);
-          jqmSetSelected($page.find('[name=state]'), metadata_resp.data.state);
-          applyTranslation();
-        });
-    }).fail(displayError);
+    return renderMetadata(document_id).
+      then(function () {
+        if (application_setup.has_attachment) {
+          return renderAttachment(document_id);
+        }
+      }).fail(displayError);
   });
 
 
-
-  $(document).on('click', 'a.new-metadata-link', function (ev) {
+  $(document).on('click', 'a.new-document-link', function (ev) {
     ev.preventDefault();
-    gotoPage('#metadata-page');
+    gotoPage('#document-page');
   });
-
 
 
   /**
    * Apply changes to the metadata, and go back to the attachment,
    * the document list or whatever page before the current one.
    */
-  $(document).on('click', 'a#metadata-save', function (ev) {
-    var existing_document_id = parseHashParams(window.location.hash).document_id;
-    Logger.debug('Saving metadata:', existing_document_id);
+  $(document).on('click', 'a#document-save', function (ev) {
     ev.preventDefault();
-    saveMetadata().
+    var existing_document_id = parseHashParams(window.location.hash).document_id;
+    saveMetadata(existing_document_id).
       then(function (document_id) {
-        if (!existing_document_id && application_setup.attachment_mode) {
-          Logger.debug('Done. Going to attachment');
-          gotoPage('#attachment-page',
-                   { document_id: document_id,
-                     attachment_name: application_setup.single_attachment_name});
-        } else {
-          Logger.debug('Done. Going back');
-          parent.history.back();
+        if (application_setup.has_attachment) {
+          return saveAttachment(document_id);
         }
-      });
+      }).
+      then(function () {
+        clearMetadataAndAttachment();
+        parent.history.back();
+      }).fail(displayError);
   });
 
 
@@ -1459,101 +1563,8 @@ $(document).on('mobileinit', function () {
   });
 
 
-  /**
-   * Redirects to the document edit page (for existing attachments).
-   */
-  $(document).on('click', 'a.edit-attachment-link', function (ev) {
-    ev.preventDefault();
-    gotoPage('#attachment-page', this.hash);
-  });
-
-
-  $(document).on('pagerender', '#attachment-page', function (ev) {
-    var document_id = ev.args.document_id,
-      attachment_name = ev.args.attachment_name;
-
-    Logger.debug('open attachment:', document_id, attachment_name);
-
-    editor_gadget = null;
-
-    if (application_setup.gadget.beforeLoad) {
-      application_setup.gadget.beforeLoad();
-    }
-    jioConnect().
-      then(function (jio) {
-        return jio.getAttachment({
-          _id: document_id,
-          _attachment: attachment_name
-        });
-      }).
-      fail(function (response) {
-        if (response.status === 404) {
-          // attachment does not exist, no content to read
-          return null;
-        }
-        if (response.stack) {
-          throw response;
-        }
-      }).
-      then(function (response) {
-        // XXX hack
-        if (response === null) {
-          return null;
-        }
-        return jIO.util.readBlobAsText(response.data).
-          then(function (ev) {
-            return ev.target.result;
-          });
-      }).
-      then(function (attachment_content) {
-        return root_gadget.declareGadget(application_setup.gadget.url,
-                                         { sandbox: 'iframe',
-                                           element: document.getElementById('attachment')
-                                         }).
-          then(function (gadget) {
-            editor_gadget = gadget;
-            if (attachment_content) {
-              return gadget.setContent(attachment_content);
-            }
-          });
-      }).
-      fail(displayError);
-  });
-
-
-  function removeOfficeJSGadget() {
-    $('#attachment iframe').remove();
-  }
-
-
-  $(document).on('click', 'a#attachment-save', function (ev) {
-    ev.preventDefault();
-    var args = parseHashParams(window.location.hash),
-      document_id = args.document_id,
-      attachment_name = args.attachment_name;
-
-    editor_gadget.getContent().
-      then(function (attachment_content) {
-        var attachment = {
-          _id: document_id,
-          _attachment: attachment_name,
-          _data: new Blob([attachment_content],
-                          { type: application_setup.attachment_content_type || 'application/octet-stream'})
-        };
-        return jioConnect().
-          then(function (jio) {
-            return jio.putAttachment(attachment);
-          }).then(function () {
-            removeOfficeJSGadget();
-            parent.history.back();
-          });
-      }).
-      fail(displayError);
-  });
-
-
-  $(document).on('click', '#attachment-page a[data-rel=back]', function (ev) {
-    removeOfficeJSGadget();
+  $(document).on('click', '#document-page a[data-rel=back]', function () {
+    clearMetadataAndAttachment();
   });
 
 
@@ -2049,11 +2060,11 @@ $(document).on('mobileinit', function () {
 
 
 
-  /***************************
-   *                         *
-   * Application starts here *
-   *                         *
-   ***************************/
+  /*********************
+   *                   *
+   * Application setup *
+   *                   *
+   ********************/
 
   if (!getSelectedStorage()) {
     setSelectedStorage(default_storage_id);
@@ -2093,6 +2104,7 @@ $(document).on('mobileinit', function () {
   }, applyTranslation);
 
   renderJS(window).ready(function (gadget) {
+    Logger.debug('root_gadget:', gadget);
     root_gadget = gadget;
   });
 
