@@ -27,9 +27,9 @@
         <p>
           <span class="state">{{t this.doc.state}}</span>
           {{t "documents.from"}}
-          <span class="from-date">{{asYMD this.doc.start}}</span>
+          <span class="from-date">{{formatDate this.doc.start}}</span>
           {{t "documents.to"}}
-          <span class="to-date">{{asYMD this.doc.stop}}</span>
+          <span class="to-date">{{formatDate this.doc.stop}}</span>
         </p>
       </a>
     </script><!-- /document-link-partial -->
@@ -189,16 +189,16 @@
         </label>
 
         <div class="ui-field-contain">
-          <label>
+          <label class="field-size-short">
             <span data-i18n="details.start">Begin date:</span>
-            <input type="{{dateinput_type}}" name="start" data-role="date" data-mini="true" data-inline="true" value="{{asYMD metadata.start}}" />
+            <input type="{{dateinput_type}}" name="start" data-role="date" data-mini="true" data-inline="true" value="{{formatDate metadata.start}}" />
           </label>
         </div>
 
         <div class="ui-field-contain">
-          <label>
+          <label class="field-size-short">
             <span data-i18n="details.stop">End date:</span>
-            <input type="{{dateinput_type}}" name="stop" data-role="date" data-mini="true" data-inline="true" value="{{asYMD metadata.stop}}" />
+            <input type="{{dateinput_type}}" name="stop" data-role="date" data-mini="true" data-inline="true" value="{{formatDate metadata.stop}}" />
           </label>
         </div>
 

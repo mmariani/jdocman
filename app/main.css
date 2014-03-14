@@ -129,4 +129,12 @@ html .ui-body-a .ui-bar-inherit, html body .ui-group-theme-a .ui-bar-inherit {
   background-color: gray !important;
 }
 
+.field-size-short .ui-input-text {
+  width: 150px !important;
+}
+
+#metadata-form-container label > span {
+  width: 90px;
+  display: inline-block;
+}
 

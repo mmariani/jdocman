@@ -11,56 +11,204 @@ $(document).on('mobileinit', function () {
 
   Logger.setLevel(DEBUG ? Logger.DEBUG : Logger.WARN);
 
-  var APPLICATION_SETUP_MAP = {
-    taskman: {
-      // In taskman mode, there are no attachments
-      // and everything is kept in the metadata.
-      has_attachment: false,
-      jio_type: 'Task',
-      i18n_namespace: 'taskman',
-      test_data_url: 'app/data/test_data_taskman.json'
-    },
-    editor: {
-      // In editor mode, metadata and attachment editor
-      // are show in the same page, loaded and saved together.
-      // Visualization can be toggled with a footer button.
-      has_attachment: true,
-      attachment_content_type: 'text/html; charset=utf8',
-      jio_type: 'Web Page',
-      i18n_namespace: 'editor',
-      test_data_url: 'app/data/test_data_editor.json',
-      gadget: {
-        url: 'lib/officejs/gadget/bootstrap-wysiwyg.html'
+
+  //
+  // A small namespace for very generic functions.
+  //
+  var util = (function () {
+    var my = {},
+      fold_map = [
+        [new RegExp('[àáâãäå]', 'gi'), 'a'],
+        [new RegExp('æ', 'gi'), 'ae'],
+        [new RegExp('ç', 'gi'), 'c'],
+        [new RegExp('[èéêë]', 'gi'), 'e'],
+        [new RegExp('[ìíîï]', 'gi'), 'i'],
+        [new RegExp('ñ', 'gi'), 'n'],
+        [new RegExp('[òóôõö]', 'gi'), 'o'],
+        [new RegExp('œ', 'gi'), 'oe'],
+        [new RegExp('[ùúûü]', 'gi'), 'u'],
+        [new RegExp('[ýÿ]', 'gi'), 'y']
+      ];
+
+    /**
+     * Creates a function to use for (case insensitive) accent folding.
+     *
+     * @param {String} map An array of (regexp, string) to do the conversion.
+     * @return {Function} The folding function.
+     */
+    function AccentFolder(map) {
+      return function (s) {
+        if (!s) {
+          return s;
+        }
+        map.forEach(function (o) {
+          var rep = function (match) {
+            if (match.toUpperCase() === match) {
+              return o[1].toUpperCase();
+            }
+            return o[1];
+          };
+          s = s.replace(o[0], rep);
+        });
+        return s.toLowerCase();
+      };
+    }
+
+    my.accentFoldLC = new AccentFolder(fold_map);
+
+
+    /**
+     * Parse a fragment identifier with parameters.
+     *
+     * @param {String} hash The fragment string, like '#foo?bar=baz
+     * @return {Object} A mapping of the parsed parameters, like {bar: 'baz'}
+     */
+    my.parseHashParams = function (hash) {
+      var pos = hash.indexOf('?'),
+        s = pos > -1 ? hash.substr(pos + 1) : '',
+        p = s ? s.split(/\&/) : [],
+        l = 0,
+        key_value,
+        params = {};
+      for (l = 0; l < p.length; l += 1) {
+        key_value = p[l].split(/\=/);
+        params[key_value[0]] = decodeURIComponent(key_value[1] || '') || true;
       }
-    },
-    spreadsheet: {
-      // Same as editor with different gadget.
-      has_attachment: true,
-      attachment_content_type: 'application/json',
-      jio_type: 'Web Table',
-      i18n_namespace: 'spreadsheet',
-      test_data_url: 'app/data/test_data_spreadsheet.json',
-      gadget: {
-        url: 'lib/officejs/gadget/jqs.html'
-      }
-    },
-    svg: {
-      // Same as editor with different gadget.
-      has_attachment: true,
-      attachment_content_type: 'image/svg+xml',
-      jio_type: 'Image',
-      i18n_namespace: 'svg',
-      test_data_url: 'app/data/test_data_svg.json',
-      gadget: {
-        url: 'lib/officejs/gadget/svgedit.html',
-        beforeLoad: function () {
-          // Discard the previous data, which is possibly unrelated to the current document.
-          localStorage.removeItem('svgedit-default');
+      return params;
+    };
+
+
+    /**
+     * Create a fragment identifier with parameters.
+     *
+     * @param {String} fragment The fragment part without parameters
+     * @param {Object} params A mapping of the parameters, like {bar: 'baz'}
+     * @return {String} The full fragment string, like '#foo?bar=baz
+     */
+    my.encodeHashParams = function (fragment, params) {
+      var parts = [], key = null;
+      params = params || {};
+      for (key in params) {
+        if (params.hasOwnProperty(key)) {
+          parts.push(key + '=' + encodeURIComponent(params[key]));
         }
       }
-    },
-  }, ATTACHMENT_NAME = 'content',
-    application_setup = APPLICATION_SETUP_MAP.editor,
+      return parts.length ? (fragment + '?' + parts.join('&')) : fragment;
+    };
+
+
+    /**
+     * If the browser supports the Application Cache, check
+     * if an update is available and propose a page reload to the user.
+     */
+    my.checkCacheUpdate = function () {
+      var ac = window.applicationCache;
+      if (!ac) {
+        return;
+      }
+      ac.addEventListener('updateready', function () {
+        if (ac.status === ac.UPDATEREADY) {
+          ac.swapCache();
+          if (window.confirm('An update is available. Reload now?')) {
+            window.location.reload();
+          }
+        }
+      }, false);
+    };
+
+
+    /**
+     * Detect if the browser has native support for <input type="date">
+     *
+     * @return {Boolean} True if the browser has a datepicker, false otherwise.
+     */
+    my.hasHTML5DatePicker = function () {
+      var el = document.createElement('input');
+      el.setAttribute('type', 'date');
+      return el.type !== 'text';
+    };
+
+    return my;
+  }());
+
+
+
+  /**
+   * Provide a configuration object for the application.
+   *
+   * @param {String} application_mode One of 'taskman', 'editor', 'svg' etc.
+   * @return {Object} An object with the following properties.
+   * jio_type: the type of jIO document (chosen in relation to ERP5).
+   * has_attachment: whether the application must handle attachments
+   *                 through officejs at all (true), or keep everything in the metadata (false).
+   * i18n_namespace: the basename of the file to use in addition to app/i18n/__lng__/generic.json.
+   *                 See the call to $.i18n.init()
+   * attachment_content_type: the Mime Type used to serve attachments, charset is specified as well
+   *                          to avoid encoding mismatches.
+   * gadget.url: URL of the OfficeJS gadget used to edit the attachments.
+   * gadget.beforeLoad: if present, will be called before rendering the gadget.
+   */
+  function getApplicationConfig(application_mode) {
+    switch (application_mode) {
+    case 'taskman':
+      return {
+        jio_type: 'Task',
+        has_attachment: false,
+        i18n_namespace: 'taskman',
+        test_data_url: 'app/data/test_data_taskman.json'
+      };
+    case 'editor':
+      return {
+        jio_type: 'Web Page',
+        has_attachment: true,
+        attachment_content_type: 'text/html; charset=utf8',
+        i18n_namespace: 'editor',
+        test_data_url: 'app/data/test_data_editor.json',
+        gadget: {
+          url: 'lib/officejs/gadget/bootstrap-wysiwyg.html'
+        }
+      };
+    case 'spreadsheet':
+      return {
+        jio_type: 'Web Table',
+        has_attachment: true,
+        attachment_content_type: 'application/json',
+        i18n_namespace: 'spreadsheet',
+        test_data_url: 'app/data/test_data_spreadsheet.json',
+        gadget: {
+          url: 'lib/officejs/gadget/jqs.html'
+        }
+      };
+    case 'svg':
+      return {
+        jio_type: 'Image',
+        has_attachment: true,
+        attachment_content_type: 'image/svg+xml',
+        i18n_namespace: 'svg',
+        test_data_url: 'app/data/test_data_svg.json',
+        gadget: {
+          url: 'lib/officejs/gadget/svgedit.html',
+          beforeLoad: function () {
+            // Discard the previous data, which is possibly unrelated to the current document.
+            localStorage.removeItem('svgedit-default');
+          }
+        }
+      };
+    default:
+      window.alert('Unsupported application mode: ' + application_mode);
+    }
+  }
+
+
+  var appconfig = getApplicationConfig('taskman'),
+    default_attachment_name = 'content',
+    default_storage_id = 'default_storage',
+    root_gadget = null,
+    editor_gadget = null,
+    _jio = null,
+    _jio_promise = null,
+    _jio_config = null,
+    _jio_config_promise = null,
     template = {
       // precompile for speed
       'feedback-popup': Handlebars.compile($('#feedback-popup-template').text()),
@@ -71,53 +219,6 @@ $(document).on('mobileinit', function () {
       'metadata-form': Handlebars.compile($('#metadata-form-template').text()),
       'storage-config': Handlebars.compile($('#storage-config-template').text())
     },
-    default_storage_id = 'default_storage',
-    root_gadget = null,
-    editor_gadget = null,
-    _jio = null,
-    _jio_promise = null,
-    _jio_config = null,
-    _jio_config_promise = null;
-    // are we creating a document from document list page, or from project list page?
-
-
-  /**
-   * Creates a function to use for (case insensitive) accent folding.
-   *
-   * @param {String} map an array of (regexp, string) to do the conversion.
-   * @return {Function} the folding function.
-   */
-  function AccentFolder(map) {
-    return function accentFoldLC(s) {
-      if (!s) {
-        return s;
-      }
-      map.forEach(function (o) {
-        var rep = function (match) {
-          if (match.toUpperCase() === match) {
-            return o[1].toUpperCase();
-          }
-          return o[1];
-        };
-        s = s.replace(o[0], rep);
-      });
-      return s.toLowerCase();
-    };
-  }
-
-
-  var accentFoldLC = new AccentFolder([
-      [new RegExp('[àáâãäå]', 'gi'), 'a'],
-      [new RegExp('æ', 'gi'), 'ae'],
-      [new RegExp('ç', 'gi'), 'c'],
-      [new RegExp('[èéêë]', 'gi'), 'e'],
-      [new RegExp('[ìíîï]', 'gi'), 'i'],
-      [new RegExp('ñ', 'gi'), 'n'],
-      [new RegExp('[òóôõö]', 'gi'), 'o'],
-      [new RegExp('œ', 'gi'), 'oe'],
-      [new RegExp('[ùúûü]', 'gi'), 'u'],
-      [new RegExp('[ýÿ]', 'gi'), 'y']
-    ]),
     //
     // Define a schema of search keys for the document queries,
     // as described in http://jio.readthedocs.org/en/latest/keys.html
@@ -131,18 +232,18 @@ $(document).on('mobileinit', function () {
       match_lookup: {
         translatedStateMatch: function (object_value, value) {
           var translated_object_value = i18n.t(object_value);
-          return RSVP.resolve(accentFoldLC(translated_object_value) ===
-                              accentFoldLC(value));
+          return RSVP.resolve(util.accentFoldLC(translated_object_value) ===
+                              util.accentFoldLC(value));
         }
       },
       key_set: {
         title: {
           read_from: 'title',
-          cast_to: accentFoldLC
+          cast_to: util.accentFoldLC
         },
         description: {
           read_from: 'description',
-          cast_to: accentFoldLC
+          cast_to: util.accentFoldLC
         },
         start: {
           read_from: 'start',
@@ -161,11 +262,11 @@ $(document).on('mobileinit', function () {
 
 
 
-  /****************************************
-   *                                      *
-   * Most function definitions start here *
-   *                                      *
-   ****************************************/
+  /**********************************
+   *                                *
+   * Application specific functions *
+   *                                *
+   *********************************/
 
   /**
    * Retrieve the ID of the main storage
@@ -179,69 +280,16 @@ $(document).on('mobileinit', function () {
 
 
   /**
-   * Change the current storage, and force
-   * jioConnect to ask for a new instance.
+   * Change the current storage
    *
    * @param {String} val The id of the storage to use
    */
   function setSelectedStorage(val) {
     Logger.debug('Switching storage to', val);
+    // Force jioConnect to ask for a new instance.
     _jio = null;
     _jio_promise = null;
     localStorage.setItem('jio_selected_storage', val);
-  }
-
-
-  /**
-   * If the browser supports the Application Cache, check
-   * if an update is available and propose a page reload to the user.
-   */
-  function checkCacheUpdate() {
-    var ac = window.applicationCache;
-    if (!ac) {
-      return;
-    }
-    ac.addEventListener('updateready', function () {
-      if (ac.status === ac.UPDATEREADY) {
-        ac.swapCache();
-        if (window.confirm('An update is available. Reload now?')) {
-          window.location.reload();
-        }
-      }
-    }, false);
-  }
-
-
-  /**
-   * Parse a fragment identifier with parameters.
-   *
-   * @param {String} hash The fragment string, like '#foo?bar=baz
-   * @return {Object} A mapping of the parsed parameters, like {bar: 'baz'}
-   */
-  function parseHashParams(hash) {
-    var pos = hash.indexOf('?'),
-      s = pos > -1 ? hash.substr(pos + 1) : '',
-      p = s ? s.split(/\&/) : [],
-      l = 0,
-      key_value,
-      params = {};
-    for (l = 0; l < p.length; l += 1) {
-      key_value = p[l].split(/\=/);
-      params[key_value[0]] = decodeURIComponent(key_value[1] || '') || true;
-    }
-    return params;
-  }
-
-
-  function encodeHashParams(fragment, params) {
-    var parts = [], key = null;
-    params = params || {};
-    for (key in params) {
-      if (params.hasOwnProperty(key)) {
-        parts.push(key + '=' + encodeURIComponent(params[key]));
-      }
-    }
-    return parts.length ? (fragment + '?' + parts.join('&')) : fragment;
   }
 
 
@@ -257,20 +305,11 @@ $(document).on('mobileinit', function () {
 
 
   /**
-   * Detect if the browser has native support for <input type="date">
-   *
-   * @return {Boolean} true if the browser has a datepicker, false otherwise.
-   */
-  function hasHTML5DatePicker() {
-    var el = document.createElement('input');
-    el.setAttribute('type', 'date');
-    return el.type !== 'text';
-  }
-
-
-  /**
    * Update a <select> element's selected option,
    * then activates the jquery mobile event to refresh UI
+   *
+   * @param {Object|String} element The selector or element object
+   * @param {String} value The value to set
    */
   function jqmSetSelected(element, value) {
     var $select = $(element);
@@ -286,20 +325,20 @@ $(document).on('mobileinit', function () {
   }
 
 
-  /*
+  /**
    * Change page and provide parameters within the fragment identifier.
    * Since we cannot use query parameters (they would not work
    * with the appcache) we temporarily change the url of
    * the target page. It will be restored during the pageshow event.
    *
-   * @param {String} page the page id, including '#'.
-   * @param {Object|String} params the parameters to encode, or a fragment
-   * @param {Object} options the options to pass to changePage()
+   * @param {String} page The page id, including '#'
+   * @param {Object|String} params The parameters to encode, or a fragment
    * identifier which is already encoded. Optional.
+   * @param {Object} options The options to pass to changePage()
    */
   function gotoPage(page_selector, params, options) {
     // here '#' has double meaning: CSS selector and fragment separator
-    var url = (typeof params === 'string') ? params : encodeHashParams(page_selector, params);
+    var url = (typeof params === 'string') ? params : util.encodeHashParams(page_selector, params);
     $(page_selector).jqmData('url', url);
     $.mobile.changePage(page_selector, options);
   }
@@ -308,7 +347,7 @@ $(document).on('mobileinit', function () {
   /**
    * Retrieve the text typed by the user for searching.
    *
-   * @return {String} the search string
+   * @return {String} The search string
    */
   function getSearchString() {
     return $('#search-documents').val().trim();
@@ -580,8 +619,8 @@ $(document).on('mobileinit', function () {
   /**
    * Check if a project already exists.
    *
-   * @param {Object} jio the storage instance to use
-   * @param {String} project_title title of the project to look up
+   * @param {Object} jio The storage instance to use
+   * @param {String} project_title Title of the project to look up
    * @return {Promise} A promise that resolves to true
    * if the project exists, false otherwise.
    */
@@ -612,8 +651,8 @@ $(document).on('mobileinit', function () {
   /**
    * Count the documents with a given state.
    *
-   * @param {Object} jio the storage instance to use
-   * @param {String} state_title title of the state to look up
+   * @param {Object} jio The storage instance to use
+   * @param {String} state_title Title of the state to look up
    * @return {Promise} A promise that resolves to the
    * number of documents with that state.
    */
@@ -626,7 +665,7 @@ $(document).on('mobileinit', function () {
           {
             type: 'simple',
             key: 'type',
-            value: application_setup.jio_type
+            value: appconfig.jio_type
           }, {
             type: 'simple',
             key: 'state',
@@ -644,8 +683,8 @@ $(document).on('mobileinit', function () {
   /**
    * Count the documents within a project.
    *
-   * @param {Object} jio the storage instance to use
-   * @param {String} project_title title of the project to look up
+   * @param {Object} jio The storage instance to use
+   * @param {String} project_title Title of the project to look up
    * @return {Promise} A promise that resolves to the
    * number of documents in the project.
    */
@@ -658,7 +697,7 @@ $(document).on('mobileinit', function () {
           {
             type: 'simple',
             key: 'type',
-            value: application_setup.jio_type
+            value: appconfig.jio_type
           }, {
             type: 'simple',
             key: 'project',
@@ -676,8 +715,8 @@ $(document).on('mobileinit', function () {
   /**
    * Check if a state already exists.
    *
-   * @param {Object} jio the storage instance to use
-   * @param {String} state_title title of the state to look up
+   * @param {Object} jio The storage instance to use
+   * @param {String} state_title Title of the state to look up
    * @return {Promise} A promise that resolves to true
    * if the state exists, false otherwise.
    */
@@ -710,11 +749,11 @@ $(document).on('mobileinit', function () {
    * text already complies to the jIO Query grammar.
    * Basically adds a filter for the document type.
    *
-   * @param {Object} input_text a grammar-complying query string
+   * @param {Object} input_text A grammar-complying query string
    * @return {String} A query string that can be used with allDocs
    */
   function grammarQuery(search_string) {
-    var query = '(type: "' + application_setup.jio_type + '")';
+    var query = '(type: "' + appconfig.jio_type + '")';
     if (search_string) {
       query += ' AND ' + search_string;
     }
@@ -726,7 +765,7 @@ $(document).on('mobileinit', function () {
    * Create a query tree from the input text,
    * comparing with multiple properties and the start-stop date range.
    *
-   * @param {Object} input_text a search term to be compared
+   * @param {Object} input_text A search term to be compared
    * @return {String} A query tree that can be used with allDocs
    */
   function smartQuery(search_string) {
@@ -777,7 +816,7 @@ $(document).on('mobileinit', function () {
     query = {
       type: 'simple',
       key: 'type',
-      value: application_setup.jio_type
+      value: appconfig.jio_type
     };
 
     if (content_query_list.length) {
@@ -916,7 +955,7 @@ $(document).on('mobileinit', function () {
         jqmSetSelected('#translate', i18n.lng());
         jqmSetSelected('#storage-select', getSelectedStorage());
         applyTranslation();
-      }).fail(displayError);
+      });
   }
 
 
@@ -973,6 +1012,12 @@ $(document).on('mobileinit', function () {
   }
 
 
+  /**
+   * Render the form for editing metadata.
+   *
+   * @param {String} document_id The id of the document to edit
+   * @return {Promise} A promise which is fullfilled after rendering
+   */
   function renderMetadata(document_id) {
     return jioConnect().then(function (jio) {
       var project_opt = {include_docs: true, sort_on: [['title', 'ascending']], query: '(type:"Project")'},
@@ -980,7 +1025,7 @@ $(document).on('mobileinit', function () {
         metadata_promise = null,
         state_opt = {include_docs: true, sort_on: [['title', 'ascending']], query: '(type:"State")'},
         state_promise = jio.allDocs(state_opt),
-        dateinput_type = hasHTML5DatePicker() ? 'date' : 'text';
+        dateinput_type = util.hasHTML5DatePicker() ? 'date' : 'text';
 
       if (document_id) {
         metadata_promise = jio.get({_id: document_id});
@@ -1019,6 +1064,12 @@ $(document).on('mobileinit', function () {
   }
 
 
+  /**
+   * Save the current metadata form.
+   *
+   * @param {String} document_id The id of the document to save
+   * @return {Promise} A promise which is fullfilled after saving
+   */
   function saveMetadata(document_id) {
     return jioConnect().then(function (jio) {
       var $page = $.mobile.activePage,
@@ -1034,7 +1085,7 @@ $(document).on('mobileinit', function () {
       // XXX validate input
 
       metadata = {
-        type: application_setup.jio_type,
+        type: appconfig.jio_type,
         title: title,
         start: start,
         stop: stop,
@@ -1061,12 +1112,19 @@ $(document).on('mobileinit', function () {
   }
 
 
+  /**
+   * Retrieve the content of an attachment.
+   *
+   * @param {String} document_id The id of the parent document
+   * @return {Promise} A promise which is fullfilled with
+   * a string of the attachment's content.
+   */
   function retrieveAttachmentContent(document_id) {
     return jioConnect().then(function (jio) {
       if (document_id) {
         return jio.getAttachment({
           _id: document_id,
-          _attachment: ATTACHMENT_NAME
+          _attachment: default_attachment_name
         });
       }
     }).
@@ -1092,13 +1150,19 @@ $(document).on('mobileinit', function () {
   }
 
 
+  /**
+   * Render the OfficeJS gadget for editing the attachment.
+   *
+   * @param {String} document_id The id of the parent document
+   * @return {Promise} A promise which is fullfilled after rendering
+   */
   function renderAttachment(document_id) {
     var content_prom = null;
 
     editor_gadget = null;
 
-    if (application_setup.gadget && application_setup.gadget.beforeLoad) {
-      application_setup.gadget.beforeLoad();
+    if (appconfig.gadget && appconfig.gadget.beforeLoad) {
+      appconfig.gadget.beforeLoad();
     }
 
     if (document_id) {
@@ -1111,7 +1175,7 @@ $(document).on('mobileinit', function () {
 
     return content_prom.
       then(function (content) {
-        return root_gadget.declareGadget(application_setup.gadget.url,
+        return root_gadget.declareGadget(appconfig.gadget.url,
                                          { sandbox: 'iframe',
                                            element: document.getElementById('attachment-container')
                                          }).
@@ -1125,14 +1189,20 @@ $(document).on('mobileinit', function () {
   }
 
 
+  /**
+   * Save the current attachment.
+   *
+   * @param {String} document_id The id of the parent document
+   * @return {Promise} A promise which is fullfilled after saving
+   */
   function saveAttachment(document_id) {
     return editor_gadget.getContent().
       then(function (attachment_content) {
         var attachment = {
           _id: document_id,
-          _attachment: ATTACHMENT_NAME,
+          _attachment: default_attachment_name,
           _data: new Blob([attachment_content],
-                          { type: application_setup.attachment_content_type || 'application/octet-stream'})
+                          { type: appconfig.attachment_content_type || 'application/octet-stream'})
         };
         return jioConnect().
           then(function (jio) {
@@ -1142,6 +1212,9 @@ $(document).on('mobileinit', function () {
   }
 
 
+  /**
+   * Show the metadata form, hide the attachment.
+   */
   function showMetadata() {
     $('a#show-metadata').hide();
     $('a#show-attachment').show();
@@ -1149,6 +1222,11 @@ $(document).on('mobileinit', function () {
     $('#metadata-form-container').show();
   }
 
+
+  /**
+   * Show the metadata form, hide the attachment
+   * and the toggle button as well.
+   */
   function showMetadataOnly() {
     $('a#show-metadata').hide();
     $('a#show-attachment').hide();
@@ -1156,6 +1234,10 @@ $(document).on('mobileinit', function () {
     $('#metadata-form-container').show();
   }
 
+
+  /**
+   * Show the attachment editor, hide the metadata form.
+   */
   function showAttachment() {
     $('a#show-attachment').hide();
     $('a#show-metadata').show();
@@ -1164,12 +1246,13 @@ $(document).on('mobileinit', function () {
   }
 
 
+  /**
+   * Clear the containers of the metadata form and attachment editor
+   */
   function clearMetadataAndAttachment() {
     $('#attachment-container').empty();
     $('#metadata-form-container').empty();
   }
-
-
 
 
 
@@ -1224,16 +1307,19 @@ $(document).on('mobileinit', function () {
 
 
   /**
-   * Display date strings or objects as yyyy-mm-dd - see https://xkcd.com/1179/
-   * (takes timezone into account)
+   * Display date strings or objects (takes timezone into account)
+   * Use: {{formatDate foo format='YYYY-MM-DD'}}
+   * The format parameter is optional, defaults to ISO - see https://xkcd.com/1179/
    *
    * @param {String} date The date string (or Date object) to display.
+   * @param {String} block Named parameters.
    * @return {String} The safe (will not be escaped) string to render in HTML.
    * Escaped or not, it doesn't make a real difference here.
    */
-  Handlebars.registerHelper('asYMD', function (date) {
+  Handlebars.registerHelper('formatDate', function (date, block) {
+    var format = block.hash.format || 'YYYY-MM-DD';
     if (date) {
-      return new Handlebars.SafeString(moment(date).format('YYYY-MM-DD'));
+      return new Handlebars.SafeString(moment(date).format(format));
     }
     return '';
   });
@@ -1244,14 +1330,6 @@ $(document).on('mobileinit', function () {
    */
   Handlebars.registerHelper('t', function (i18n_key) {
     return i18n_key ? new Handlebars.SafeString(i18n.t(i18n_key)) : '';
-  });
-
-
-  /**
-   * Make translations accessible from within Handlebars templates
-   */
-  Handlebars.registerHelper('encode', function (text) {
-    return window.encodeURIComponent(text);
   });
 
 
@@ -1307,6 +1385,10 @@ $(document).on('mobileinit', function () {
   });
 
 
+  /**
+   * Intercept the creation of the page, to make it possible
+   * to use parameters in the fragment identifier.
+   */
   $(document).on('pagecreate', function (ev) {
     if (window.location.hash.indexOf('?') > -1) {
       // we are loading from direct URL, page refresh, or a bookmark, and have parameters.
@@ -1315,13 +1397,19 @@ $(document).on('mobileinit', function () {
   });
 
 
+  /**
+   * Intercept every page change. If it's a "back" transition,
+   * do nothing because we don't want to refresh it.
+   * Otherwise, trigger the custom 'pagerender' event,
+   * and pass the parsed parameters along with the event.
+   */
   $(document).on('pagebeforechange', function (ev, data) {
     /*jslint unparam: true*/
     if (!data || typeof data.toPage === 'string') {
       return;
     }
 
-    var args = parseHashParams($(data.toPage).jqmData('url'));
+    var args = util.parseHashParams($(data.toPage).jqmData('url'));
 
     if (data.options.reverse) {
       // we don't want to render the page again after hitting Back.
@@ -1349,7 +1437,8 @@ $(document).on('mobileinit', function () {
 
 
   $(document).on('pagerender', '#settings-page', function () {
-    updateSettingsForm();
+    updateSettingsForm().
+      fail(displayError);
   });
 
 
@@ -1363,7 +1452,7 @@ $(document).on('mobileinit', function () {
     jioConnect().then(function (jio) {
       var options = {
         include_docs: true,
-        query: '(type:"Project") OR (type:"' + application_setup.jio_type + '")',
+        query: '(type:"Project") OR (type:"' + appconfig.jio_type + '")',
         sort_on: [['project', 'ascending']]
       }, document_map = {};
 
@@ -1382,7 +1471,7 @@ $(document).on('mobileinit', function () {
           }
 
           for (i = 0; i < rows.length; i += 1) {
-            if (rows[i].doc.type === application_setup.jio_type) {
+            if (rows[i].doc.type === appconfig.jio_type) {
               document_map[rows[i].doc.project] = document_map[rows[i].doc.project] || {document_list: [], document_count: 0};
               document_map[rows[i].doc.project].document_list.push(rows[i]);
               document_map[rows[i].doc.project].document_count += 1;
@@ -1471,7 +1560,7 @@ $(document).on('mobileinit', function () {
    */
   $(document).on('click', 'a.current-metadata-link', function (ev) {
     ev.preventDefault();
-    var document_id = parseHashParams(window.location.hash).document_id;
+    var document_id = util.parseHashParams(window.location.hash).document_id;
     gotoPage('#metadata-page', {document_id: document_id});
   });
 
@@ -1497,14 +1586,14 @@ $(document).on('mobileinit', function () {
 
     if (document_id) {
       $page.find('.document-delete').show();
-      if (application_setup.has_attachment) {
+      if (appconfig.has_attachment) {
         showAttachment();
       } else {
         showMetadataOnly();
       }
     } else {
       $page.find('.document-delete').hide();
-      if (application_setup.has_attachment) {
+      if (appconfig.has_attachment) {
         showMetadata();
       } else {
         showMetadataOnly();
@@ -1513,7 +1602,7 @@ $(document).on('mobileinit', function () {
 
     return renderMetadata(document_id).
       then(function () {
-        if (application_setup.has_attachment) {
+        if (appconfig.has_attachment) {
           return renderAttachment(document_id);
         }
       }).fail(displayError);
@@ -1532,10 +1621,10 @@ $(document).on('mobileinit', function () {
    */
   $(document).on('click', 'a#document-save', function (ev) {
     ev.preventDefault();
-    var existing_document_id = parseHashParams(window.location.hash).document_id;
+    var existing_document_id = util.parseHashParams(window.location.hash).document_id;
     saveMetadata(existing_document_id).
       then(function (document_id) {
-        if (application_setup.has_attachment) {
+        if (appconfig.has_attachment) {
           return saveAttachment(document_id);
         }
       }).
@@ -1551,7 +1640,7 @@ $(document).on('mobileinit', function () {
    */
   $(document).on('click', 'a.document-delete', function (ev) {
     ev.preventDefault();
-    var document_id = parseHashParams(window.location.hash).document_id;
+    var document_id = util.parseHashParams(window.location.hash).document_id;
 
     jioConnect().then(function (jio) {
       return jio.remove({_id: document_id});
@@ -1574,7 +1663,8 @@ $(document).on('mobileinit', function () {
    */
   $(document).on('change', '#storage-select', function () {
     setSelectedStorage($(this).val());
-    updateSettingsForm();
+    updateSettingsForm().
+      fail(displayError);
   });
 
 
@@ -1594,7 +1684,7 @@ $(document).on('mobileinit', function () {
    * Translation is applied after rendering the template.
    */
   $(document).on('pagerender', 'a#storage-config-page', function () {
-    var storage_id = parseHashParams(window.location.hash).storage_id;
+    var storage_id = util.parseHashParams(window.location.hash).storage_id;
     jioConfigConnect().then(function (jio_config) {
       return storageConfig(jio_config, storage_id).
         then(function (config) {
@@ -1809,7 +1899,7 @@ $(document).on('mobileinit', function () {
     jIO.util.ajax({
       // XXX if 404, display the URL in dialog
       type: 'GET',
-      url: application_setup.test_data_url
+      url: appconfig.test_data_url
     }).then(function (ev) {
       $textarea.val(ev.target.responseText);
       displayFeedback('Storage import', 'Test data has been loaded. Click Import to insert it into the storage.');
@@ -1984,6 +2074,7 @@ $(document).on('mobileinit', function () {
               return updateSettingsForm();
             });
         });
+
     }).fail(displayError);
   });
 
@@ -2055,6 +2146,7 @@ $(document).on('mobileinit', function () {
               return updateSettingsForm();
             });
         });
+
     }).fail(displayError);
   });
 
@@ -2076,7 +2168,7 @@ $(document).on('mobileinit', function () {
   $.mobile.selectmenu.prototype.options.nativeMenu = false;
   $.mobile.defaultPageTransition = 'none';
 
-  if (!hasHTML5DatePicker()) {
+  if (!util.hasHTML5DatePicker()) {
     $.datepicker.setDefaults({dateFormat: 'yy-mm-dd'});
   }
 
@@ -2093,22 +2185,21 @@ $(document).on('mobileinit', function () {
     fallbackLng: 'en',
     ns: {
       // load a generic and a mode specific translation
-      namespaces: ['generic', application_setup.i18n_namespace],
+      namespaces: ['generic', appconfig.i18n_namespace],
       // default to generic if there is no namespace qualifier
       defaultNs: 'generic'
     },
     // keys missing from generic will be provided by the specific namespace
-    fallbackNS: [application_setup.i18n_namespace],
+    fallbackNS: [appconfig.i18n_namespace],
     resGetPath: 'app/i18n/__lng__/__ns__.json',
     load: 'unspecific'
   }, applyTranslation);
 
   renderJS(window).ready(function (gadget) {
-    Logger.debug('root_gadget:', gadget);
     root_gadget = gadget;
   });
 
-  checkCacheUpdate();
+  util.checkCacheUpdate();
 
 });
 
