@@ -800,7 +800,7 @@ $(document).on('mobileinit', function () {
     }
 
     if (search_date) {
-      Logger.debug('Search for date: %o', search_date);
+      Logger.debug('Search for date:', search_date);
 
       content_query_list.push({
         type: 'complex',
@@ -1112,7 +1112,7 @@ $(document).on('mobileinit', function () {
 
       return update_prom.
         then(function (response) {
-          Logger.debug('Updated document %o:', response.id);
+          Logger.debug('Updated document:', response.id);
           return RSVP.resolve(response.id);
         });
     });
@@ -1414,7 +1414,7 @@ $(document).on('mobileinit', function () {
 
   /**
    * Intercept every page change. If it's a "back" transition,
-   * do nothing because we don't want to refresh it.
+   * do nothing.
    * Otherwise, trigger the custom 'pagerender' event,
    * and pass the parsed parameters along with the event.
    */
@@ -1647,10 +1647,10 @@ $(document).on('mobileinit', function () {
     ev.preventDefault();
     var document_id = util.parseHashParams(window.location.hash).document_id;
 
-    jioConnect().then(function (jio) {
+    jioConnect().then(function do_remove(jio) {
       return jio.remove({_id: document_id});
-    }).then(function (response) {
-      Logger.debug('Deleted document %o:', response.id);
+    }).then(function do_back(response) {
+      Logger.debug('Deleted document:', response.id);
       parent.history.back();
     }).fail(displayError);
   });
@@ -1687,8 +1687,8 @@ $(document).on('mobileinit', function () {
    * or to create a new storage.
    * Translation is applied after rendering the template.
    */
-  $(document).on('pagerender', 'a#storage-config-page', function () {
-    var storage_id = util.parseHashParams(window.location.hash).storage_id;
+  $(document).on('pagerender', '#storage-config-page', function (ev) {
+    var storage_id = ev.args.storage_id;
     jioConfigConnect().then(function (jio_config) {
       return storageConfig(jio_config, storage_id).
         then(function (config) {
@@ -1782,15 +1782,14 @@ $(document).on('mobileinit', function () {
    */
   $(document).on('click', 'a#storage-delete', function (ev) {
     ev.preventDefault();
-    jioConfigConnect().then(function (jio_config) {
-      var id = $('#storage-id').val();
+    var storage_id = $('#storage-id').val();
 
-      return jio_config.remove({_id: id}).
-        then(function (response) {
-          Logger.debug('Deleted storage %o:', response.id);
-          setSelectedStorage(default_storage_id);
-          gotoPage('#settings-page');
-        });
+    jioConfigConnect().then(function do_remove(jio_config) {
+      return jio_config.remove({_id: storage_id});
+    }).then(function do_finalize(response) {
+      Logger.debug('Deleted storage:', response.id);
+      setSelectedStorage(default_storage_id);
+      gotoPage('#settings-page');
     }).fail(displayError);
   });
 
@@ -2071,7 +2070,7 @@ $(document).on('mobileinit', function () {
 
           return jio.post(doc).
             then(function (response) {
-              Logger.debug('Added state: %o', response.id);
+              Logger.debug('Added state:', response.id);
               return updateSettingsForm();
             });
         });
@@ -2142,7 +2141,7 @@ $(document).on('mobileinit', function () {
 
           return jio.post(doc).
             then(function (response) {
-              Logger.debug('Added project: %o', response.id);
+              Logger.debug('Added project:', response.id);
               return updateSettingsForm();
             });
         });
