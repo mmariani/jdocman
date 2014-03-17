@@ -4,7 +4,9 @@
 $(document).on('mobileinit', function () {
   "use strict";
 
-  var DEBUG = true;
+  var APPLICATION_MODE = 'taskman',
+    DEBUG = true;
+
 
   // Set up logging, as soon as possible, to console
   Logger.useDefaults();
@@ -141,12 +143,15 @@ $(document).on('mobileinit', function () {
    * jio_type: the type of jIO document (chosen in relation to ERP5).
    * has_attachment: whether the application must handle attachments
    *                 through officejs at all (true), or keep everything in the metadata (false).
-   * i18n_namespace: the basename of the file to use in addition to app/i18n/__lng__/generic.json.
-   *                 See the call to $.i18n.init()
    * attachment_content_type: the Mime Type used to serve attachments, charset is specified as well
    *                          to avoid encoding mismatches.
+   * i18n_namespace: the basename of the file to use in addition to app/i18n/__lng__/generic.json.
+   *                 See the call to $.i18n.init()
+   * test_data_url: the file which contains test data in JSON format.
+   *                It can be used through Settings / Import / "insert test data"
+   * jqm_theme: the default data-theme for the UI.
    * gadget.url: URL of the OfficeJS gadget used to edit the attachments.
-   * gadget.beforeLoad: if present, will be called before rendering the gadget.
+   * gadget.beforeLoad: if present, a function that will be called before rendering the gadget.
    */
   function getApplicationConfig(application_mode) {
     switch (application_mode) {
@@ -164,6 +169,7 @@ $(document).on('mobileinit', function () {
         attachment_content_type: 'text/html; charset=utf8',
         i18n_namespace: 'editor',
         test_data_url: 'app/data/test_data_editor.json',
+        jqm_theme: 'a',
         gadget: {
           url: 'lib/officejs/gadget/bootstrap-wysiwyg.html'
         }
@@ -175,6 +181,7 @@ $(document).on('mobileinit', function () {
         attachment_content_type: 'application/json',
         i18n_namespace: 'spreadsheet',
         test_data_url: 'app/data/test_data_spreadsheet.json',
+        jqm_theme: 'a',
         gadget: {
           url: 'lib/officejs/gadget/jqs.html'
         }
@@ -186,6 +193,7 @@ $(document).on('mobileinit', function () {
         attachment_content_type: 'image/svg+xml',
         i18n_namespace: 'svg',
         test_data_url: 'app/data/test_data_svg.json',
+        jqm_theme: 'a',
         gadget: {
           url: 'lib/officejs/gadget/svgedit.html',
           beforeLoad: function () {
@@ -200,7 +208,7 @@ $(document).on('mobileinit', function () {
   }
 
 
-  var appconfig = getApplicationConfig('taskman'),
+  var appconfig = getApplicationConfig(APPLICATION_MODE),
     default_attachment_name = 'content',
     default_storage_id = 'default_storage',
     root_gadget = null,
@@ -1333,7 +1341,7 @@ $(document).on('mobileinit', function () {
 
 
   /**
-   * Make translations accessible from within Handlebars templates
+   * Wrapper for encodeURIComponent
    */
   Handlebars.registerHelper('encodeuc', function (text) {
     return window.encodeURIComponent(text);
@@ -2157,8 +2165,10 @@ $(document).on('mobileinit', function () {
   // avoid FOUC (http://en.wikipedia.org/wiki/Flash_of_unstyled_content)
   $('.initHandler').removeClass('initHandler');
 
+  $.mobile.page.prototype.options.theme = appconfig.jqm_theme || 'a';
   $.mobile.selectmenu.prototype.options.nativeMenu = false;
   $.mobile.defaultPageTransition = 'none';
+
 
   if (!util.hasHTML5DatePicker()) {
     $.datepicker.setDefaults({dateFormat: 'yy-mm-dd'});
