@@ -1105,7 +1105,6 @@ $(document).on('mobileinit', function () {
       return update_prom.
         then(function (response) {
           Logger.debug('Updated document %o:', response.id);
-          Logger.debug('  status %s (%s)', response.status, response.statusText);
           return RSVP.resolve(response.id);
         });
     });
@@ -1334,6 +1333,14 @@ $(document).on('mobileinit', function () {
 
 
   /**
+   * Make translations accessible from within Handlebars templates
+   */
+  Handlebars.registerHelper('encodeuc', function (text) {
+    return window.encodeURIComponent(text);
+  });
+
+
+  /**
    * Add value comparisions, see also
    * http://github.com/assemble/handlebars-helpers/blob/master/lib/helpers/helpers-comparisons.js
    * The operator must be quoted:
@@ -1555,16 +1562,6 @@ $(document).on('mobileinit', function () {
   });
 
 
-  /**
-   * Redirects to the metadata page of the currently open attachment.
-   */
-  $(document).on('click', 'a.current-metadata-link', function (ev) {
-    ev.preventDefault();
-    var document_id = util.parseHashParams(window.location.hash).document_id;
-    gotoPage('#metadata-page', {document_id: document_id});
-  });
-
-
   $(document).on('click', 'a#show-metadata', function () {
     showMetadata();
   });
@@ -1646,7 +1643,6 @@ $(document).on('mobileinit', function () {
       return jio.remove({_id: document_id});
     }).then(function (response) {
       Logger.debug('Deleted document %o:', response.id);
-      Logger.debug('  status %s', response.status);
       parent.history.back();
     }).fail(displayError);
   });
@@ -1764,7 +1760,6 @@ $(document).on('mobileinit', function () {
         }).
         then(function (response) {
           Logger.debug('Updated storage %s', response.id);
-          Logger.debug('  status %s (%s)', response.status, response.statusText);
           setSelectedStorage(response.id);
           gotoPage('#settings-page');
         });
@@ -1785,7 +1780,6 @@ $(document).on('mobileinit', function () {
       return jio_config.remove({_id: id}).
         then(function (response) {
           Logger.debug('Deleted storage %o:', response.id);
-          Logger.debug('  status %s', response.status);
           setSelectedStorage(default_storage_id);
           gotoPage('#settings-page');
         });
@@ -2070,7 +2064,6 @@ $(document).on('mobileinit', function () {
           return jio.post(doc).
             then(function (response) {
               Logger.debug('Added state: %o', response.id);
-              Logger.debug('  status %s (%s)', response.status, response.statusText);
               return updateSettingsForm();
             });
         });
@@ -2142,7 +2135,6 @@ $(document).on('mobileinit', function () {
           return jio.post(doc).
             then(function (response) {
               Logger.debug('Added project: %o', response.id);
-              Logger.debug('  status %s (%s)', response.status, response.statusText);
               return updateSettingsForm();
             });
         });

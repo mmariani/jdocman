@@ -21,7 +21,7 @@
 
     <script id="document-link-partial" type="text/x-handlebars-template">
       <a data-role="button"
-        href="#document-page?document_id={{this.id}}" class="document-link">
+        href="#document-page?document_id={{encodeuc this.id}}" class="document-link">
         {{this.doc.title}}
         <p class="description">{{sanitize this.doc.description 100}}</p>
         <p>
