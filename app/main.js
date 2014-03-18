@@ -929,9 +929,7 @@ $(document).on('mobileinit', function () {
         _storage_list = storage_list;
       }).
       then(jioConnect).
-      // keep going even if we could not connect to the main storage
-      fail(ignoreError).
-      always(function (jio) {
+      then(function (jio) {
         var project_opt = {include_docs: true, sort_on: [['title', 'ascending']], query: '(type:"Project")'},
           state_opt = {include_docs: true, sort_on: [['title', 'ascending']], query: '(type:"State")'};
 
@@ -975,23 +973,19 @@ $(document).on('mobileinit', function () {
    * @param {String} id The id of the configuration to retrieve (may be null)
    * @return {Promise} A Promise which resolves to the configuration object.
    */
-  function storageConfig(jio_config, id) {
-    if (!id) {
+  function storageConfig(jio_config, storage_id) {
+    if (!storage_id) {
       return RSVP.resolve({
         storage_type: 'local'
       });
     }
 
-    return jio_config.get({_id: id}).
+    return jio_config.getAttachment({_id: storage_id, _attachment: 'config'}).
       then(function (response) {
-        return jio_config.
-          getAttachment({_id: response.id, _attachment: 'config'}).
-          then(function (response) {
-            return jIO.util.readBlobAsText(response.data);
-          }).
-          then(function (ev) {
-            return JSON.parse(ev.target.result);
-          });
+        return jIO.util.readBlobAsText(response.data);
+      }).
+      then(function (ev) {
+        return JSON.parse(ev.target.result);
       });
   }
 
