@@ -31,11 +31,6 @@
       "save": "储存"
     },
     "settings": {
-        "translate": {
-            "en": "English",
-            "fr": "Français",
-            "ch": "中文"
-        },
         "states": "状态:",
         "projects": "项目:"
     },
