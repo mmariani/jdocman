@@ -110,9 +110,11 @@ The main application entry point is
 
     This event handler is used like $(document).ready() in plain jQuery.
 
-        $(document).on('mobileinit', function () {
-          // application code
-        })
+    ```js
+    $(document).on('mobileinit', function () {
+      // application code
+    })
+    ```
 
     The event is fired only once, when JQM is ready.
     Note that the app.js file must be loaded before jquery.mobile.js
@@ -188,12 +190,14 @@ arguments that have been passed. Since $.mobile.activePage and window.location m
 have been updated yet (depending on whether it's a first load or a transition from another page),
 the ev.page and ev.args objects are passed inside the event:
 
-    $(document).on('pagerender', '#my-page', function (ev) {
-      var page = ev.page,
-        foo = ev.args.foo,
-        bar = ev.args.bar;
-        [...]
-    }
+```js
+$(document).on('pagerender', '#my-page', function (ev) {
+  var page = ev.page,
+    foo = ev.args.foo,
+    bar = ev.args.bar;
+    [...]
+}
+```
 
 
 
@@ -209,41 +213,43 @@ We decided to use [Handlebars](http://handlebarsjs.com/).
 
 As an example, let's consider the 'settings' form, which is defined in the following template:
 
-    <script id="settings-form-template" type="text/x-handlebars-template">
-      <form action="javascript:void(0);">
-        [...]
+```Handlebars
+<script id="settings-form-template" type="text/x-handlebars-template">
+  <form action="javascript:void(0);">
+    [...]
 
-        {{#if error_message}}
-          <h3>Cannot connect to the storage</h3>
-          <p>{{error_message}}</p>
-        {{else}}
-        [...]
+    {{#if error_message}}
+      <h3>Cannot connect to the storage</h3>
+      <p>{{error_message}}</p>
+    {{else}}
+    [...]
 
-        <fieldset data-role="controlgroup" data-mini="true">
-          <legend data-i18n="settings.projects">Projects:</legend>
-          {{#project_list}}
-          <label data-i18n="{{this.doc.project}}">
-            <input type="radio" name="project-radio"
-                   data-jio-project="{{this.doc.project}}"
-                   data-jio-id="{{this.id}}" />
-              {{this.doc.project}}
-            </label>
-          {{/project_list}}
-        </fieldset>
-        <fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
-          {{#if project_list}}
-          <a href="#" id="settings-del-project"
-             data-role="button" data-icon="delete" data-inline="true">
-            Delete
-          </a>
-          {{/if}}
-          <a href="#" id="settings-add-project"
-             data-role="button" data-icon="plus" data-inline="true">
-            New Project
-          </a>
-        </fieldset>
-        {{/if}}
-      </form>
+    <fieldset data-role="controlgroup" data-mini="true">
+      <legend data-i18n="settings.projects">Projects:</legend>
+      {{#project_list}}
+      <label data-i18n="{{this.doc.project}}">
+        <input type="radio" name="project-radio"
+               data-jio-project="{{this.doc.project}}"
+               data-jio-id="{{this.id}}" />
+          {{this.doc.project}}
+        </label>
+      {{/project_list}}
+    </fieldset>
+    <fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+      {{#if project_list}}
+      <a href="#" id="settings-del-project"
+         data-role="button" data-icon="delete" data-inline="true">
+        Delete
+      </a>
+      {{/if}}
+      <a href="#" id="settings-add-project"
+         data-role="button" data-icon="plus" data-inline="true">
+        New Project
+      </a>
+    </fieldset>
+    {{/if}}
+  </form>
+```
 
 
 Handlebars [expressions](http://handlebarsjs.com/expressions.html) are defined by the double bracket markup: {{...}}
@@ -256,25 +262,29 @@ Here they are used to
 
 All the templates are compiled in advance for better performance:
 
-    template = {
-      [...]
-      'settings-form': Handlebars.compile($('#settings-form-template').text()),
-      [...]
-    },
+```js
+template = {
+  [...]
+  'settings-form': Handlebars.compile($('#settings-form-template').text()),
+  [...]
+},
+```
 
 
 This particular template is rendered inside the updateSettingsForm() function.
 
-    function updateSettingsForm() {
-      [...]
-        $('#settings-form-container').
-          html(template['settings-form']({
-            error_message: error_message,
-            project_list: project_list
-          })).
-          trigger('create');
-      [...]
-    })
+```js
+function updateSettingsForm() {
+  [...]
+    $('#settings-form-container').
+      html(template['settings-form']({
+        error_message: error_message,
+        project_list: project_list
+      })).
+      trigger('create');
+  [...]
+})
+```
 
 
 After injecting the rendered code, JQM must be informed through the 'create' event, so that it can apply its own markup and behavior.
@@ -319,25 +329,29 @@ It will be stored in a cookie appropriately named 'i18n'.
 Every time some content is injected in the current page (for instance, by rendering a template or updating some element) this
 simple function is called to apply translations where needed:
 
-    /**
-     * Immediately apply translation to all elements
-     * which have a data-i18n attribute.
-     */
-    function applyTranslation() {
-      $('[data-i18n]').i18n();
-    }
+```js
+/**
+ * Immediately apply translation to all elements
+ * which have a data-i18n attribute.
+ */
+function applyTranslation() {
+  $('[data-i18n]').i18n();
+}
+```
 
 The [Has Attribute Selector](https://api.jquery.com/has-attribute-selector/) may not be efficient for large pages (especially it scans the whole document),
 but works pretty well in this case.
 
 A small Handlebars helper is also used to translate while rendering:
 
-    /**
-     * Make translations accessible from within Handlebars templates
-     */
-    Handlebars.registerHelper('t', function (i18n_key) {
-      return i18n_key ? new Handlebars.SafeString(i18n.t(i18n_key)) : '';
-    });
+```js
+/**
+ * Make translations accessible from within Handlebars templates
+ */
+Handlebars.registerHelper('t', function (i18n_key) {
+  return i18n_key ? new Handlebars.SafeString(i18n.t(i18n_key)) : '';
+});
+```
 
 To use it, simply call it with a string argument:
 
@@ -361,20 +375,23 @@ Don't worry if you don't understand everything, we'll see how the jIO API is use
 
 As a simple example, consider a user that clicks on the 'Delete Document' button...
 
-    /**
-     * Delete the currently open document from the storage.
-     */
-    $(document).on('click', 'a.document-delete', function (ev) {
-      ev.preventDefault();
-      var document_id = util.parseHashParams(window.location.hash).document_id;
+```js
+/**
+/**
+ * Delete the currently open document from the storage.
+ */
+$(document).on('click', 'a.document-delete', function (ev) {
+  ev.preventDefault();
+  var document_id = util.parseHashParams(window.location.hash).document_id;
 
-      jioConnect().then(function do_remove(jio) {
-        return jio.remove({_id: document_id});
-      }).then(function do_back(response) {
-        Logger.debug('Deleted document:', response.id);
-        parent.history.back();
-      }).fail(displayError);
-    });
+  jioConnect().then(function do_remove(jio) {
+    return jio.remove({_id: document_id});
+  }).then(function do_back(response) {
+    Logger.debug('Deleted document:', response.id);
+    parent.history.back();
+  }).fail(displayError);
+});
+```
 
 
 and see what happens:
@@ -391,16 +408,18 @@ and see what happens:
 
 If there was no need to allow multiple storages that can be swapped at runtime, the code could be simplified, and avoid using jioConnect():
 
-    // at the beginning of the module
-    jio = jIO.createJIO(storage_description)
-    [...]
+```js
+// at the beginning of the module
+jio = jIO.createJIO(storage_description)
+[...]
 
-    // inside the event handler
-    jio.remove({_id: document_id}).
-      then(function () {
-        parent.history.back();
-      }).
-      fail(displayError);
+// inside the event handler
+jio.remove({_id: document_id}).
+  then(function () {
+    parent.history.back();
+  }).
+  fail(displayError);
+```
 
 
 Keep in mind, a single storage_description does not mean we only store data in a single place. It might still describe a replicated storage
@@ -423,23 +442,25 @@ Here is an example with the removal of a storage configuration. This is very sim
 previous section.
 
 
-    /**
-     * Delete the currently open storage configuration.
-     * Does not actually touch the storage's content, and resets
-     * the selected storage to the default one.
-     */
-    $(document).on('click', 'a#storage-delete', function (ev) {
-      ev.preventDefault();
-      var storage_id = $('#storage-id').val();
+```js
+/**
+ * Delete the currently open storage configuration.
+ * Does not actually touch the storage's content, and resets
+ * the selected storage to the default one.
+ */
+$(document).on('click', 'a#storage-delete', function (ev) {
+  ev.preventDefault();
+  var storage_id = $('#storage-id').val();
 
-      jioConfigConnect().then(function do_remove(jio_config) {
-        return jio_config.remove({_id: storage_id});
-      }).then(function do_finalize(response) {
-        Logger.debug('Deleted storage:', response.id);
-        setSelectedStorage(default_storage_id);
-        gotoPage('#settings-page');
-      }).fail(displayError);
-    });
+  jioConfigConnect().then(function do_remove(jio_config) {
+    return jio_config.remove({_id: storage_id});
+  }).then(function do_finalize(response) {
+    Logger.debug('Deleted storage:', response.id);
+    setSelectedStorage(default_storage_id);
+    gotoPage('#settings-page');
+  }).fail(displayError);
+});
+```
 
 
 
@@ -452,18 +473,20 @@ TaskMan uses attachments for HTML/Spreadsheet/SVG documents, but also for config
 
 This is the response of a call to jio_config.get({_id: 'default_storage'}):
 
-    {
-        "modified": "2014-03-17T15:45:12.765Z",
-        "type": "Storage Configuration",
-        "_id": "default_storage",
-        "_attachments": {
-            "config": {
-                "content_type": "application/json",
-                "digest": "sha256-b0bc3c1c4f886532a9276677fe9df56c0288ff810434fdab961545521bc8dc76",
-                "length":68
-            }
+```JSON
+{
+    "modified": "2014-03-17T15:45:12.765Z",
+    "type": "Storage Configuration",
+    "_id": "default_storage",
+    "_attachments": {
+        "config": {
+            "content_type": "application/json",
+            "digest": "sha256-b0bc3c1c4f886532a9276677fe9df56c0288ff810434fdab961545521bc8dc76",
+            "length":68
         }
     }
+}
+```
 
 
 
@@ -472,7 +495,9 @@ about an existing attachment named "config".
 
 Retrieving the attachment requires a separate call:
 
-    jio_config.getAttachment({_id: 'default-storage', _attachment: 'config'})
+```js
+jio_config.getAttachment({_id: 'default-storage', _attachment: 'config'})
+```
 
 This time, the response is
 
@@ -483,38 +508,42 @@ which is, as expected from the content_type, a JSON string.
 
 Here is the full function.
 
-    /**
-     * Retrieve a single storage's configuration,
-     * or provide the default value for a configuration object.
-     *
-     * @param {Object} jio_config The configuration storage
-     * @param {String} id The id of the configuration to retrieve (may be null)
-     * @return {Promise} A Promise which resolves to the configuration object.
-     */
-    function storageConfig(jio_config, storage_id) {
-      if (!storage_id) {
-        return RSVP.resolve({
-          storage_type: 'local'
-        });
-      }
+```js
+/**
+ * Retrieve a single storage's configuration,
+ * or provide the default value for a configuration object.
+ *
+ * @param {Object} jio_config The configuration storage
+ * @param {String} id The id of the configuration to retrieve (may be null)
+ * @return {Promise} A Promise which resolves to the configuration object.
+ */
+function storageConfig(jio_config, storage_id) {
+  if (!storage_id) {
+    return RSVP.resolve({
+      storage_type: 'local'
+    });
+  }
 
-      return jio_config.getAttachment({_id: storage_id, _attachment: 'config'}).
-        then(function (response) {
-          return jIO.util.readBlobAsText(response.data);
-        }).
-        then(function (ev) {
-          return JSON.parse(ev.target.result);
-        });
-    }
+  return jio_config.getAttachment({_id: storage_id, _attachment: 'config'}).
+    then(function (response) {
+      return jIO.util.readBlobAsText(response.data);
+    }).
+    then(function (ev) {
+      return JSON.parse(ev.target.result);
+    });
+}
+```
 
 
 It returns a promise:
 
-    storageConfig(jio_config, storage_id).
-      then(function (config) {
-        Logger.info('Storage type', config.storage_type);
-        Logger.info('Username', config.username);
-      });
+```js
+storageConfig(jio_config, storage_id).
+  then(function (config) {
+    Logger.info('Storage type', config.storage_type);
+    Logger.info('Username', config.username);
+  });
+```
 
 
 
@@ -542,8 +571,6 @@ The following gadgets have been tested with the application:
 
 
 
-
-
 Two generic functions are responsible for the loading, rendering and saving of
 attachment editors. Every gadget exposes at least three methods: _.getContent()_,
 _.setContent()_ and _.clearContent()_. We need only the first two.
@@ -551,70 +578,74 @@ _.setContent()_ and _.clearContent()_. We need only the first two.
 As usual, gadgets are used with Promises:
 
 
-    /**
-     * Render the OfficeJS gadget for editing the attachment.
-     *
-     * @param {String} document_id The id of the parent document
-     * @return {Promise} A promise which is fullfilled after rendering
-     */
-    function renderAttachment(document_id) {
-      var content_prom = null;
+```js
+/**
+ * Render the OfficeJS gadget for editing the attachment.
+ *
+ * @param {String} document_id The id of the parent document
+ * @return {Promise} A promise which is fullfilled after rendering
+ */
+function renderAttachment(document_id) {
+  var content_prom = null;
 
-      editor_gadget = null;
+  editor_gadget = null;
 
-      if (appconfig.gadget && appconfig.gadget.beforeLoad) {
-        appconfig.gadget.beforeLoad();
-      }
+  if (appconfig.gadget && appconfig.gadget.beforeLoad) {
+    appconfig.gadget.beforeLoad();
+  }
 
-      if (document_id) {
-        content_prom = retrieveAttachmentContent(document_id);
-      } else {
-        content_prom = new RSVP.Promise(function (resolve) {
-          resolve('');
+  if (document_id) {
+    content_prom = retrieveAttachmentContent(document_id);
+  } else {
+    content_prom = new RSVP.Promise(function (resolve) {
+      resolve('');
+    });
+  }
+
+  return content_prom.
+    then(function (content) {
+      return root_gadget.declareGadget(appconfig.gadget.url,
+                                       { sandbox: 'iframe',
+                                         element: document.getElementById('attachment-container')
+                                       }).
+        then(function (gadget) {
+          editor_gadget = gadget;
+          if (content) {
+            return gadget.setContent(content);
+          }
         });
-      }
-
-      return content_prom.
-        then(function (content) {
-          return root_gadget.declareGadget(appconfig.gadget.url,
-                                           { sandbox: 'iframe',
-                                             element: document.getElementById('attachment-container')
-                                           }).
-            then(function (gadget) {
-              editor_gadget = gadget;
-              if (content) {
-                return gadget.setContent(content);
-              }
-            });
-        });
-    }
+    });
+}
+```
 
 
 
 Saving a gadget's content is even easier:
 
 
-    /**
-     * Save the current attachment.
-     *
-     * @param {String} document_id The id of the parent document
-     * @return {Promise} A promise which is fullfilled after saving
-     */
-    function saveAttachment(document_id) {
-      return editor_gadget.getContent().
-        then(function (attachment_content) {
-          var attachment = {
-            _id: document_id,
-            _attachment: default_attachment_name,
-            _data: new Blob([attachment_content],
-                            { type: appconfig.attachment_content_type || 'application/octet-stream'})
-          };
-          return jioConnect().
-            then(function (jio) {
-              return jio.putAttachment(attachment);
-            });
+```js
+/**
+ * Save the current attachment.
+ *
+ * @param {String} document_id The id of the parent document
+ * @return {Promise} A promise which is fullfilled after saving
+ */
+function saveAttachment(document_id) {
+  return editor_gadget.getContent().
+    then(function (attachment_content) {
+      var attachment = {
+        _id: document_id,
+        _attachment: default_attachment_name,
+        _data: new Blob([attachment_content],
+                        { type: appconfig.attachment_content_type || 'application/octet-stream'})
+      };
+      return jioConnect().
+        then(function (jio) {
+          return jio.putAttachment(attachment);
         });
-    }
+    });
+}
+```
 
 
 Note that the same functions can manage a huge variety of editors, the only thing we need
