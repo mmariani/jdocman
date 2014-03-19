@@ -88,7 +88,7 @@ to traditional web programming is the way JQM manages links and page loading, be
 JQM can be used in two ways: traditional multiple HTML files, or single HTML file with multiple pages inside - which is what we do.
 
 If you look at the [index.html](https://github.com/nexedi/taskman/blob/tutorial/index.html) file,
-there are many <section data-role="page"> elements.
+there are many &lt;section data-role="page"&gt; elements.
 If this had been a plain web application, with no jQuery Mobile, each of the sections would be in a separate
 HTML file.
 
@@ -522,7 +522,7 @@ It returns a promise:
 Using OfficeJS
 ==============
 
-OfficeJS components (gadgets) are displayed within <iframe> elements, they are quite easy to create and each comes with its own dependencies.
+OfficeJS components (gadgets) are displayed within &lt;iframe&gt; elements, they are quite easy to create and each comes with its own dependencies.
 
 The following gadgets have been tested with the application:
 
@@ -634,7 +634,7 @@ The [AppCache Manifest](ttp://en.wikipedia.org/wiki/AppCache) is a text file whi
 what parts of the application have to be preloaded, and cached for offline use.
 The manifest must be referenced in each of the HTML files:
 
- * <html manifest="manifest.appcache">
+ * &lt;html manifest="manifest.appcache"&gt;
 
 The format of the file is simple, but it requires some attention to work with.
 The resources listed under the "CACHE:" section will be used *instead* (not in _preference_) of their
@@ -687,7 +687,6 @@ If for some reason you don't like Handlebars, there are many other template libr
  * [JavaScript templates](https://developer.mozilla.org/en-US/docs/JavaScript_templates) (MDN)
  * [The client-side templating throwdown: mustache, handlebars, dust.js, and more](http://engineering.linkedin.com/frontend/client-side-templating-throwdown-mustache-handlebars-dustjs-and-more)
  * [Node.js template showdown – 5 options compared](http://www.bearfruit.org/2014/01/20/node-js-template-showdown-5-options-compared/)
- * [Template-Engine-Chooser](http://garann.github.io/template-chooser/)
 
 
 If you need to validate form input, [jQuery.validVal](http://validval.frebsite.nl/) works pretty well with jQuery Mobile.
@@ -695,9 +694,5 @@ If you need to validate form input, [jQuery.validVal](http://validval.frebsite.n
 For a logger library with more features than [js-logger](https://github.com/jonnyreeves/js-logger), have a look at
 [Woodman](https://github.com/joshfire/woodman) or [log4javascript](http://log4javascript.org/), which also provides an in-page
 console that can be useful to debug mobile browsers.
-
-
-
-
 
 
