@@ -1132,15 +1132,14 @@ $(document).on('mobileinit', function () {
       fail(function (response) {
         if (response.status === 404) {
           // attachment does not exist, no content to read
-          return null;
+          return 404;
         }
         if (response.stack || response.status >= 400) {
           throw response;
         }
       }).
       then(function (response) {
-        // XXX hack
-        if (response === null) {
+        if (response === 404) {
           return null;
         }
         return jIO.util.readBlobAsText(response.data).
