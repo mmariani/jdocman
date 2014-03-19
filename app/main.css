@@ -15,7 +15,7 @@
   text-shadow: none;
   line-height: 150px;
   vertical-align: bottom;
-  background-image: url('patterns/tweed_@2X.png');
+  background-image: url('images/patterns/tweed_@2X.png');
   background-color: gray;
 }
 
@@ -112,13 +112,13 @@ textarea {
 
 .ui-bar-a, .ui-page-theme-a .ui-bar-inherit, html .ui-bar-a .ui-bar-inherit,
 html .ui-body-a .ui-bar-inherit, html body .ui-group-theme-a .ui-bar-inherit {
-  background-image: url('patterns/tweed_@2X.png');
+  background-image: url('images/patterns/tweed_@2X.png');
 }
 
 .ui-overlay-a,
 .ui-page-theme-a,
 .ui-page-theme-a .ui-panel-wrapper {
-  background-image: url('patterns/pw_maze_white.png');
+  background-image: url('images/patterns/pw_maze_white.png');
 }
 
 .ui-icon-delete:after {

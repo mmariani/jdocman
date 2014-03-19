@@ -35,8 +35,8 @@ To download it:
 
     $ git clone -b tutorial https://github.com/nexedi/taskman.git
 
-To analyze the source code, the starting point is [app/main.js](https://github.com/nexedi/taskman/blob/tutorial/app/main.js) and
-[index.html](https://github.com/nexedi/taskman/blob/tutorial/index.html).
+To analyze the source code, the starting points are [index.html](https://github.com/nexedi/taskman/blob/tutorial/index.html) and
+[app/main.js](https://github.com/nexedi/taskman/blob/tutorial/app/main.js).
 
 You can also try the application online at [http://taskman.app.officejs.com/](http://taskman.app.officejs.com/)
 

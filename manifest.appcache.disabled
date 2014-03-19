@@ -67,10 +67,12 @@ app/i18n/zh/svg.json
 app/i18n/zh/spreadsheet.json
 app/main.css
 app/main.js
-app/patterns/pw_maze_white_@2X.png
-app/patterns/pw_maze_white.png
-app/patterns/tweed_@2X.png
-app/patterns/tweed.png
+app/images/flags/CN.png
+app/images/flags/FR.png
+app/images/flags/GB.png
+app/images/flags/LICENSE.txt
+app/images/patterns/pw_maze_white.png
+app/images/patterns/tweed_@2X.png
 app/themes/images/ajax-loader.gif
 app/themes/images/icons-png/action-black.png
 app/themes/images/icons-png/action-white.png

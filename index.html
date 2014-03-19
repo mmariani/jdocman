@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html manifest="manifest.appcache">
   <head>
-    <link rel="shortcut icon" href="favicon.png" type="image/png"/>
+    <link rel="shortcut icon" href="icons/favicon.png" type="image/png"/>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -255,14 +255,17 @@
 
     <script id="settings-form-template" type="text/x-handlebars-template">
       <form action="javascript:void(0);">
-        <label>
-          Language:
-          <select name="translate" id="translate" data-mini="true" data-inline="true">
-            <option value="en" data-i18n="settings.translate.en">English</option>
-            <option value="fr" data-i18n="settings.translate.fr">Français</option>
-            <option value="zh" data-i18n="settings.translate.zh">中文 (Chinese)</option>
-          </select>
-        </label>
+        <fieldset data-role="controlgroup" data-type="horizontal" data-mini="true">
+          <label><img src="app/images/flags/GB.png" />
+            <input type="radio" name="language" value="en" data-mini="true" />
+          </label>
+          <label><img src="app/images/flags/FR.png" />
+            <input type="radio" name="language" value="fr" data-mini="true" />
+          </label>
+          <label><img src="app/images/flags/CN.png" />
+           <input type="radio" name="language" value="zh" data-mini="true" />
+          </label>
+        </fieldset>
 
         <label data-inline="true">
           Storage:

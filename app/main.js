@@ -334,6 +334,21 @@ $(document).on('mobileinit', function () {
 
 
   /**
+   * Update a checkboxradio's selected option,
+   * then activates the jquery mobile event to refresh UI
+   *
+   * @param {Object|String} element The selector or element objects
+   * @param {String} value The value to set
+   */
+  function jqmSetRadio(element, value) {
+    var $radio = $(element);
+
+    $radio.filter('[value=' + value + ']').prop('checked', true);
+    $radio.checkboxradio('refresh');
+  }
+
+
+  /**
    * Change page and provide parameters within the fragment identifier.
    * Since we cannot use query parameters (they would not work
    * with the appcache) we temporarily change the url of
@@ -958,7 +973,7 @@ $(document).on('mobileinit', function () {
           })).
           trigger('create');
 
-        jqmSetSelected('#translate', i18n.lng());
+        jqmSetRadio('input:radio[name=language]', i18n.lng());
         jqmSetSelected('#storage-select', getSelectedStorage());
         applyTranslation();
       });
@@ -1434,11 +1449,11 @@ $(document).on('mobileinit', function () {
 
 
   /**
-   * Apply a language change upon selection from the menu.
+   * Apply a language change upon selection from the radio buttons.
    * This will store the selected language in the 'i18next'
    * session cookie.
    */
-  $(document).on('change', '#translate', function () {
+  $(document).on('change', 'input:radio[name=language]', function () {
     var current_language = $(this).val();
     $.i18n.setLng(current_language, applyTranslation);
   });
