@@ -309,6 +309,100 @@ To avoid this so-called [callback hell](http://ianbishop.github.io/blog/2013/01/
 or [pyramid of doom](http://tritarget.org/blog/2012/11/28/the-pyramid-of-doom-a-javascript-style-trap/),
 a popular design pattern is the [Promise](http://en.wikipedia.org/wiki/Promise_(programming)).
 
+The jIO methods support both the callback and promise syntaxes.
+
+You can compare the two examples in the [tutorial](https://github.com/nexedi/taskman/blob/tutorial/tutorial/) folder.
+
+This is the version with callbacks:
+
+    ```js
+    jio.put({
+      type: 'Document',
+      title: 'An example document',
+      _id: 'doc1'
+    }, function (response) {
+      console.log('Document', response.id, 'created');
+      jio.putAttachment({
+        _id: 'doc1',
+        _attachment: 'attachment_name',
+        _data: new Blob(['lorem ipsum'], {type: 'text/plain'})
+      }, function (response) {
+        console.log('Attachment', response.attachment, 'created on', response.id);
+        jio.get({_id: 'doc1'}, function (response) {
+          console.log('Retrieved document', response.id);
+          jio.getAttachment({
+            _id: 'doc1',
+            _attachment: 'attachment_name',
+          }, function (unused, response) {
+            console.log('Retrieved attachment', response.attachment, 'from', response.id);
+            var fr = new FileReader();
+            fr.addEventListener('load', function (event) {
+              console.log('Attachment content:', event.target.result);
+              jio.remove({_id: 'doc1'}, function (response) {
+                console.log('Document', response.id, 'removed');
+                console.log('DONE!');
+              }, errorHandler);
+            });
+            fr.addEventListener('error', errorHandler);
+            fr.readAsText(response.data);
+          });
+        }, errorHandler);
+      }, errorHandler);
+    }, errorHandler);
+    ```
+
+And here the equivalent code with promises:
+
+    ```js
+    jio.
+      put({
+        type: 'Document',
+        title: 'An example document',
+        _id: 'doc1'
+      }).
+      then(function (response) {
+        console.log('Document', response.id, 'created');
+        return jio.putAttachment({
+          _id: 'doc1',
+          _attachment: 'attachment_name',
+          _data: new Blob(['lorem ipsum'], {type: 'text/plain'})
+        });
+      }).
+      then(function (response) {
+        console.log('Attachment', response.attachment, 'created on', response.id);
+        return jio.get({_id: 'doc1'});
+      }).
+      then(function (response) {
+        console.log('Retrieved document', response.id);
+        return jio.getAttachment({
+          _id: 'doc1',
+          _attachment: 'attachment_name',
+        });
+      }).
+      then(function (response) {
+        console.log('Retrieved attachment', response.attachment, 'from', response.id);
+        return jIO.util.readBlobAsText(response.data);
+      }).
+      then(function (event) {
+        console.log('Attachment content:', event.target.result);
+      }).
+      then(function () {
+        return jio.remove({_id: 'doc1'});
+      }).
+      then(function (response) {
+        console.log('Document', response.id, 'removed');
+        console.log('DONE!');
+      }).
+      fail(function (error) {
+        console.error(error);
+      });
+    ```
+
+
+You should notice that the second version is easier to maintain, the code does not have nested functions
+and nedds a single point to handle all the errors. If we were to add more advanced features (progress notification,
+queues, cancellation) the difference would be even more striking.
+
 We use promises a lot, and among the alternatives we chose a [customized version](https://github.com/nexedi/jio/blob/master/lib/rsvp/rsvp-custom.js)
 of [RSVP.js](https://github.com/tildeio/rsvp.js).
 In the future, there will be no need for external Promise libraries and browsers will have a standard, [native implementation](http://www.html5rocks.com/en/tutorials/es6/promises/).
