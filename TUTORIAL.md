@@ -117,7 +117,7 @@ The main application entry point is
     ```
 
     The event is fired only once, when JQM is ready.
-    Note that the app.js file must be loaded before jquery.mobile.js
+    Note that the main.js file must be loaded before jquery.mobile.js
 
     See also [Understanding the Mobile Initialization Event](http://www.informit.com/articles/article.aspx?p=1924978&seqNum=4)
 
