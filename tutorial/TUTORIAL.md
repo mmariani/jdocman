@@ -98,7 +98,12 @@ The recommended way to setup up a development environment is to use a (remote or
 There are multiple ways to do it:
 
  1. Go to the shell, in the folder that contains index.html, then run:
-    $ python -m SimpleHTTPServer 8000
+
+    $ python2 -m SimpleHTTPServer 8000
+
+    or
+
+    $ python3 -m http.server 8000
 
     The application will be available at http://localhost:8000/
 

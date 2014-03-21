@@ -3,16 +3,16 @@
         "projects": "项目",
         "details": "详细信息",
         "settings": "设置",
-        "storage": "Configure Storage",
-        "back": "后退"
+        "storage": "配置存储",
+        "back": "返回"
     },
     "documents": {
-      "from": "从",
+      "from": "开始于",
       "to": "至",
-      "placeholder": "过滤标题，状态，日期或项目",
-      "noresult": "No results found.",
+      "placeholder": "按标题，状态，日期和项目筛选",
+      "noresult": "查找无结果。",
       "sortby": {
-        "#": "分类",
+        "#": "排列按照",
         "title": "标题",
         "start": "开始日期",
         "stop": "结束日期",
@@ -21,25 +21,25 @@
       }
     },
     "details": {
-      "title": "标题:",
-      "start": "开始日期:",
-      "stop": "结束日期:",
-      "project": "项目:",
-      "state": "状态:",
-      "description": "描述:",
+      "title": "标题：",
+      "start": "开始日期：",
+      "stop": "结束日期：",
+      "project": "项目：",
+      "state": "状态：",
+      "description": "描述：",
       "delete": "删除",
-      "save": "储存"
+      "save": "保存"
     },
     "settings": {
-        "states": "状态:",
-        "projects": "项目:"
+        "states": "状态：",
+        "projects": "项目："
     },
     "navbar": {
         "home": "主页",
         "projects": "项目",
         "settings": "设置"
     },
-    "Started": "开始",
-    "Completed": "完成",
-    "Confirmed": "确认"
+    "Started": "已开始",
+    "Completed": "已完成",
+    "Confirmed": "已确认"
 }

@@ -1,12 +1,15 @@
 {
-    "application_name": "任务管理器",
+    "application_name": "电子表",
+    "buttons": {
+      "metadata-page-save": "创建文件"
+    },
     "header": {
-      "documents": "任务"
+      "documents": "文件"
     },
     "documents": {
-      "newdocument": "新任务"
+      "newdocument": "新建电子表"
     },
     "navbar": {
-      "documents": "任务"
+      "documents": "文件"
     }
 }
