@@ -75,8 +75,55 @@ or an SVG drawing:
 
 
 
-jQuery Mobile (JQM)
--------------------
+
+Setting up a development environment
+------------------------------------
+
+If you try to load the index.html page from the filesystem, you will see that it works
+pretty well with Firefox, but Chrome displays error messages in the JavaScript console:
+
+```
+XMLHttpRequest cannot load file:///home/marco/src/jdocman/app/i18n/en/editor.json.
+ No 'Access-Control-Allow-Origin' header is present on the requested resource.
+ Origin 'null' is therefore not allowed access.
+XMLHttpRequest cannot load file:///home/marco/src/jdocman/app/i18n/en/generic.json.
+ No 'Access-Control-Allow-Origin' header is present on the requested resource.
+ Origin 'null' is therefore not allowed access.
+```
+
+This is due to the [Same-origin policy](http://en.wikipedia.org/wiki/Same-origin_policy) which is more restrictive for some browsers.
+
+The recommended way to setup up a development environment is to use a (remote or local) web server.
+
+There are multiple ways to do it:
+
+ 1. Go to the shell, in the folder that contains index.html, then run:
+    $ python -m SimpleHTTPServer 8000
+
+    The application will be available at http://localhost:8000/
+
+ 2. Fork the repository on github, and push a branch named "gh-pages".
+
+    The application will be accessible from everywhere at your-account.github.io/jdocman
+
+ 3. Install nginx and use this configuration:
+
+    ```
+    location /jdocman/ {
+        alias /home/username/src/jdocman/;
+        autoindex on;
+        allow 127.0.0.1;
+        allow ::1;
+        deny all;
+    }
+    ```
+
+   The application will be accessible at http://localhost/jdocman/, only from the localhost.
+
+
+
+Developing with jQuery Mobile (JQM)
+-----------------------------------
 
 ([demos](http://demos.jquerymobile.com/) and [API](http://api.jquerymobile.com/) documentation)
 
@@ -769,7 +816,7 @@ When debugging the application, most of the times we need to use the most recent
 the file is named 'manifest.appcache.disabled' and only renamed before publishing a release.
 
 The manifest file must also be changed each time a version of the app is released. Changing the date and version number
-inside the commented line is enough to force clients to reload everything. 
+inside the commented line is enough to force clients to reload everything.
 
 Please take some time to read how it works in detail:
 
