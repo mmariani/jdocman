@@ -1529,11 +1529,17 @@ $(document).on('mobileinit', function () {
    * Initial rendering of the 'document list' page.
    */
   $(document).on('pagebeforeshow', '#document-list-page', function () {
-    jioConnect().then(function (jio) {
-      // attempt to fix cosmetic issue with a select menu in the header
-      $('#document-sortby-button').addClass('ui-btn-left');
-      return updateDocumentList(jio);
-    }).fail(displayError);
+    jioConnect().
+      then(function (jio) {
+        // attempt to fix cosmetic issue with a select menu in the header
+        $('#document-sortby-button').addClass('ui-btn-left');
+        return updateDocumentList(jio);
+      }).
+      then(function () {
+        // manually update JQM rendering of the select menu
+        // after having applied the translation
+        $('#document-sortby').selectmenu('refresh');
+      }).fail(displayError);
   });
 
 
