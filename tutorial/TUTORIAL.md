@@ -22,21 +22,21 @@ You can follow the documentation of each of the above projects, or keep reading 
 
 
 
-The TaskMan app - as a Task Manager
+The jDocMan app - as a Task Manager
 -----------------------------------
 
 The demo application allows the creation of a list of tasks, each with a state
 of completion, grouped into projects. A title, a description, and range of dates
 are also properties of each task.
 
-The source is available on [GitHub](https://github.com/nexedi/taskman/tree/tutorial)
+The source is available on [GitHub](https://github.com/nexedi/jdocman/tree/tutorial)
 
 To download it:
 
-    $ git clone -b tutorial https://github.com/nexedi/taskman.git
+    $ git clone -b tutorial https://github.com/nexedi/jdocman.git
 
-To analyze the source code, the starting points are [index.html](https://github.com/nexedi/taskman/blob/tutorial/index.html) and
-[app/main.js](https://github.com/nexedi/taskman/blob/tutorial/app/main.js).
+To analyze the source code, the starting points are [index.html](https://github.com/nexedi/jdocman/blob/tutorial/index.html) and
+[app/main.js](https://github.com/nexedi/jdocman/blob/tutorial/app/main.js).
 
 You can also try the application online at [http://taskman.app.officejs.com/](http://taskman.app.officejs.com/)
 
@@ -50,7 +50,7 @@ menu.
 
 
 
-The TaskMan app - as a Document Manager
+The jDocMan app - as a Document Manager
 ---------------------------------------
 
 By setting the APPLICATION_MODE variable, the same application can also be used to edit documents.
@@ -87,7 +87,7 @@ to traditional web programming is the way JQM manages links and page loading, be
 
 JQM can be used in two ways: traditional multiple HTML files, or single HTML file with multiple pages inside - which is what we do.
 
-If you look at the [index.html](https://github.com/nexedi/taskman/blob/tutorial/index.html) file,
+If you look at the [index.html](https://github.com/nexedi/jdocman/blob/tutorial/index.html) file,
 there are many &lt;section data-role="page"&gt; elements.
 If this had been a plain web application, with no jQuery Mobile, each of the sections would be in a separate
 HTML file.
@@ -311,7 +311,7 @@ a popular design pattern is the [Promise](http://en.wikipedia.org/wiki/Promise_(
 
 The jIO methods support both the callback and promise syntaxes.
 
-You can compare the two examples in the [tutorial](https://github.com/nexedi/taskman/blob/tutorial/tutorial/) folder.
+You can compare the two examples in the [tutorial](https://github.com/nexedi/jdocman/blob/tutorial/tutorial/) folder.
 
 This is the version with callbacks:
 
@@ -333,7 +333,7 @@ This is the version with callbacks:
           jio.getAttachment({
             _id: 'doc1',
             _attachment: 'attachment_name',
-          }, function (unused, response) {
+          }, function (response) {
             console.log('Retrieved attachment', response.attachment, 'from', response.id);
             var fr = new FileReader();
             fr.addEventListener('load', function (event) {
@@ -345,7 +345,7 @@ This is the version with callbacks:
             });
             fr.addEventListener('error', errorHandler);
             fr.readAsText(response.data);
-          });
+          }, errorHandler);
         }, errorHandler);
       }, errorHandler);
     }, errorHandler);
@@ -524,7 +524,7 @@ change with a click of a button.
 Using jIO - configuration storage
 =================================
 
-As we said, in TaskMan we can define several storages. Each of them is created from a "configuration object", that may contain
+As we said, in jDocMan we can define several storages. Each of them is created from a "configuration object", that may contain
 access URLs, authentication tokens, etc.
 
 Configuration objects are stored in a separate *jio_config* storage, that is always of type "localstorage".
@@ -562,7 +562,7 @@ Using jIO - attachments
 =======================
 
 A jIO document can optionally contain attachments.
-TaskMan uses attachments for HTML/Spreadsheet/SVG documents, but also for configuration objects.
+jDocMan uses attachments for HTML/Spreadsheet/SVG documents, but also for configuration objects.
 
 
 This is the response of a call to jio_config.get({_id: 'default_storage'}):

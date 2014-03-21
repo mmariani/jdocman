@@ -3,20 +3,20 @@
         "projects": "Projets",
         "details": "Détails",
         "settings": "Paramètres",
-        "storage": "Configure Storage",
+        "storage": "Configurer le stockage",
         "back": "Retour"
     },
     "documents": {
       "from": "du",
       "to": "au",
-      "placeholder": "filtrer par titre, état, dates ou projet",
+      "placeholder": "filtrer par titre, état, date ou projet",
       "noresult": "Aucun résultat trouvé.",
       "sortby": {
         "#": "Trier par",
         "title": "Titre",
         "start": "Date de bébut",
         "stop": "Date de fin",
-        "state": "Etat",
+        "state": "État",
         "description": "Description"
       }
     },
@@ -25,17 +25,17 @@
       "start": "Date début:",
       "stop": "Date fin:",
       "project": "Projet:",
-      "state": "Etat:",
+      "state": "État",
       "description": "Description:",
       "delete": "Effacer",
       "save": "Enregistrer"
     },
     "settings": {
-        "states": "Etats:",
+        "states": "États",
         "projects": "Projets:"
     },
     "navbar": {
-        "home": "Acceuil",
+        "home": "Accueil",
         "projects": "Projets",
         "settings": "Paramètres"
     },

@@ -1,15 +1,15 @@
 {
+    "application_name": "Spreadsheet",
     "buttons": {
       "metadata-page-save": "Create Document"
     },
     "header": {
-      "application_name": "Spreadsheet",
-      "tasks": "Documents"
+      "documents": "Documents"
     },
     "documents": {
       "newdocument": "New Spreadsheet"
     },
     "navbar": {
-      "tasks": "Documents"
+      "documents": "Documents"
     }
 }

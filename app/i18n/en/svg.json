@@ -1,15 +1,15 @@
 {
+    "application_name": "SVG Editor",
     "buttons": {
       "metadata-page-save": "Create Document"
     },
     "header": {
-      "application_name": "SVG Editor",
-      "tasks": "Documents"
+      "documents": "Documents"
     },
     "documents": {
       "newdocument": "New SVG Document"
     },
     "navbar": {
-      "tasks": "Documents"
+      "documents": "Documents"
     }
 }

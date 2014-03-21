@@ -4,7 +4,7 @@
 $(document).on('mobileinit', function () {
   "use strict";
 
-  var APPLICATION_MODE = 'taskman',
+  var APPLICATION_MODE = 'editor',
     DEBUG = true;
 
 
@@ -309,6 +309,8 @@ $(document).on('mobileinit', function () {
    */
   function applyTranslation() {
     $('[data-i18n]').i18n();
+    // Set the title of the application, in case JQM changed it.
+    document.title = i18n.t('application_name');
   }
 
 
@@ -1406,7 +1408,6 @@ $(document).on('mobileinit', function () {
     // Update the navigation footer
     updateFooter();
   });
-
 
   /**
    * Intercept the creation of the page, to make it possible

@@ -1,12 +1,12 @@
 {
+    "application_name": "Tableur",
     "header": {
-      "application_name": "Gestionnaire de tâches",
-      "tasks": "Tâches"
+      "documents": "Documents"
     },
     "documents": {
-      "newdocument": "Nouvelle tâche"
+      "newdocument": "Nouveau tableur"
     },
     "navbar": {
-      "tasks": "Tâches"
+      "documents": "Documents"
     }
 }

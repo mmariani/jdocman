@@ -31,7 +31,7 @@
         jio.getAttachment({
           _id: 'doc1',
           _attachment: 'attachment_name',
-        }, function (unused, response) {
+        }, function (response) {
           console.log('Retrieved attachment', response.attachment, 'from', response.id);
           var fr = new FileReader();
           fr.addEventListener('load', function (event) {
@@ -43,7 +43,7 @@
           });
           fr.addEventListener('error', errorHandler);
           fr.readAsText(response.data);
-        });
+        }, errorHandler);
       }, errorHandler);
     }, errorHandler);
   }, errorHandler);

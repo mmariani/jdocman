@@ -1,12 +1,12 @@
 {
+    "application_name": "Éditeur",
     "header": {
-      "application_name": "Gestionnaire de tâches",
-      "tasks": "Tâches"
+      "documents": "Documents"
     },
     "documents": {
-      "newdocument": "Nouvelle tâche"
+      "newdocument": "Nouveau document"
     },
     "navbar": {
-      "tasks": "Tâches"
+      "documents": "Documents"
     }
 }
