@@ -302,7 +302,7 @@ Promises
 
 Every JavaScript developer should be familiar with the concept of [callback](http://en.wikipedia.org/wiki/Callback_(computer_programming)#JavaScript).
 
-While callbacks are enough for simple asynchronous tasks, nesting too many of them can often lead to code that is hard to maintain and debug.
+While callbacks are enough for simple asynchronous jobs, nesting too many of them can often lead to code that is hard to maintain and debug.
 Error handling and progress notifications become especially tricky to implement.
 
 To avoid this so-called [callback hell](http://ianbishop.github.io/blog/2013/01/13/escape-from-callback-hell/)
@@ -315,88 +315,88 @@ You can compare the two examples in the [tutorial](https://github.com/nexedi/jdo
 
 This is the version with callbacks:
 
-    ```js
-    jio.put({
-      type: 'Document',
-      title: 'An example document',
-      _id: 'doc1'
-    }, function (response) {
-      console.log('Document', response.id, 'created');
-      jio.putAttachment({
+```js
+jio.put({
+  type: 'Document',
+  title: 'An example document',
+  _id: 'doc1'
+}, function (response) {
+  console.log('Document', response.id, 'created');
+  jio.putAttachment({
+    _id: 'doc1',
+    _attachment: 'attachment_name',
+    _data: new Blob(['lorem ipsum'], {type: 'text/plain'})
+  }, function (response) {
+    console.log('Attachment', response.attachment, 'created on', response.id);
+    jio.get({_id: 'doc1'}, function (response) {
+      console.log('Retrieved document', response.id);
+      jio.getAttachment({
         _id: 'doc1',
         _attachment: 'attachment_name',
-        _data: new Blob(['lorem ipsum'], {type: 'text/plain'})
       }, function (response) {
-        console.log('Attachment', response.attachment, 'created on', response.id);
-        jio.get({_id: 'doc1'}, function (response) {
-          console.log('Retrieved document', response.id);
-          jio.getAttachment({
-            _id: 'doc1',
-            _attachment: 'attachment_name',
-          }, function (response) {
-            console.log('Retrieved attachment', response.attachment, 'from', response.id);
-            var fr = new FileReader();
-            fr.addEventListener('load', function (event) {
-              console.log('Attachment content:', event.target.result);
-              jio.remove({_id: 'doc1'}, function (response) {
-                console.log('Document', response.id, 'removed');
-                console.log('DONE!');
-              }, errorHandler);
-            });
-            fr.addEventListener('error', errorHandler);
-            fr.readAsText(response.data);
+        console.log('Retrieved attachment', response.attachment, 'from', response.id);
+        var fr = new FileReader();
+        fr.addEventListener('load', function (event) {
+          console.log('Attachment content:', event.target.result);
+          jio.remove({_id: 'doc1'}, function (response) {
+            console.log('Document', response.id, 'removed');
+            console.log('DONE!');
           }, errorHandler);
-        }, errorHandler);
+        });
+        fr.addEventListener('error', errorHandler);
+        fr.readAsText(response.data);
       }, errorHandler);
     }, errorHandler);
-    ```
+  }, errorHandler);
+}, errorHandler);
+```
 
 And here the equivalent code with promises:
 
-    ```js
-    jio.
-      put({
-        type: 'Document',
-        title: 'An example document',
-        _id: 'doc1'
-      }).
-      then(function (response) {
-        console.log('Document', response.id, 'created');
-        return jio.putAttachment({
-          _id: 'doc1',
-          _attachment: 'attachment_name',
-          _data: new Blob(['lorem ipsum'], {type: 'text/plain'})
-        });
-      }).
-      then(function (response) {
-        console.log('Attachment', response.attachment, 'created on', response.id);
-        return jio.get({_id: 'doc1'});
-      }).
-      then(function (response) {
-        console.log('Retrieved document', response.id);
-        return jio.getAttachment({
-          _id: 'doc1',
-          _attachment: 'attachment_name',
-        });
-      }).
-      then(function (response) {
-        console.log('Retrieved attachment', response.attachment, 'from', response.id);
-        return jIO.util.readBlobAsText(response.data);
-      }).
-      then(function (event) {
-        console.log('Attachment content:', event.target.result);
-      }).
-      then(function () {
-        return jio.remove({_id: 'doc1'});
-      }).
-      then(function (response) {
-        console.log('Document', response.id, 'removed');
-        console.log('DONE!');
-      }).
-      fail(function (error) {
-        console.error(error);
-      });
-    ```
+```js
+jio.
+  put({
+    type: 'Document',
+    title: 'An example document',
+    _id: 'doc1'
+  }).
+  then(function (response) {
+    console.log('Document', response.id, 'created');
+    return jio.putAttachment({
+      _id: 'doc1',
+      _attachment: 'attachment_name',
+      _data: new Blob(['lorem ipsum'], {type: 'text/plain'})
+    });
+  }).
+  then(function (response) {
+    console.log('Attachment', response.attachment, 'created on', response.id);
+    return jio.get({_id: 'doc1'});
+  }).
+  then(function (response) {
+    console.log('Retrieved document', response.id);
+    return jio.getAttachment({
+      _id: 'doc1',
+      _attachment: 'attachment_name',
+    });
+  }).
+  then(function (response) {
+    console.log('Retrieved attachment', response.attachment, 'from', response.id);
+    return jIO.util.readBlobAsText(response.data);
+  }).
+  then(function (event) {
+    console.log('Attachment content:', event.target.result);
+  }).
+  then(function () {
+    return jio.remove({_id: 'doc1'});
+  }).
+  then(function (response) {
+    console.log('Document', response.id, 'removed');
+    console.log('DONE!');
+  }).
+  fail(function (error) {
+    console.error(error);
+  });
+```
 
 
 You should notice that the second version is easier to maintain, the code does not have nested functions
@@ -790,6 +790,7 @@ jQuery Mobile:
 
  * [O'Reilly Webcast: The jQuery Mobile API In-Depth](http://www.youtube.com/watch?v=I6Y4a0hA8tI) (youtube)
  * [jQuery Mobile: document ready vs page events](http://stackoverflow.com/questions/14468659/jquery-mobile-document-ready-vs-page-events) (stackoverflow)
+ * [jQuery Mobile Icon Pack](https://github.com/commadelimited/jQuery-Mobile-Icon-Pack)
 
 Promises:
 
