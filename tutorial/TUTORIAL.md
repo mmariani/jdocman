@@ -79,14 +79,14 @@ or an SVG drawing:
 Setting up a development environment
 ------------------------------------
 
-If you try to load the index.html page from the filesystem, you will see that it works
+If you try to load file:///path/to/jdocman/index.html, you will see that it works
 pretty well with Firefox, but Chrome displays error messages in the JavaScript console:
 
 ```
-XMLHttpRequest cannot load file:///home/marco/src/jdocman/app/i18n/en/editor.json.
+XMLHttpRequest cannot load file:///path/to/jdocman/app/i18n/en/editor.json.
  No 'Access-Control-Allow-Origin' header is present on the requested resource.
  Origin 'null' is therefore not allowed access.
-XMLHttpRequest cannot load file:///home/marco/src/jdocman/app/i18n/en/generic.json.
+XMLHttpRequest cannot load file:///path/to/jdocman/app/i18n/en/generic.json.
  No 'Access-Control-Allow-Origin' header is present on the requested resource.
  Origin 'null' is therefore not allowed access.
 ```
@@ -115,7 +115,7 @@ There are multiple ways to do it:
 
     ```
     location /jdocman/ {
-        alias /home/username/src/jdocman/;
+        alias /path/to/jdocman/;
         autoindex on;
         allow 127.0.0.1;
         allow ::1;
