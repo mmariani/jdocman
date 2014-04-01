@@ -452,10 +452,10 @@ jio.
 
 
 You should notice that the second version is easier to maintain, the code does not have nested functions
-and nedds a single point to handle all the errors. If we were to add more advanced features (progress notification,
+and needs a single function to handle all the errors. If we were to add more advanced features (progress notification,
 queues, cancellation) the difference would be even more striking.
 
-We use promises a lot, and among the alternatives we chose a [customized version](https://github.com/nexedi/jio/blob/master/lib/rsvp/rsvp-custom.js)
+jIO uses promises a lot, and among the alternatives we chose a [customized version](https://github.com/nexedi/jio/blob/master/lib/rsvp/rsvp-custom.js)
 of [RSVP.js](https://github.com/tildeio/rsvp.js).
 In the future, there will be no need for external Promise libraries and browsers will have a standard, [native implementation](http://www.html5rocks.com/en/tutorials/es6/promises/).
 
