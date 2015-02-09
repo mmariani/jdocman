@@ -27,6 +27,7 @@ lib/jio/rsvp-custom.amd.js
 lib/jio/rsvp-custom.js
 lib/jio/sha256.amd.js
 lib/jio/storage/davstorage.js
+lib/jio/storage/drupalstorage.js
 lib/jio/storage/erp5storage.js
 lib/jio/storage/gidstorage.js
 lib/jio/storage/localstorage.js

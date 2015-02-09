@@ -486,6 +486,17 @@ $(document).on('mobileinit', function () {
         )
       };
     }
+
+    if (config.storage_type === 'drupal') {
+      return {
+        username: config.username,
+        password: config.password,
+        server: config.server,
+        endpoint: config.endpoint,
+        privateserver: config.privateserver
+      };
+    }
+
     window.alert('unsupported storage type: ' + config.storage_type);
   }
 
@@ -543,6 +554,10 @@ $(document).on('mobileinit', function () {
             storage_type: 'local',
             storage_name: 'Local-2',
             json_description: '{"type":"local","username":"Admin","application_name":"Local"}'
+          }, {
+            storage_type: 'drupal',
+            storage_name: 'Drupal',
+            json_description: '{"type":"drupal","username":"<username>","password":"<password>","server":"<server>","endpoint":"<endpoint>","privateserver":false}'
           }
         ];
 
