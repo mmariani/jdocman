@@ -545,7 +545,7 @@ $(document).on('mobileinit', function () {
           }, {
             storage_type: 'dav',
             username: 'Admin',
-            storage_name: 'WebDAVID',
+            storage_name: 'WebDAV',
             url: 'http://localhost/',
             realm: '',
             auth_type: 'none',
