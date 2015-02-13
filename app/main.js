@@ -534,7 +534,7 @@ $(document).on('mobileinit', function () {
           }, {
             storage_type: 'dav',
             username: 'Admin',
-            storage_name: 'WebDAV',
+            storage_name: 'WebDAVID',
             url: 'http://localhost/',
             realm: '',
             auth_type: 'none',
@@ -543,8 +543,17 @@ $(document).on('mobileinit', function () {
             storage_type: 'local',
             storage_name: 'Local-2',
             json_description: '{"type":"local","username":"Admin","application_name":"Local"}'
-          }
-        ];
+          }, {
+            storage_type: 'drupal',
+            storage_name: 'Drupal 7.x REST',
+            json_description: '{"type":"drupal",
+             "username":"*username*",
+             "password":"*password*",
+             "server": "*http://domain.com*",
+             "privateserver": "true",
+             "endpoint": "*drupal/api/endpoint*",
+             "applicationname": "*example*"}'
+          }];
 
       post_promise_list = default_config_list.map(function (config, i) {
         var metadata = {
